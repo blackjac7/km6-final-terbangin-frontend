@@ -1,34 +1,26 @@
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-import { Search } from "./components/Search";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; 
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+import LoginPage from './pages/login/login'; 
+import RegisterPage from './pages/register/register'; 
+import ForgetPassword from './pages/forgetPassword/forgetPassword';
+import Profile from './pages/profile/profile';
+import Otp from './pages/otp/otp'
+import EmailForget from './pages/emailForgetPassword/emailForgetPassword'
 
 function App() {
     return (
-        <>
-            <div>
-                <a href="https://vitejs.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo" />
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img
-                        src={reactLogo}
-                        className="logo react"
-                        alt="React logo"
-                    />
-                </a>
-            </div>
-            <h1>Search Airports</h1>
-            <div className="card">
-                <Search />
-                <p>
-                    Edit <code>src/App.jsx</code> and save to test HMR
-                </p>
-            </div>
-            <p className="read-the-docs">
-                Click on the Vite and React logos to learn more
-            </p>
-        </>
+        <Router>
+            <Routes> 
+                <Route path="/login" element={<LoginPage />} /> 
+                <Route path="/register" element={<RegisterPage />} /> 
+                <Route path="/forgetpassword" element={<ForgetPassword />} /> 
+                <Route path="/profile" element={<Profile />} /> 
+                <Route path="/otp" element={<Otp />} /> 
+                <Route path="/email" element={<EmailForget />} />
+            </Routes>
+        </Router>
     );
 }
 
