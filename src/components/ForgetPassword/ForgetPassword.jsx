@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Button, Form, InputGroup } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import React, { useState } from "react";
+import { Button, Form, InputGroup } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 function Forget() {
   const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +24,10 @@ function Forget() {
             type={showPassword ? "text" : "password"}
             placeholder="***"
           />
-          <InputGroup.Text onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }}>
+          <InputGroup.Text
+            onClick={togglePasswordVisibility}
+            style={{ cursor: "pointer" }}
+          >
             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
           </InputGroup.Text>
         </InputGroup>
@@ -37,13 +40,21 @@ function Forget() {
             type={showConfirmPassword ? "text" : "password"}
             placeholder="***"
           />
-          <InputGroup.Text onClick={toggleConfirmPasswordVisibility} style={{ cursor: 'pointer' }}>
+          <InputGroup.Text
+            onClick={toggleConfirmPasswordVisibility}
+            style={{ cursor: "pointer" }}
+          >
             <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
           </InputGroup.Text>
         </InputGroup>
       </Form.Group>
 
-      <Button variant="primary" type="submit" className="w-100 mb-3" style={{ borderRadius: '12px', backgroundColor: '#7126B5' }}>
+      <Button
+        variant="primary"
+        type="submit"
+        className="w-100 mb-3"
+        style={{ borderRadius: "12px", backgroundColor: "#7126B5" }}
+      >
         Simpan
       </Button>
     </Form>
