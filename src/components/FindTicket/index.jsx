@@ -6,6 +6,7 @@ import Slider from "react-slick";
 import exampleAirlineLogo from "../../assets/airlineLogo.png";
 import Arrow from "../../assets/Arrow.svg";
 import ArrowBack from "../../assets/fi_arrow-left.svg";
+import VerticalLine from "../../assets/verticalLine.svg";
 
 const FindTicket = () => {
   return (
@@ -78,19 +79,19 @@ const DateSelector = () => {
 
   const dumpTime = [
     { day: "Senin1", date: "01/01/2024" },
-    { day: "Selasa", date: "01/02/2024" },
-    { day: "Rabu", date: "01/03/2024" },
-    { day: "Kamis", date: "01/01/2024" },
-    { day: "Jumat", date: "01/02/2024" },
-    { day: "Sabtu", date: "01/03/2024" },
-    { day: "Minggu", date: "01/03/2024" },
-    { day: "Senin2", date: "01/01/2024" },
-    { day: "Selasa", date: "01/02/2024" },
-    { day: "Rabu", date: "01/03/2024" },
-    { day: "Kamis", date: "01/01/2024" },
-    { day: "Jumat", date: "01/02/2024" },
-    { day: "Sabtu", date: "01/03/2024" },
-    { day: "Minggu", date: "01/03/2024" },
+    { day: "Selasa", date: "02/01//2024" },
+    { day: "Rabu", date: "03/01//2024" },
+    { day: "Kamis", date: "04/01//2024" },
+    { day: "Jumat", date: "05/01//2024" },
+    { day: "Sabtu", date: "06/01//2024" },
+    { day: "Minggu", date: "07/01//2024" },
+    { day: "Senin2", date: "08/01//2024" },
+    { day: "Selasa", date: "09/01//2024" },
+    { day: "Rabu", date: "10/01//2024" },
+    { day: "Kamis", date: "11/01//2024" },
+    { day: "Jumat", date: "12/01//2024" },
+    { day: "Sabtu", date: "13/01//2024" },
+    { day: "Minggu", date: "14/01//2024" },
   ];
   var settings = {
     className: "center",
@@ -98,6 +99,7 @@ const DateSelector = () => {
     speed: 800,
     slidesToShow: 7,
     focusOnSelect: true,
+    slidesToScroll: 10,
     responsive: [
       {
         breakpoint: 768,
@@ -119,7 +121,7 @@ const DateSelector = () => {
     <>
       <Slider {...settings}>
         {dumpTime.map((time, index) => (
-          <div key={index}>
+          <div key={index} className="d-flex flex-row">
             <Button
               className="px-0"
               textAlign="center"
@@ -130,8 +132,8 @@ const DateSelector = () => {
               onMouseDown={() => setIsActive(index)}
               onMouseUp={() => setIsActive(false)}
               style={{
-                border: "1px solid grey",
-                width: "90%",
+                // border: "1px solid grey",
+                width: "100%",
                 color:
                   isActived === index
                     ? "white"
@@ -153,6 +155,7 @@ const DateSelector = () => {
                 <p className="mb-0">{time.date}</p>
               </div>
             </Button>
+            <Image src={VerticalLine} />
           </div>
         ))}
       </Slider>
@@ -218,7 +221,7 @@ const FlightList = () => {
   return (
     <>
       <Accordion
-      className="mb-4"
+        className="mb-4"
         style={{
           boxShadow: " 1px 0 5px 1px rgba(0, 0, 0, 0.1)",
           // paddingBottom: "1rem",
