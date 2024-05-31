@@ -1,29 +1,77 @@
-import React from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form } from "react-bootstrap";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate, Link } from "react-router-dom";
+import { login } from "../../redux/actions/auth";
 
 function Login() {
-  return (
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-    <Form>
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Email/No telepon</Form.Label>
-        <Form.Control type="email" placeholder="Contoh: john@gmail.com" />
-      </Form.Group>
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
 
-      <div><a href="#" className="float-end" style={{ paddingBottom: '13px', color: '#7126B5' }}>Lupa kata sandi</a></div>
+    const handleSubmit = (e) => {
+        e.preventDefault();
 
-      <Form.Group className="mb-3" controlId="formBasicPassword">
-        <Form.Label>Password</Form.Label>
-        <Form.Control type="password" placeholder="Masukkan password" />
-      </Form.Group>
+        dispatch(login(navigate, email, password, setLoading));
+    };
 
-      <Button variant="primary" type="submit" className="w-100 mb-3" style={{ borderRadius: '12px', backgroundColor: '#7126B5' }}>
-        Masuk
-      </Button>
+    return (
+        <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Label>Email/No telepon</Form.Label>
+                <Form.Control
+                    type="email"
+                    placeholder="Contoh: john@gmail.com"
+                    value={email}
+                    onChange={(e) => {
+                        setEmail(e.target.value);
+                    }}
+                />
+            </Form.Group>
 
-      <div className="text-center mb-3">Belum punya akun? <a href="" style={{ color: '#7126B5' }}>Daftar disini</a></div>
-    </Form>
-  );
-};
+            <div>
+                <Link
+                    to="/request-reset-password"
+                    className="float-end"
+                    style={{ paddingBottom: "13px", color: "#7126B5" }}
+                >
+                    Lupa kata sandi
+                </Link>
+            </div>
+
+            <Form.Group className="mb-3" controlId="formBasicPassword">
+                <Form.Label>Password</Form.Label>
+                <Form.Control
+                    type="password"
+                    placeholder="Masukkan password"
+                    value={password}
+                    onChange={(e) => {
+                        setPassword(e.target.value);
+                    }}
+                />
+            </Form.Group>
+
+            <Button
+                variant="primary"
+                type="submit"
+                className="w-100 mb-3"
+                style={{ borderRadius: "12px", backgroundColor: "#7126B5" }}
+                disabled={loading}
+            >
+                {loading ? "Loading..." : "Masuk"}
+            </Button>
+
+            <div className="text-center mb-3">
+                Belum punya akun?{" "}
+                <Link to={"/register"} style={{ color: "#7126B5" }}>
+                    Daftar disini
+                </Link>
+            </div>
+        </Form>
+    );
+}
 
 export default Login;
