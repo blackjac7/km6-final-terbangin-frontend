@@ -2,12 +2,15 @@ import { Container, Row, Col, Form, Button, Nav } from "react-bootstrap";
 import { FaUserEdit, FaCog, FaSignOutAlt, FaArrowLeft } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/actions/auth";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const handleLogout = () => {
         dispatch(logout());
+        navigate("/login");
     };
     return (
         <div style={{ minHeight: "100vh", paddingTop: "20px" }}>
