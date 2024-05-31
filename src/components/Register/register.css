@@ -1,0 +1,18 @@
+.input-container {
+    position: relative;
+  }
+  
+  .input-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px; /* Adjust size as needed */
+    height: 20px; /* Adjust size as needed */
+    pointer-events: none;
+  }
+  
+  .input-container .form-control {
+    padding-right: 40px; /* Ensure there is space for the icon */
+  }
+  

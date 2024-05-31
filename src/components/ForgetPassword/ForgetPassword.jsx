@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Form, InputGroup } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 
 function Forget() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,10 +22,23 @@ function Forget() {
           <Form.Control
             type={showPassword ? "text" : "password"}
             placeholder="***"
+            style={{ paddingRight: '40px' }}
           />
-          <InputGroup.Text onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }}>
-            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-          </InputGroup.Text>
+          <span
+            onClick={togglePasswordVisibility}
+            style={{
+              position: 'absolute',
+              right: '10px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              cursor: 'pointer',
+              fontSize: '1.2em',
+              color: '#7126B5',
+              marginLeft: '-30px'
+            }}
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
         </InputGroup>
       </Form.Group>
 
@@ -36,10 +48,23 @@ function Forget() {
           <Form.Control
             type={showConfirmPassword ? "text" : "password"}
             placeholder="***"
+            style={{ paddingRight: '40px' }}
           />
-          <InputGroup.Text onClick={toggleConfirmPasswordVisibility} style={{ cursor: 'pointer' }}>
-            <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
-          </InputGroup.Text>
+          <span
+            onClick={toggleConfirmPasswordVisibility}
+            style={{
+              position: 'absolute',
+              right: '10px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              cursor: 'pointer',
+              fontSize: '1.2em',
+              color: '#7126B5',
+              marginLeft: '-30px' 
+            }}
+          >
+            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
         </InputGroup>
       </Form.Group>
 
