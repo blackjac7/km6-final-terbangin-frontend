@@ -1,6 +1,9 @@
 import FindTicketPages from "./pages/findTicket";
+
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import "bootstrap/dist/css/bootstrap.min.css"; // apply bootstrap for styling
 import "react-toastify/dist/ReactToastify.css";
 
@@ -12,11 +15,7 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return (
-    <>
-      <RouterProvider router={router} />
-    </>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
