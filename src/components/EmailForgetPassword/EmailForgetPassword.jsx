@@ -1,21 +1,42 @@
-import React from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form } from "react-bootstrap";
+import { useDispatch } from "react-redux";
+import { useState } from "react";
+import { generateLink } from "../../redux/actions/verify";
 
 function EmailForgeted() {
-  return (
+    const dispatch = useDispatch();
+    const [email, setEmail] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    <Form>
-      <Form.Group className="mb-5" controlId="formBasicEmail">
-        <Form.Label>Masukkan Email</Form.Label>
-        <Form.Control type="email" placeholder="Contoh: john@gmail.com" />
-      </Form.Group>
+    const handleRequestLink = (e) => {
+        e.preventDefault();
 
-      <Button variant="primary" type="submit" className="w-100 mb-3" style={{ borderRadius: '12px', backgroundColor: '#7126B5' }}>
-        Masuk
-      </Button>
+        dispatch(generateLink(email, setLoading));
+    };
 
-    </Form>
-  );
-};
+    return (
+        <Form onSubmit={handleRequestLink}>
+            <Form.Group className="mb-5" controlId="formBasicEmail">
+                <Form.Label>Masukkan Email</Form.Label>
+                <Form.Control
+                    type="email"
+                    placeholder="Contoh: john@gmail.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+            </Form.Group>
+
+            <Button
+                variant="primary"
+                type="submit"
+                className="w-100 mb-3"
+                style={{ borderRadius: "12px", backgroundColor: "#7126B5" }}
+                disabled={loading}
+            >
+                {loading ? "Loading..." : "Kirim Email"}
+            </Button>
+        </Form>
+    );
+}
 
 export default EmailForgeted;
