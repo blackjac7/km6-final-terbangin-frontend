@@ -28,7 +28,7 @@ export const generateOTP =
             const { data } = response.data;
             console.log(data);
             toast.success(response.data.message, {
-                position: "bottom-center",
+                position: "top-center",
             });
             navigate("/verification", {
                 state: {
@@ -148,7 +148,7 @@ export const verifyLink = (navigate, token) => async () => {
             },
         });
         toast.success(data.message, {
-            position: "bottom-center",
+            position: "top-center",
         });
     } catch (error) {
         navigate("/login");

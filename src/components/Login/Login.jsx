@@ -2,6 +2,7 @@ import { Button, Form } from "react-bootstrap";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { login } from "../../redux/actions/auth";
 
 function Login() {
@@ -11,6 +12,7 @@ function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -44,14 +46,23 @@ function Login() {
 
             <Form.Group className="mb-3" controlId="formBasicPassword">
                 <Form.Label>Password</Form.Label>
+                <div className="input-group">
                 <Form.Control
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Masukkan password"
                     value={password}
                     onChange={(e) => {
                         setPassword(e.target.value);
                     }}
                 />
+                  <Button
+                        variant="outline-secondary"
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{ position: "absolute", top: "50%", transform: "translateY(-50%)", right: "2px", background: "none", border: "none", cursor: "pointer" }}
+                    >
+                        {showPassword ? <FaEyeSlash style={{ color: "#7126B5" }} /> : <FaEye style={{ color: "#7126B5" }} />}
+                    </Button>
+                </div>
             </Form.Group>
 
             <Button

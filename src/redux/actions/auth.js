@@ -74,9 +74,9 @@ export const register =
             dispatch(setToken(token));
 
             console.log(data);
-            navigate("/login");
+            navigate("/profile");
             toast.success("Register success", {
-                position: "bottom-center",
+                position: "top-center",
             });
         } catch (error) {
             toast.error(error?.response?.data?.message);
