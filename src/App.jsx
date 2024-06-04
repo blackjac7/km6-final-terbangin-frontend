@@ -7,6 +7,10 @@ import store from "./redux/store";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-toastify/dist/ReactToastify.css";
 
+import Navbar from "./components/Navbar";
+import Banner from "./components/Banner";
+import Home from "./pages/home";
+import Search from "./pages/search/search";
 import LoginPage from "./pages/login/login";
 import RegisterPage from "./pages/register/register";
 import ForgetPassword from "./pages/forgetPassword/forgetPassword";
@@ -20,84 +24,92 @@ import Protected from "./components/Protected";
 import NonProtected from "./components/NonProtected";
 
 const router = createBrowserRouter([
-    {
-        path: "/",
-        element: (
-            <NonProtected>
-                <div>Home</div>,
-            </NonProtected>
-        ),
-    },
-    {
-        path: "/login",
-        element: (
-            <NonProtected>
-                <LoginPage />
-            </NonProtected>
-        ),
-    },
-    {
-        path: "/register",
-        element: (
-            <NonProtected>
-                <RegisterPage />
-            </NonProtected>
-        ),
-    },
+  {
+    path: "/",
+    element: (
+      <NonProtected>
+        <Navbar />
+        <Banner />
+        <Home />
+      </NonProtected>
+    ),
+  },
+  {
+    path: "/search",
+    element: (
+      <NonProtected>
+        <Search />
+      </NonProtected>
+    ),
+  },
+  {
+    path: "/login",
+    element: (
+      <NonProtected>
+        <LoginPage />
+      </NonProtected>
+    ),
+  },
+  {
+    path: "/register",
+    element: (
+      <NonProtected>
+        <RegisterPage />
+      </NonProtected>
+    ),
+  },
 
-    {
-        path: "/profile",
-        element: (
-            <Protected>
-                <Profile />
-            </Protected>
-        ),
-    },
-    {
-        path: "/verification",
-        element: (
-            <ProtectedVerification>
-                <OtpVerification />
-            </ProtectedVerification>
-        ),
-    },
-    {
-        path: "/request-reset-password",
-        element: (
-            <NonProtected>
-                <RequestResetPassword />,
-            </NonProtected>
-        ),
-    },
-    {
-        path: "/verify-link",
-        element: (
-            <NonProtected>
-                <VerificationLink />,
-            </NonProtected>
-        ),
-    },
-    {
-        path: "/forget-password",
-        element: (
-            <ProtectedForgetPassword>
-                <ForgetPassword />
-            </ProtectedForgetPassword>
-        ),
-    },
+  {
+    path: "/profile",
+    element: (
+      <Protected>
+        <Profile />
+      </Protected>
+    ),
+  },
+  {
+    path: "/verification",
+    element: (
+      <ProtectedVerification>
+        <OtpVerification />
+      </ProtectedVerification>
+    ),
+  },
+  {
+    path: "/request-reset-password",
+    element: (
+      <NonProtected>
+        <RequestResetPassword />,
+      </NonProtected>
+    ),
+  },
+  {
+    path: "/verify-link",
+    element: (
+      <NonProtected>
+        <VerificationLink />,
+      </NonProtected>
+    ),
+  },
+  {
+    path: "/forget-password",
+    element: (
+      <ProtectedForgetPassword>
+        <ForgetPassword />
+      </ProtectedForgetPassword>
+    ),
+  },
 ]);
 
 function App() {
-    return (
-        <Provider store={store}>
-            <GoogleOAuthProvider
-                clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
-            >
-                <RouterProvider router={router} />
-                <ToastContainer theme="colored" />
-            </GoogleOAuthProvider>
-        </Provider>
-    );
+  return (
+    <Provider store={store}>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <RouterProvider router={router} />
+        <ToastContainer theme="colored" />
+      </GoogleOAuthProvider>
+    </Provider>
+  );
 }
 
 export default App;
