@@ -10,6 +10,15 @@ import {
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Switch from "@mui/material/Switch";
+
+import plane from "../../assets/SearchBar/material-symbols_flight-takeoff-sharp.png";
+import swapButton from "../../assets/SearchBar/return.png";
+import calendar from "../../assets/SearchBar/Vector.png";
+import seat from "../../assets/SearchBar/material-symbols_airline-seat-recline-normal.png";
+import dewasa from "../../assets/Passengers Modal/Dewasa.png";
+import anak from "../../assets/Passengers Modal/Anak.png";
+import bayi from "../../assets/Passengers Modal/Bayi.png";
+
 import { Link } from "react-router-dom";
 import initialSearchImage from "../../assets/Cards/b_search.png";
 import clickedSearchImage from "../../assets/Cards/w_search.png";
@@ -134,7 +143,7 @@ const Home = () => {
                 <Row className="d-flex align-items-center">
                   <Col>
                     <img
-                      src="src/assets/SearchBar/material-symbols_flight-takeoff-sharp.png"
+                      src={plane}
                       alt=""
                       style={{ height: "32px", width: "auto" }}
                     />
@@ -190,7 +199,7 @@ const Home = () => {
                 className="d-flex justify-content-center align-items-center"
               >
                 <img
-                  src="src/assets/SearchBar/return.png"
+                  src={swapButton}
                   alt=""
                   onClick={swap}
                   style={{ cursor: "pointer" }}
@@ -201,7 +210,7 @@ const Home = () => {
                 <Row className="d-flex align-items-center">
                   <Col>
                     <img
-                      src="src/assets/SearchBar/material-symbols_flight-takeoff-sharp.png"
+                      src={plane}
                       alt=""
                       style={{ height: "32px", width: "auto" }}
                     />
@@ -261,7 +270,7 @@ const Home = () => {
                 <Row>
                   <Col className="d-flex align-items-center">
                     <img
-                      src="src/assets/SearchBar/Vector.png"
+                      src={calendar}
                       alt=""
                       style={{ height: "32px", width: "auto" }}
                     />
@@ -312,7 +321,7 @@ const Home = () => {
                 <Row className="d-flex align-items-center">
                   <Col>
                     <img
-                      src="src/assets/SearchBar/material-symbols_airline-seat-recline-normal.png"
+                      src={seat}
                       alt=""
                       style={{ height: "32px", width: "auto" }}
                     />
@@ -350,10 +359,7 @@ const Home = () => {
                           {/* Dewasa */}
                           <Row className="border-bottom">
                             <Col style={{ width: 0 }}>
-                              <img
-                                src="src\assets\Passengers Modal\Dewasa.png"
-                                alt=""
-                              />
+                              <img src={dewasa} alt="" />
                             </Col>
                             <Col>
                               <h5>Dewasa</h5>
@@ -389,10 +395,7 @@ const Home = () => {
                           {/* Anak */}
                           <Row className="border-bottom mt-2">
                             <Col style={{ width: 0 }}>
-                              <img
-                                src="src\assets\Passengers Modal\Anak.png"
-                                alt=""
-                              />
+                              <img src={anak} alt="" />
                             </Col>
                             <Col>
                               <h5>Anak</h5>
@@ -428,10 +431,7 @@ const Home = () => {
                           {/* Bayi */}
                           <Row className="border-bottom mt-2">
                             <Col style={{ width: 0 }}>
-                              <img
-                                src="src\assets\Passengers Modal\Bayi.png"
-                                alt=""
-                              />
+                              <img src={bayi} alt="" />
                             </Col>
                             <Col>
                               <h5>Bayi</h5>
