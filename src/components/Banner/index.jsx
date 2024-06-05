@@ -1,4 +1,5 @@
 import React from "react";
+import Banner from "../../assets/img banner.png";
 
 const banner = () => {
   return (
@@ -14,7 +15,7 @@ const banner = () => {
       }}
     >
       <img
-        src="src/assets/img banner.png"
+        src={Banner}
         alt="Banner"
         style={{
           height: "200px",

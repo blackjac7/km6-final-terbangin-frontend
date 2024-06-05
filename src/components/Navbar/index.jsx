@@ -3,13 +3,16 @@ import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Navbar from "react-bootstrap/Navbar";
+import logo from "../../assets/Logo/svg/logo-no-background.svg";
+import search from "../../assets/Cards/b_search.png";
+import login from "../../assets/fi_log-in.png";
 
 function NavScrollExample() {
   return (
     <Navbar expand="lg" className="bg-body-tertiary border-bottom">
       <Container fluid>
         <Navbar.Brand href="#">
-          <img src="src\assets\Logo\svg\logo-no-background.svg" height={75} />
+          <img src={logo} height={75} />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
@@ -26,7 +29,7 @@ function NavScrollExample() {
                 borderRadius: "0px 10px 10px 0px",
               }}
             >
-              <img src="src\assets\Cards\b_search.png" alt="" />
+              <img src={search} alt="" />
             </button>
           </Form>
           <Button
@@ -39,7 +42,7 @@ function NavScrollExample() {
             to="/login"
           >
             <span style={{ display: "flex", alignItems: "center" }}>
-              <img src="src\assets\fi_log-in.png" className="me-2" />
+              <img src={login} className="me-2" />
               Masuk
             </span>
           </Button>
