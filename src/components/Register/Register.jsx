@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import { generateOTP } from "../../redux/actions/verify";
 import { toast } from "react-toastify";
+import logo2 from '../../assets/Vector.png'
 
 function Register() {
     const dispatch = useDispatch();
@@ -15,6 +16,10 @@ function Register() {
     const [password, setPassword] = useState("");
     const [photo, setPhoto] = useState();
     const [loading, setLoading] = useState(false);
+
+    const [showEmailLogo, setShowEmailLogo] = useState(false);
+    const [showPhoneLogo, setShowPhoneLogo] = useState(false);
+    const [showPasswordLogo, setShowPasswordLogo] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -65,38 +70,92 @@ function Register() {
 
             <Form.Group className="mb-3" controlId="formBasicEmail">
                 <Form.Label>Email</Form.Label>
+                <div style={{ position: 'relative' }}>
                 <Form.Control
                     type="email"
                     placeholder="Contoh: john@gmail.com"
                     value={email}
                     onChange={(e) => {
                         setEmail(e.target.value);
+                        if (e.target.value) setShowEmailLogo(true);
+                            else setShowEmailLogo(false);
                     }}
                 />
+                 {showEmailLogo && (
+                        <img
+                            src={logo2}
+                            alt="logo"
+                            style={{
+                                position: 'absolute',
+                                right: '10px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                width: '20px',
+                                height: '20px',
+                            }}
+                        />
+                    )}
+                </div>
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicTelepon">
                 <Form.Label>Nomor Telepon</Form.Label>
+                <div style={{ position: 'relative' }}>
                 <Form.Control
                     type="tel"
                     placeholder="+62"
                     value={phone}
                     onChange={(e) => {
                         setPhone(e.target.value);
+                        if (e.target.value) setShowPhoneLogo(true);
+                            else setShowPhoneLogo(false);
                     }}
                 />
+                {showPhoneLogo && (
+                        <img
+                            src={logo2}
+                            alt="logo"
+                            style={{
+                                position: 'absolute',
+                                right: '10px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                width: '20px',
+                                height: '20px',
+                            }}
+                        />
+                    )}
+                </div>
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicPassword">
                 <Form.Label>Buat Password</Form.Label>
+                <div style={{ position: 'relative' }}>
                 <Form.Control
                     type="password"
                     placeholder="Buat Password"
                     value={password}
                     onChange={(e) => {
                         setPassword(e.target.value);
+                        if (e.target.value) setShowPasswordLogo(true);
+                            else setShowPasswordLogo(false);
                     }}
                 />
+                {showPasswordLogo && (
+                        <img
+                            src={logo2}
+                            alt="logo"
+                            style={{
+                                position: 'absolute',
+                                right: '10px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                width: '20px',
+                                height: '20px',
+                            }}
+                        />
+                    )}
+                </div>
             </Form.Group>
 
             <Form.Group controlId="picture" className="mb-3">

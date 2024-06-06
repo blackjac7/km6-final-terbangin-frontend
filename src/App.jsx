@@ -10,6 +10,10 @@ import "slick-carousel/slick/slick-theme.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-toastify/dist/ReactToastify.css";
 
+import Navbar from "./components/Navbar";
+import Banner from "./components/Banner";
+import Home from "./pages/home";
+import Search from "./pages/search/search";
 import LoginPage from "./pages/login/login";
 import RegisterPage from "./pages/register/register";
 import ForgetPassword from "./pages/forgetPassword/forgetPassword";
@@ -31,7 +35,17 @@ const router = createBrowserRouter([
     path: "/",
     element: (
       <NonProtected>
-        <div>Home</div>,
+        <Navbar />
+        <Banner />
+        <Home />
+      </NonProtected>
+    ),
+  },
+  {
+    path: "/search",
+    element: (
+      <NonProtected>
+        <Search />
       </NonProtected>
     ),
   },
