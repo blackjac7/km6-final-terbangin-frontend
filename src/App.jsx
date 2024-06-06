@@ -17,7 +17,9 @@ import Profile from "./pages/profile/profile";
 import OtpVerification from "./pages/otp/otpVerification";
 import RequestResetPassword from "./pages/requestResetPassword/requestResetPassword";
 import VerificationLink from "./pages/verificationLink/verificationLink";
-import FindTicketPages from "./pages/findTicket";
+import FindTicket from "./pages/findTicket";
+import OrderHistoryPages from "./pages/orderHistory";
+import Payment from "./pages/payment";
 
 import ProtectedVerification from "./components/ProtectedVerification/ProtectedVerification";
 import ProtectedForgetPassword from "./components/ProtectedForgetPassword/ProtectedForgetPassword";
@@ -93,9 +95,25 @@ const router = createBrowserRouter([
   {
     path: "/find-ticket",
     element: (
-      <ProtectedForgetPassword>
-        <FindTicketPages />
-      </ProtectedForgetPassword>
+      //   <ProtectedForgetPassword>
+      <FindTicket />
+      //   </ProtectedForgetPassword>
+    ),
+  },
+  {
+    path: "/order-history",
+    element: (
+      //   <ProtectedForgetPassword>
+      <OrderHistoryPages />
+      //   </ProtectedForgetPassword>
+    ),
+  },
+  {
+    path: "/payment",
+    element: (
+      //   <ProtectedForgetPassword>
+      <Payment />
+      //   </ProtectedForgetPassword>
     ),
   },
 ]);

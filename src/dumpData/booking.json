@@ -1,0 +1,17 @@
+[
+  {
+    "id": "bookingCode1",
+    "flightId": 1,
+    "status": "Issued"
+  },
+  {
+    "id": "bookingCode2",
+    "flightId": 2,
+    "status": "Canceled"
+  },
+  {
+    "id": "bookingCode3",
+    "flightId": 3,
+    "status": "Unpaid"
+  }
+]

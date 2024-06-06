@@ -11,10 +11,9 @@ const BackButton = ({ ButtonText }) => {
         color: "white",
         borderRadius: 14,
         justifyContent: "flex-start",
-        paddingLeft: "8px",
       }}
     >
-      <FaArrowLeft className="me-3" />
+      <FaArrowLeft className="me-2" />
       {"  "} {ButtonText}
     </Button>
   );
