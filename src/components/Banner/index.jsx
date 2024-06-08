@@ -11,6 +11,7 @@ const banner = () => {
         display: "flex",
         justifyContent: "center",
         top: "25px",
+        
       }}
     >
       <img

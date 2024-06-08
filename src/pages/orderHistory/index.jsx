@@ -11,11 +11,11 @@ import DetailFlight from "../../components/FlightDetail";
 import FlightDestination from "../../components/FlightDestination";
 
 const OrderHistory = () => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showModal, setShowModal] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const handleResize = () => {
     setIsMobile(window.innerWidth < 768);
@@ -44,7 +44,9 @@ const OrderHistory = () => {
   return (
     <>
       <HeaderShadow>
-        <h4 style={{ fontWeight: 700 }}>Riwayat Pemesanan</h4>
+        <h4 className="pt-4" style={{ fontWeight: 700 }}>
+          Riwayat Pemesanan
+        </h4>
         <Row className="my-4 g-2">
           <Col xs={12} md={10} className="d-flex">
             <BackButton ButtonText={"Beranda"} />
@@ -89,6 +91,7 @@ const OrderHistory = () => {
       {/* If mobile breakpoint is true, then show modal */}
       {isMobile && selectedBooking && (
         <Modal show={showModal} onHide={() => setShowModal(false)}>
+          <Modal.Header closeButton></Modal.Header>
           <Modal.Body>
             <HistoryDetail booking={selectedBooking} />
           </Modal.Body>

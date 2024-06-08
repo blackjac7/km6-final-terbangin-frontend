@@ -36,7 +36,6 @@ const router = createBrowserRouter([
     element: (
       <NonProtected>
         <Navbar />
-        <Banner />
         <Home />
       </NonProtected>
     ),
@@ -110,24 +109,33 @@ const router = createBrowserRouter([
     path: "/find-ticket",
     element: (
       //   <ProtectedForgetPassword>
-      <FindTicket />
+      <>
+        <Navbar />
+        <FindTicket />
+      </>
       //   </ProtectedForgetPassword>
     ),
   },
   {
     path: "/order-history",
     element: (
-      //   <ProtectedForgetPassword>
-      <OrderHistoryPages />
-      //   </ProtectedForgetPassword>
+      <>
+        {/* <ProtectedForgetPassword> */}
+        <Navbar />
+        <OrderHistoryPages />
+        {/* </ProtectedForgetPassword> */}
+      </>
     ),
   },
   {
     path: "/payment",
     element: (
-      //   <ProtectedForgetPassword>
-      <Payment />
-      //   </ProtectedForgetPassword>
+      <>
+        {/* <ProtectedForgetPassword> */}
+        <Navbar />
+        <Payment />
+        {/* </ProtectedForgetPassword> */}
+      </>
     ),
   },
 ]);

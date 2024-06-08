@@ -1,6 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Button, Accordion, Image } from "react-bootstrap";
-import { MenuItem, FormControl, Select, Typography } from "@mui/material";
+import {
+  MenuItem,
+  FormControl,
+  Select,
+  Typography,
+  Modal,
+} from "@mui/material";
 import Slider from "react-slick";
 
 import flightData from "../../dumpData/flight.json"; // delete when fetching
@@ -15,12 +21,40 @@ import DetailFlight from "../../components/FlightDetail";
 import FlightDestination from "../../components/FlightDestination";
 import BackButton from "../../components/BackButton";
 import HeaderShadow from "../../components/HeaderShadow";
+import FormArea from "../../components/FormArea";
 
 const FindTicket = () => {
+  const [isChangeFlight, setChangeFlight] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isFullScreen, setIsFullScreen] = useState(window.innerWidth > 1160);
+
+  const handleOpenChangeFlight = () => {
+    setChangeFlight(true);
+  };
+
+  const handleCloseChangeFlight = () => {
+    setChangeFlight(false);
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsFullScreen(window.innerWidth > 1160);
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Set initial value based on the current window size
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <>
       <HeaderShadow>
-        <h4 style={{ fontWeight: 700 }}>Pilih Penerbangan</h4>
+        <h4 className="pt-4" style={{ fontWeight: 700 }}>
+          Pilih Penerbangan
+        </h4>
 
         <Row className="mt-4 g-2">
           <Col sx={12} md={10} className="d-flex">
@@ -31,9 +65,22 @@ const FindTicket = () => {
               variant="success"
               style={{ borderRadius: 14 }}
               className="flex-fill"
+              onClick={handleOpenChangeFlight}
             >
               Ubah Penerbangan
             </Button>
+
+            <Modal
+              open={isChangeFlight}
+              onClose={handleCloseChangeFlight}
+              style={{ top: "10%", zIndex: 300 }}
+            >
+              <FormArea
+                title={"Ubah Penerbangan"}
+                isFullScreen={isFullScreen}
+                isMobile={isMobile}
+              />
+            </Modal>
           </Col>
         </Row>
 
@@ -75,6 +122,7 @@ const DateSelector = () => {
     { day: "Sabtu", date: "13/01/2024" },
     { day: "Minggu", date: "14/01/2024" },
   ];
+
   var settings = {
     className: "center",
     centerMode: true,
@@ -151,7 +199,7 @@ const DateSelector2 = () => {};
 const Filter = () => {
   return (
     <Row className="mb-4">
-      <Col md={9}></Col>
+      <Col offset-md={9}></Col>
       <Col md={3}>
         <FormControl fullWidth>
           <Select

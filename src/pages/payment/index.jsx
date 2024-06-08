@@ -1,18 +1,34 @@
 import { Breadcrumbs, Link, Typography } from "@mui/material";
-import { Row, Col, Button, Container } from "react-bootstrap";
+import { Row, Col, Button, Container, Accordion, Modal } from "react-bootstrap";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import HeaderShadow from "../../components/HeaderShadow";
 
 import flightData from "../../dumpData/flight.json";
 
 import DetailFlight from "../../components/FlightDetail";
+import { useState, useEffect } from "react";
 
 const Payment = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Set initial value based on the current window size
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <>
       <HeaderShadow>
         <Breadcrumbs
           separator={<NavigateNextIcon fontSize="small" />}
+          className="pt-4"
           aria-label="breadcrumb"
           style={{ fontWeight: "700", fontSize: "23px", color: "black" }}
         >
@@ -44,11 +60,16 @@ const Payment = () => {
       </HeaderShadow>
       <Container className="my-3">
         <Row className="mx-sm-4">
-          <Col md={7}>
-            <h4>Isi Data Pembayaran </h4>
+          <Col
+            md={5}
+            xs={12}
+            className={isMobile ? "pb-3 d-flex" : "px-4 order-md-1 "}
+          >
+            {isMobile ? <DetailBookingMobile /> : <BookingDetail />}
           </Col>
-          <Col md={5} className="px-4">
-            <BookingDetail />
+          <Col md={7} xs={12} className="">
+            <h4>Isi Data Pembayaran </h4>
+            <PaymentEmbedMidtrans />
           </Col>
         </Row>
       </Container>
@@ -82,4 +103,80 @@ const BookingDetail = () => {
     </Container>
   );
 };
+
+const DetailBookingMobile = () => {
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  return (
+    <>
+      <Button className="flex-fill" variant="primary" onClick={handleShow}>
+        Detail Flight
+      </Button>
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton></Modal.Header>
+        <BookingDetail />
+        <Container>
+          <hr />
+          <Row className="pb-3 d-flex justify-content-between">
+            <Col xs={12} className="d-flex">
+              <Button
+                className="flex-fill"
+                variant="secondary"
+                onClick={() => handleClose(false)}
+              >
+                Close
+              </Button>
+            </Col>
+          </Row>
+        </Container>
+      </Modal>
+    </>
+  );
+};
+const PaymentEmbedMidtrans = () => {
+  return (
+    <Accordion>
+      <Accordion.Item eventKey="0">
+        <Accordion.Header>Gopay</Accordion.Header>
+        <Accordion.Body>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+          culpa qui officia deserunt mollit anim id est laborum.
+        </Accordion.Body>
+      </Accordion.Item>
+      <Accordion.Item eventKey="1">
+        <Accordion.Header>Virtual Accounts</Accordion.Header>
+        <Accordion.Body>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+          culpa qui officia deserunt mollit anim id est laborum.
+        </Accordion.Body>
+      </Accordion.Item>
+      <Accordion.Item eventKey="2">
+        <Accordion.Header>Credit Card</Accordion.Header>
+        <Accordion.Body>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+          culpa qui officia deserunt mollit anim id est laborum.
+        </Accordion.Body>
+      </Accordion.Item>
+    </Accordion>
+  );
+};
+
 export default Payment;
