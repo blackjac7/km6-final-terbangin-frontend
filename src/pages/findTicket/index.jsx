@@ -51,6 +51,7 @@ const FindTicket = () => {
 
   return (
     <>
+      {/* Header */}
       <HeaderShadow>
         <h4 className="pt-4" style={{ fontWeight: 700 }}>
           Pilih Penerbangan
@@ -90,7 +91,7 @@ const FindTicket = () => {
           </Col>
         </Row>
       </HeaderShadow>
-
+      {/* Main Content */}
       <Container>
         <Row className="mt-4 mx-sm-4">
           <Col>
@@ -193,8 +194,6 @@ const DateSelector = () => {
     </>
   );
 };
-
-const DateSelector2 = () => {};
 
 const Filter = () => {
   return (
@@ -359,6 +358,7 @@ const FlightList = () => {
   );
 };
 
+// page status section
 const TicketNotFound = () => {
   return (
     <Row
