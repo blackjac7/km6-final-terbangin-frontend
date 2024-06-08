@@ -18,9 +18,7 @@
     "arrivalDate": "12 Maret 2024",
     "arrivalCity": "Melbourne",
     "arrivalAirport": "Melbourne",
-    "arrivalTerminal": "International Airport",
-    "passanger1": "Jokowi",
-    "passanger2": "Maruf Amin"
+    "arrivalTerminal": "International Airport"
   },
   {
     "id": 2,
@@ -41,9 +39,7 @@
     "arrivalDate": "12 Maret 2024",
     "arrivalCity": "Tokyo",
     "arrivalAirport": "Tokyo",
-    "arrivalTerminal": "International Airport",
-    "passanger1": "Masanies Masanies",
-    "passanger2": "Cuaks E-min"
+    "arrivalTerminal": "International Airport"
   },
   {
     "id": 3,
@@ -64,8 +60,6 @@
     "arrivalDate": "12 Maret 2024",
     "arrivalCity": "Pyongyang",
     "arrivalAirport": "Pyongyang",
-    "arrivalTerminal": "International Airport",
-    "passanger1": "Pororo",
-    "passanger2": "Giburano"
+    "arrivalTerminal": "International Airport"
   }
 ]

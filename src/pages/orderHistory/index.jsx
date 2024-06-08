@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Row, Col, Button, Container, Modal } from "react-bootstrap";
 
-// Import data sementara
-import flightData from "../../dumpData/flight.json";
+// hard data
 import bookingData from "../../dumpData/booking.json";
 
 import HeaderShadow from "../../components/HeaderShadow";
@@ -21,6 +20,7 @@ const OrderHistory = () => {
     setIsMobile(window.innerWidth < 768);
   };
 
+  // this function is for toggle active status history list, for purple border purpose
   const handleDetailClick = (booking) => {
     if (selectedBooking?.id === booking.id) {
       setShowDetail(!showDetail);
@@ -43,6 +43,7 @@ const OrderHistory = () => {
 
   return (
     <>
+      {/* Header */}
       <HeaderShadow>
         <h4 className="pt-4" style={{ fontWeight: 700 }}>
           Riwayat Pemesanan
@@ -80,6 +81,7 @@ const OrderHistory = () => {
               selectedBooking={selectedBooking}
             />
           </Col>
+          {/* If mobile breakpoint is false, the detail history will show on right side page */}
           {showDetail && !isMobile && selectedBooking && (
             <Col md={5} className="px-4">
               <HistoryDetail booking={selectedBooking} />
@@ -88,33 +90,12 @@ const OrderHistory = () => {
         </Row>
       </Container>
 
-      {/* If mobile breakpoint is true, then show modal */}
+      {/* If mobile breakpoint is true, the detail history will show by modal */}
       {isMobile && selectedBooking && (
-        <Modal show={showModal} onHide={() => setShowModal(false)}>
-          <Modal.Header closeButton></Modal.Header>
-          <Modal.Body>
-            <HistoryDetail booking={selectedBooking} />
-          </Modal.Body>
-          <Container>
-            <hr />
-            <Row className="pb-3 d-flex justify-content-between">
-              <Col xs={6} className="d-flex">
-                <Button className="flex-fill" variant="primary">
-                  Cetak Tiket
-                </Button>
-              </Col>
-              <Col xs={6} className="d-flex">
-                <Button
-                  className="flex-fill"
-                  variant="secondary"
-                  onClick={() => setShowModal(false)}
-                >
-                  Close
-                </Button>
-              </Col>
-            </Row>
-          </Container>
-        </Modal>
+        <HistoryDetailMobile
+          setShowModal={setShowModal}
+          showModal={showModal}
+        />
       )}
     </>
   );
@@ -124,7 +105,6 @@ const HistoryDestination = ({ onDetailClick, isActive, setIsActive }) => {
   return (
     <>
       {bookingData.map((booking) => {
-        const flight = flightData.find((f) => f.id === booking.flightId);
         return (
           <Button
             key={booking.id}
@@ -143,20 +123,21 @@ const HistoryDestination = ({ onDetailClick, isActive, setIsActive }) => {
             }}
           >
             <Row>
+              {/* Section for render booking status */}
               <Col md={12} className="d-flex justify-content-start py-2">
-                <StatusPayment booking={booking} />
+                <StatusPayment bookingStatus={booking.status} />
               </Col>
               <Col md={12}>
-                {/* fetching data here */}
-                {flight && (
+                {/* Section for render history destination or history list */}
+                {booking && (
                   <FlightDestination
-                    departureAt={flight.departureAt}
-                    departureDate={flight.departureDate}
-                    departureCity={flight.departureCity}
-                    flightDuration={flight.flightDuration}
-                    arrivalCity={flight.arrivalCity}
-                    arrivalDate={flight.arrivalDate}
-                    arrivalAt={flight.arrivalAt}
+                    departureAt={booking.departureAt}
+                    departureDate={booking.departureDate}
+                    departureCity={booking.departureCity}
+                    flightDuration={booking.flightDuration}
+                    arrivalCity={booking.arrivalCity}
+                    arrivalDate={booking.arrivalDate}
+                    arrivalAt={booking.arrivalAt}
                   />
                 )}
                 <hr className="solid" />
@@ -168,11 +149,11 @@ const HistoryDestination = ({ onDetailClick, isActive, setIsActive }) => {
                 </Col>
                 <Col md={4}>
                   <p style={{ margin: 0, fontWeight: "700" }}>Class:</p>
-                  <p>{flight.seatClass}</p>
+                  <p>{booking.seatClass}</p>
                 </Col>
                 <Col md={4} className="">
                   <p style={{ margin: 0, fontWeight: "700" }}>Total Payment:</p>
-                  <p>IDR 9.850.000</p>
+                  <p>{booking.totalPrice}</p>
                 </Col>
               </Row>
             </Row>
@@ -183,12 +164,16 @@ const HistoryDestination = ({ onDetailClick, isActive, setIsActive }) => {
   );
 };
 
-const StatusPayment = ({ booking }) => {
+const StatusPayment = ({ bookingStatus }) => {
+  // Color block for payment status
+  // green for payment confirmed
+  // red for canceled
+  // grey for unpaid / waiting payment
   return (
     <p
       style={{
         backgroundColor: (() => {
-          switch (booking.status) {
+          switch (bookingStatus) {
             case "Issued":
               return "green";
             case "Canceled":
@@ -205,39 +190,64 @@ const StatusPayment = ({ booking }) => {
         textAlign: "center",
       }}
     >
-      {booking.status}
+      {bookingStatus}
     </p>
   );
 };
 
 const HistoryDetail = ({ booking }) => {
-  const flight = flightData.find((f) => f.id === booking.flightId);
   return (
     <Container className="pb-5">
-      {/* fetching data here */}
-
       <DetailFlight
         TitleDetail={"Detail Pesanan"}
         BookingCode={`Booking Code: ${booking.id}`}
-        BookingStatus={<StatusPayment booking={booking} />}
-        departureAt={flight.departureAt}
-        departureDate={flight.arrivalDate}
-        departureAirport={flight.departureAirport}
-        departureTerminal={flight.departureTerminal}
-        arrivalAt={flight.arrivalAt}
-        arrivalDate={flight.arrivalDate}
-        arrivalAirport={flight.arrivalAirport}
-        arrivalTerminal={flight.arrivalTerminal}
-        airlineName={flight.airlineName}
-        seatClass={flight.seatClass}
-        airlineSerialNumber={flight.airlineSerialNumber}
-        baggage={flight.baggage}
-        cabinBaggage={flight.cabinBaggage}
-        additionals={flight.additionals}
-        isPassanger={true}
-        isPrice={true}
+        BookingStatus={<StatusPayment bookingStatus={booking.status} />}
+        departureAt={booking.departureAt}
+        departureDate={booking.arrivalDate}
+        departureAirport={booking.departureAirport}
+        departureTerminal={booking.departureTerminal}
+        arrivalAt={booking.arrivalAt}
+        arrivalDate={booking.arrivalDate}
+        arrivalAirport={booking.arrivalAirport}
+        arrivalTerminal={booking.arrivalTerminal}
+        airlineName={booking.airlineName}
+        seatClass={booking.seatClass}
+        airlineSerialNumber={booking.airlineSerialNumber}
+        baggage={booking.baggage}
+        cabinBaggage={booking.cabinBaggage}
+        additionals={booking.additionals}
       />
     </Container>
+  );
+};
+
+const HistoryDetailMobile = () => {
+  return (
+    <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal.Header closeButton></Modal.Header>
+      <Modal.Body>
+        <HistoryDetail booking={selectedBooking} />
+      </Modal.Body>
+      <Container>
+        <hr />
+        <Row className="pb-3 d-flex justify-content-between">
+          <Col xs={6} className="d-flex">
+            <Button className="flex-fill" variant="primary">
+              Cetak Tiket
+            </Button>
+          </Col>
+          <Col xs={6} className="d-flex">
+            <Button
+              className="flex-fill"
+              variant="secondary"
+              onClick={() => setShowModal(false)}
+            >
+              Close
+            </Button>
+          </Col>
+        </Row>
+      </Container>
+    </Modal>
   );
 };
 

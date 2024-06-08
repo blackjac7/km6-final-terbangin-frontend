@@ -1,11 +1,15 @@
 import { Breadcrumbs, Link, Typography } from "@mui/material";
 import { Row, Col, Button, Container, Accordion, Modal } from "react-bootstrap";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+
+// hard data
+import PaymentData from "../../dumpData/payment.json";
+
 import HeaderShadow from "../../components/HeaderShadow";
-
-import flightData from "../../dumpData/flight.json";
-
 import DetailFlight from "../../components/FlightDetail";
+import PassangerDetail from "../../components/PassangerDetail";
+import PriceDetail from "../../components/PriceDetail";
+
 import { useState, useEffect } from "react";
 
 const Payment = () => {
@@ -15,8 +19,6 @@ const Payment = () => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
-
-    // Set initial value based on the current window size
     handleResize();
 
     window.addEventListener("resize", handleResize);
@@ -25,6 +27,7 @@ const Payment = () => {
 
   return (
     <>
+      {/* Header */}
       <HeaderShadow>
         <Breadcrumbs
           separator={<NavigateNextIcon fontSize="small" />}
@@ -32,11 +35,11 @@ const Payment = () => {
           aria-label="breadcrumb"
           style={{ fontWeight: "700", fontSize: "23px", color: "black" }}
         >
-          <Link underline="hover" key="1" color="inherit" href="/">
+          <Link underline="hover" key="1" color="inherit" href="#">
             Isi Data Diri
           </Link>
           ,
-          <Link underline="hover" key="2" color="inherit">
+          <Link underline="hover" key="2" color="inherit" href="/payment">
             Bayar
           </Link>
           ,
@@ -50,6 +53,8 @@ const Payment = () => {
           </Link>
           ,
         </Breadcrumbs>
+
+        {/* Midtrans or Internal timer */}
         <Row className="my-4 g-2">
           <Col md={12} className="d-flex">
             <Button variant="danger" className="flex-fill" size="lg">
@@ -58,16 +63,22 @@ const Payment = () => {
           </Col>
         </Row>
       </HeaderShadow>
+
+      {/* Main Content */}
       <Container className="my-3">
         <Row className="mx-sm-4">
+          {/* Detail Booking */}
           <Col
             md={5}
             xs={12}
+            // its just for aesthetically purpose
             className={isMobile ? "pb-3 d-flex" : "px-4 order-md-1 "}
           >
+            {/* If mobile breakout is true, booking detail can be show by click the button, else show on the right side page */}
             {isMobile ? <DetailBookingMobile /> : <BookingDetail />}
           </Col>
-          <Col md={7} xs={12} className="">
+          {/* Embed for Midtrans */}
+          <Col md={7} xs={12}>
             <h4>Isi Data Pembayaran </h4>
             <PaymentEmbedMidtrans />
           </Col>
@@ -80,26 +91,42 @@ const Payment = () => {
 const BookingDetail = () => {
   return (
     <Container className="pb-5">
+      {/* Flight Information */}
       <DetailFlight
         TitleDetail={"Detail Pesanan"}
-        BookingCode={`Booking Code: bookingCode1`}
-        departureAt={flightData[1].departureAt}
-        departureDate={flightData[1].arrivalDate}
-        departureAirport={flightData[1].departureAirport}
-        departureTerminal={flightData[1].departureTerminal}
-        arrivalAt={flightData[1].arrivalAt}
-        arrivalDate={flightData[1].arrivalDate}
-        arrivalAirport={flightData[1].arrivalAirport}
-        arrivalTerminal={flightData[1].arrivalTerminal}
-        airlineName={flightData[1].airlineName}
-        seatClass={flightData[1].seatClass}
-        airlineSerialNumber={flightData[1].airlineSerialNumber}
-        baggage={flightData[1].baggage}
-        cabinBaggage={flightData[1].cabinBaggage}
-        additionals={flightData[1].additionals}
-        isPassanger={true}
-        isPrice={true}
+        BookingCode={`Booking Code: ${PaymentData.bookingCode}`}
+        departureAt={PaymentData.departureAt}
+        departureDate={PaymentData.arrivalDate}
+        departureAirport={PaymentData.departureAirport}
+        departureTerminal={PaymentData.departureTerminal}
+        arrivalAt={PaymentData.arrivalAt}
+        arrivalDate={PaymentData.arrivalDate}
+        arrivalAirport={PaymentData.arrivalAirport}
+        arrivalTerminal={PaymentData.arrivalTerminal}
+        airlineName={PaymentData.airlineName}
+        seatClass={PaymentData.seatClass}
+        airlineSerialNumber={PaymentData.airlineSerialNumber}
+        baggage={PaymentData.baggage}
+        cabinBaggage={PaymentData.cabinBaggage}
+        additionals={PaymentData.additionals}
       />
+      {/* Passanger Information */}
+      <div>
+        <hr />
+        <p style={{ marginBottom: 0, fontWeight: "bold" }}>
+          Informasi Penumpang
+        </p>
+        {PaymentData.passanger.map((passenger, index) => (
+          <PassangerDetail
+            key={index}
+            index={index}
+            passangerName={passenger.name}
+            passangerId={passenger.id}
+          />
+        ))}
+      </div>
+      {/* Price Information, confused for implement hard data xD  */}
+      <PriceDetail />
     </Container>
   );
 };
@@ -136,6 +163,7 @@ const DetailBookingMobile = () => {
     </>
   );
 };
+
 const PaymentEmbedMidtrans = () => {
   return (
     <Accordion>

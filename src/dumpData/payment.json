@@ -1,0 +1,26 @@
+{
+  "id": 1,
+  "airlineName": "Jet Air",
+  "airlineSerialNumber": "JT - 203",
+  "baggage": "20 kg",
+  "cabinBaggage": "7 kg",
+  "additionals": "In Flight Entertainment",
+  "seatClass": "Economy",
+  "price": 4950000,
+  "departureAt": "07:00",
+  "departureDate": "12 Maret 2024",
+  "departureCity": "Jakarta",
+  "departureAirport": "Soekarno Hatta",
+  "departureTerminal": "Terminal 1A Domestik",
+  "flightDuration": "4h 0m",
+  "arrivalAt": "12.00",
+  "arrivalDate": "12 Maret 2024",
+  "arrivalCity": "Melbourne",
+  "arrivalAirport": "Melbourne",
+  "arrivalTerminal": "International Airport",
+  "bookingCode": "bookingCode1",
+  "passanger": [
+    { "id": "bookingId1", "name": "MasaniesMasanies" },
+    { "id": "bookingId2", "name": "Praroro" }
+  ]
+}
