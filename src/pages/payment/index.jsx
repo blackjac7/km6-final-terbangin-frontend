@@ -88,6 +88,7 @@ const Payment = () => {
   );
 };
 
+// average fetching data here
 const BookingDetail = () => {
   return (
     <Container className="pb-5">

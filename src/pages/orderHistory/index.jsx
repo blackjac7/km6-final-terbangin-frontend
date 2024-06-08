@@ -8,6 +8,8 @@ import HeaderShadow from "../../components/HeaderShadow";
 import BackButton from "../../components/BackButton";
 import DetailFlight from "../../components/FlightDetail";
 import FlightDestination from "../../components/FlightDestination";
+import PassangerDetail from "../../components/PassangerDetail";
+import PriceDetail from "../../components/PriceDetail";
 
 const OrderHistory = () => {
   const [showModal, setShowModal] = useState(false);
@@ -95,6 +97,7 @@ const OrderHistory = () => {
         <HistoryDetailMobile
           setShowModal={setShowModal}
           showModal={showModal}
+          booking={selectedBooking}
         />
       )}
     </>
@@ -195,6 +198,7 @@ const StatusPayment = ({ bookingStatus }) => {
   );
 };
 
+// average fetching data here
 const HistoryDetail = ({ booking }) => {
   return (
     <Container className="pb-5">
@@ -217,16 +221,41 @@ const HistoryDetail = ({ booking }) => {
         cabinBaggage={booking.cabinBaggage}
         additionals={booking.additionals}
       />
+
+      {/* Passanger Information */}
+      <div>
+        <hr />
+        <p style={{ marginBottom: 0, fontWeight: "bold" }}>
+          Informasi Penumpang
+        </p>
+        {booking.passanger.map((passenger, index) => (
+          <PassangerDetail
+            key={index}
+            index={index}
+            passangerName={passenger.name}
+            passangerId={passenger.id}
+          />
+        ))}
+      </div>
+      {/* Price Information, confused for implement hard data xD  */}
+      <PriceDetail />
+      <Row className="pt-3 d-flex justify-content-between">
+        <Col xs={12} className="d-flex">
+          <Button className="flex-fill" type="button" variant="primary">
+            Cetak Tiket
+          </Button>
+        </Col>
+      </Row>
     </Container>
   );
 };
 
-const HistoryDetailMobile = () => {
+const HistoryDetailMobile = ({ showModal, setShowModal, booking }) => {
   return (
     <Modal show={showModal} onHide={() => setShowModal(false)}>
       <Modal.Header closeButton></Modal.Header>
       <Modal.Body>
-        <HistoryDetail booking={selectedBooking} />
+        <HistoryDetail booking={booking} />
       </Modal.Body>
       <Container>
         <hr />
