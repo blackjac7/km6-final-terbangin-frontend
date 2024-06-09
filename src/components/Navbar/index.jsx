@@ -9,14 +9,20 @@ import login from "../../assets/fi_log-in.png";
 
 function NavScrollExample() {
   return (
-    <Navbar expand="lg" className="bg-body-tertiary border-bottom">
+    <Navbar
+      expand="lg"
+      className="bg-body-tertiary border-bottom"
+      style={{
+        boxShadow: " 1px 0 10px 2px rgba(0, 0, 0, 0.1)",
+      }}
+    >
       <Container fluid>
         <Navbar.Brand href="#">
-          <img src={logo} height={75} />
+          <img src={logo} height={55} />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
-          <Form className="d-flex">
+          <Form className="d-flex mt-2">
             <Form.Control
               type="search"
               placeholder="Search"
@@ -33,7 +39,7 @@ function NavScrollExample() {
             </button>
           </Form>
           <Button
-            className="d-flex ms-auto"
+            className="d-flex ms-auto mt-2 "
             style={{
               backgroundColor: "#7126b5",
               borderColor: "#7126b5",

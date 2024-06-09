@@ -1,10 +1,11 @@
-import Login from "../../components/Login/Login";
+import React from "react";
+import EmailForgeted from "../../components/EmailForgetPassword/EmailForgetPassword";
 import image from "../../assets/travel.svg";
 import logo from "../../assets/logo-white.png";
 import logo2 from "../../assets/logo-no-background.png";
 import { Container, Row, Col } from "react-bootstrap";
 
-const loginPage = () => {
+const EmailForget = () => {
   return (
     <Container fluid className="vh-100">
       <Row className="h-100">
@@ -52,8 +53,8 @@ const loginPage = () => {
             }}
           />
           <div className="w-75">
-            <h2 className="mb-4">Masuk</h2>
-            <Login />
+            <h2 className="mb-4">Verification Email</h2>
+            <EmailForgeted />
           </div>
         </Col>
       </Row>
@@ -61,4 +62,4 @@ const loginPage = () => {
   );
 };
 
-export default loginPage;
+export default EmailForget;

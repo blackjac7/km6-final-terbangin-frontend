@@ -1,9 +1,12 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import React from "react";
 import { Provider } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import store from "./redux/store";
 
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -18,6 +21,10 @@ import Profile from "./pages/profile/profile";
 import OtpVerification from "./pages/otp/otpVerification";
 import RequestResetPassword from "./pages/requestResetPassword/requestResetPassword";
 import VerificationLink from "./pages/verificationLink/verificationLink";
+import FindTicket from "./pages/findTicket";
+import OrderHistoryPages from "./pages/orderHistory";
+import Payment from "./pages/payment";
+
 import ProtectedVerification from "./components/ProtectedVerification/ProtectedVerification";
 import ProtectedForgetPassword from "./components/ProtectedForgetPassword/ProtectedForgetPassword";
 import Protected from "./components/Protected";
@@ -29,7 +36,6 @@ const router = createBrowserRouter([
     element: (
       <NonProtected>
         <Navbar />
-        <Banner />
         <Home />
       </NonProtected>
     ),
@@ -97,6 +103,39 @@ const router = createBrowserRouter([
       <ProtectedForgetPassword>
         <ForgetPassword />
       </ProtectedForgetPassword>
+    ),
+  },
+  {
+    path: "/find-ticket",
+    element: (
+      //   <ProtectedForgetPassword>
+      <>
+        <Navbar />
+        <FindTicket />
+      </>
+      //   </ProtectedForgetPassword>
+    ),
+  },
+  {
+    path: "/order-history",
+    element: (
+      <>
+        {/* <ProtectedForgetPassword> */}
+        <Navbar />
+        <OrderHistoryPages />
+        {/* </ProtectedForgetPassword> */}
+      </>
+    ),
+  },
+  {
+    path: "/payment",
+    element: (
+      <>
+        {/* <ProtectedForgetPassword> */}
+        <Navbar />
+        <Payment />
+        {/* </ProtectedForgetPassword> */}
+      </>
     ),
   },
 ]);
