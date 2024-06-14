@@ -18,11 +18,11 @@ function NavScrollExample() {
     >
       <Container fluid>
         <Navbar.Brand href="#">
-          <img src={logo} height={55} />
+          <img src={logo} height={30} />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
-          <Form className="d-flex mt-2">
+          <Form className="d-flex ">
             <Form.Control
               type="search"
               placeholder="Search"

@@ -6,25 +6,21 @@ const DetailFlight = ({
   TitleDetail,
   BookingCode,
   BookingStatus,
-  departureAt,
+  departureTime,
   departureDate,
   departureAirport,
   departureTerminal,
-  arrivalAt,
+  arrivalTime,
   arrivalDate,
   arrivalAirport,
   arrivalTerminal,
   airlineName,
-  airlineSerialNumber,
+  airlineIataCode,
+  flightCode,
   seatClass,
   baggage,
   cabinBaggage,
   additionals,
-  passangerId,
-  passangerName,
-  index,
-  isPassanger,
-  isPrice,
 }) => {
   return (
     <>
@@ -47,7 +43,7 @@ const DetailFlight = ({
       <Row>
         <Col xs={6}>
           <p style={{ fontWeight: "bold" }} className="m-0">
-            {departureAt}
+            {departureTime}
           </p>
         </Col>
         <Col xs={6} className="d-flex justify-content-end">
@@ -71,7 +67,7 @@ const DetailFlight = ({
             {airlineName} - {seatClass}
           </p>
           <p style={{ fontWeight: "bold" }} className="my-0 mx-1 ps-4">
-            {airlineSerialNumber}
+            {airlineIataCode} - {flightCode}
           </p>
           <br></br>
           <p className="my-0" style={{ fontWeight: "bold" }}>
@@ -87,7 +83,7 @@ const DetailFlight = ({
       <Row>
         <Col xs={6}>
           <p style={{ fontWeight: "bold" }} className="m-0">
-            {arrivalAt}
+            {arrivalTime}
           </p>
         </Col>
         <Col xs={6} className="d-flex justify-content-end">

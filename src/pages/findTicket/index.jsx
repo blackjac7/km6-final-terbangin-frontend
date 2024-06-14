@@ -8,8 +8,7 @@ import {
   Modal,
 } from "@mui/material";
 import Slider from "react-slick";
-
-import flightData from "../../dumpData/flight.json"; // delete when fetching
+import { format } from "date-fns";
 
 import exampleAirlineLogo from "../../assets/airlineLogo.png";
 import findTicketLoading from "../../assets/findTicketLoading.svg";
@@ -23,11 +22,16 @@ import BackButton from "../../components/BackButton";
 import HeaderShadow from "../../components/HeaderShadow";
 import FormArea from "../../components/FormArea";
 
+import { useDispatch, useSelector } from "react-redux";
+import { getFlights } from "../../redux/actions/flight";
+
 const FindTicket = () => {
   const [isChangeFlight, setChangeFlight] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isFullScreen, setIsFullScreen] = useState(window.innerWidth > 1160);
 
+  const dispatch = useDispatch();
+  const { flights } = useSelector((state) => state.flight);
   const handleOpenChangeFlight = () => {
     setChangeFlight(true);
   };
@@ -48,6 +52,10 @@ const FindTicket = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    dispatch(getFlights());
+  }, [dispatch]);
 
   return (
     <>
@@ -87,7 +95,7 @@ const FindTicket = () => {
 
         <Row className="mt-4 ">
           <Col>
-            <DateSelector />
+            <DateSelector1 />
           </Col>
         </Row>
       </HeaderShadow>
@@ -95,7 +103,11 @@ const FindTicket = () => {
       <Container>
         <Row className="mt-4 mx-sm-4">
           <Col>
-            <FlightList />
+            {flights.length === 0 ? (
+              <TicketNotFound />
+            ) : (
+              <FlightList flights={flights} />
+            )}
           </Col>
         </Row>
       </Container>
@@ -103,6 +115,42 @@ const FindTicket = () => {
   );
 };
 
+const DateSelector1 = () => {
+  const data = { hari: "Kamis", tanggal: "24/03/2024" };
+  
+  return (
+    <Container className="d-flex justify-content-between">
+      <Button variant="outline-secondary px-4">
+        <p style={{ margin: 0 }}>Kamis</p>
+        <p style={{ margin: 0 }}> 02/03/2023</p>
+      </Button>
+      <Button variant="outline-secondary px-4">
+        <p style={{ margin: 0 }}>Kamis</p>
+        <p style={{ margin: 0 }}> 02/03/2023</p>
+      </Button>
+      <Button variant="outline-secondary px-4">
+        <p style={{ margin: 0 }}>Kamis</p>
+        <p style={{ margin: 0 }}> 02/03/2023</p>
+      </Button>
+      <Button variant="outline-secondary px-4">
+        <p style={{ margin: 0 }}>Kamis</p>
+        <p style={{ margin: 0 }}> 02/03/2023</p>
+      </Button>
+      <Button variant="outline-secondary px-4">
+        <p style={{ margin: 0 }}>Kamis</p>
+        <p style={{ margin: 0 }}> 02/03/2023</p>
+      </Button>
+      <Button variant="outline-secondary px-4">
+        <p style={{ margin: 0 }}>Kamis</p>
+        <p style={{ margin: 0 }}> 02/03/2023</p>
+      </Button>
+      <Button variant="outline-secondary px-4">
+        <p style={{ margin: 0 }}>Kamis</p>
+        <p style={{ margin: 0 }}> 02/03/2023</p>
+      </Button>
+    </Container>
+  );
+};
 const DateSelector = () => {
   const [isHovered, setIsHovered] = useState(null);
   const [isActived, setIsActived] = useState(null);
@@ -252,7 +300,7 @@ const Filter = () => {
   );
 };
 
-const FlightList = () => {
+const FlightList = ({ flights }) => {
   const [isActive, setIsActive] = useState(null);
   const stopPropagation = (e) => {
     e.stopPropagation();
@@ -262,7 +310,7 @@ const FlightList = () => {
     <>
       <Filter />
       <Accordion>
-        {flightData.map((flight) => (
+        {flights.map((flight) => (
           <Accordion.Item
             eventKey={flight.id}
             key={flight.id}
@@ -291,18 +339,21 @@ const FlightList = () => {
                         style={{ width: 35 }}
                       />
                       <p style={{ fontSize: 18, marginBottom: 0 }}>
-                        {flight.airlineName} - {flight.seatClass}
+                        {flight.Airline.name} - {flight.seatClass}
                       </p>
                     </div>
                   </Col>
                   {/* flight time */}
                   <Col md={4} sm={12} className="d-flex pt-2">
                     <FlightDestination
-                      departureAt={flight.departureAt}
-                      departureCity={flight.departureCity}
-                      flightDuration={flight.flightDuration}
-                      arrivalAt={flight.arrivalAt}
-                      arrivalCity={flight.arrivalCity}
+                      departureTime={format(
+                        new Date(flight.departureAt),
+                        "HH:mm"
+                      )}
+                      departureCity={flight.StartAirport.city}
+                      flightDuration={flight.duration}
+                      arrivalTime={format(new Date(flight.arrivalAt), "HH:mm")}
+                      arrivalCity={flight.EndAirport.city}
                     />
                   </Col>
                   <Col
@@ -334,20 +385,27 @@ const FlightList = () => {
               <Container>
                 <DetailFlight
                   TitleDetail={"Detail Penerbangan"}
-                  departureAt={flight.departureAt}
-                  departureDate={flight.arrivalDate}
-                  departureAirport={flight.departureAirport}
-                  departureTerminal={flight.departureTerminal}
-                  arrivalAt={flight.arrivalAt}
-                  arrivalDate={flight.arrivalDate}
-                  arrivalAirport={flight.arrivalAirport}
-                  arrivalTerminal={flight.arrivalTerminal}
-                  airlineName={flight.airlineName}
+                  departureTime={format(new Date(flight.departureAt), "HH:mm")}
+                  departureDate={format(
+                    new Date(flight.departureAt),
+                    "dd MMMM yyyy"
+                  )}
+                  departureAirport={flight.StartAirport.name}
+                  departureTerminal={flight.StartAirport.terminal}
+                  arrivalTime={format(new Date(flight.arrivalAt), "HH:mm")}
+                  arrivalDate={format(
+                    new Date(flight.arrivalAt),
+                    "dd MMMM yyyy"
+                  )}
+                  arrivalAirport={flight.EndAirport.name}
+                  arrivalTerminal={flight.EndAirport.terminal}
+                  airlineName={flight.Airline.name}
                   seatClass={flight.seatClass}
-                  airlineSerialNumber={flight.airlineSerialNumber}
-                  baggage={flight.baggage}
-                  cabinBaggage={flight.cabinBaggage}
-                  additionals={flight.additionals}
+                  airlineIataCode={flight.Airline.iataCode}
+                  flightCode={flight.flightCode}
+                  baggage={flight.Airline.baggage}
+                  cabinBaggage={flight.Airline.cabinBaggage}
+                  additionals={flight.Airline.additionals}
                 />
               </Container>
             </Accordion.Body>
@@ -365,7 +423,7 @@ const TicketNotFound = () => {
       className="justify-content-center pt-5"
       style={{ textAlign: "center" }}
     >
-      <Image src={findTicketNotFound} style={{ width: 400 }} />
+      <Image src={findTicketNotFound} style={{ width: 250 }} />
       <Row className="pt-3">
         <p style={{ marginBottom: 0 }}>Maaf, pencarian Anda tidak ditemukan</p>
         <p style={{ color: "purple" }}>Coba cari perjalanan lainnya!</p>
@@ -392,7 +450,7 @@ const TicketEmpty = () => {
       className="justify-content-center pt-5"
       style={{ textAlign: "center" }}
     >
-      <Image src={findTicketEmpty} style={{ width: 250 }} />
+      <Image src={findTicketEmpty} style={{ width: 200 }} />
       <Row className="pt-5">
         {" "}
         <p style={{ marginBottom: 0 }}>Maaf, Tiket terjual habis!</p>

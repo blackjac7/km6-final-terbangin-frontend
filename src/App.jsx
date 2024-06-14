@@ -108,12 +108,10 @@ const router = createBrowserRouter([
   {
     path: "/find-ticket",
     element: (
-      //   <ProtectedForgetPassword>
       <>
         <Navbar />
         <FindTicket />
       </>
-      //   </ProtectedForgetPassword>
     ),
   },
   {
