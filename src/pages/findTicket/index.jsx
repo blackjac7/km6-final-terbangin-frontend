@@ -17,10 +17,8 @@ import {
   Typography,
   Modal,
 } from "@mui/material";
-import Slider from "react-slick";
 import { format } from "date-fns";
 
-import exampleAirlineLogo from "../../assets/airlineLogo.png";
 import findTicketLoading from "../../assets/findTicketLoading.svg";
 import findTicketNotFound from "../../assets/findTicketNotFound.svg";
 import findTicketEmpty from "../../assets/findTicketEmpty.svg";
@@ -35,12 +33,25 @@ import HeaderShadow from "../../components/HeaderShadow";
 import FormArea from "../../components/FormArea";
 
 import { useDispatch, useSelector } from "react-redux";
-import { getFlights } from "../../redux/actions/flight";
+import { getFilterFlights } from "../../redux/actions/flight";
 
 const FindTicket = () => {
   const [isChangeFlight, setChangeFlight] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isFullScreen, setIsFullScreen] = useState(window.innerWidth > 1160);
+
+  const departure = "1";
+  const arrival = "2";
+  const capacity = 4;
+  const baby = 0;
+  const child = 1;
+  const adult = 3;
+  const departureDate = "2024-06-12";
+  const flightType = "Return";
+  const iataCodeArrival = "BDO";
+  const iataCodeDeparture = "CGK";
+  const returnDate = "2024-06-15";
+  const seatType = "Bussines";
 
   const dispatch = useDispatch();
   const { flights } = useSelector((state) => state.flight);
@@ -66,7 +77,17 @@ const FindTicket = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(getFlights());
+     dispatch(
+       getFilterFlights(
+         departure,
+         arrival,
+         "departureAt",
+         departureDate,
+         "price" + seatType,
+         "asc",
+         seatType
+       )
+     );
   }, [dispatch]);
 
   return (
@@ -79,7 +100,9 @@ const FindTicket = () => {
 
         <Row className="mt-4 g-2">
           <Col sx={12} md={10} className="d-flex">
-            <BackButton ButtonText={"JKT  >  MLB - 2 Penumpang - Economy"} />
+            <BackButton
+              ButtonText={`${iataCodeArrival}  >  ${iataCodeDeparture} - ${capacity} Penumpang - ${seatType}`}
+            />
           </Col>
           <Col sx={12} md={2} className="d-flex">
             <Button
@@ -106,7 +129,17 @@ const FindTicket = () => {
         </Row>
 
         <Row className="mt-4 ">
-          <Col>{/* <DateSelector1 /> */}</Col>
+          <Col>
+            <DateSelector1
+              dispatch={dispatch}
+              datafiltering={{
+                seatType: seatType,
+                departure: departure,
+                arrival: arrival,
+                departureDate: departureDate,
+              }}
+            />
+          </Col>
         </Row>
       </HeaderShadow>
       {/* Main Content */}
@@ -116,7 +149,16 @@ const FindTicket = () => {
             {flights.length === 0 ? (
               <TicketNotFound />
             ) : (
-              <FlightList flights={flights} />
+              <FlightList
+                flights={flights}
+                dispatch={dispatch}
+                datafiltering={{
+                  seatType: seatType,
+                  departure: departure,
+                  arrival: arrival,
+                  departureDate: departureDate,
+                }}
+              />
             )}
           </Col>
         </Row>
@@ -125,8 +167,8 @@ const FindTicket = () => {
   );
 };
 
-const DateSelector1 = () => {
-  const baseDate = new Date("2024-03-24");
+const DateSelector1 = ({ dispatch, datafiltering }) => {
+  const baseDate = new Date(datafiltering.departureDate);
   const [selectedDate, setSelectedDate] = useState(baseDate);
 
   const daysOfWeek = [
@@ -146,6 +188,13 @@ const DateSelector1 = () => {
     return `${day}/${month}/${year}`;
   };
 
+  const formatDateyearfirst = (date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const createButtonData = (baseDate, offset) => {
     const newDate = new Date(baseDate);
     newDate.setDate(baseDate.getDate() + offset);
@@ -154,7 +203,19 @@ const DateSelector1 = () => {
   };
 
   const handleButtonClick = (newDate) => {
+    let newdate = formatDateyearfirst(newDate);
     setSelectedDate(newDate);
+    dispatch(
+      getFilterFlights(
+        datafiltering.departure,
+        datafiltering.arrival,
+        "departureAt",
+        newdate,
+        "price" + datafiltering.seatType,
+        "asc",
+        datafiltering.seatType
+      )
+    );
   };
 
   return (
@@ -180,99 +241,8 @@ const DateSelector1 = () => {
   );
 };
 
-const DateSelector = () => {
-  const [isHovered, setIsHovered] = useState(null);
-  const [isActived, setIsActived] = useState(null);
 
-  const dumpTime = [
-    { day: "Senin1", date: "01/01/2024" },
-    { day: "Selasa", date: "02/01//2024" },
-    { day: "Rabu", date: "03/01/2024" },
-    { day: "Kamis", date: "04/01/2024" },
-    { day: "Jumat", date: "05/01/2024" },
-    { day: "Sabtu", date: "06/01/2024" },
-    { day: "Minggu", date: "07/01/2024" },
-    { day: "Senin2", date: "08/01/2024" },
-    { day: "Selasa", date: "09/01/2024" },
-    { day: "Rabu", date: "10/01/2024" },
-    { day: "Kamis", date: "11/01/2024" },
-    { day: "Jumat", date: "12/01/2024" },
-    { day: "Sabtu", date: "13/01/2024" },
-    { day: "Minggu", date: "14/01/2024" },
-  ];
-
-  var settings = {
-    className: "center",
-    centerMode: true,
-    speed: 800,
-    slidesToShow: 7,
-    focusOnSelect: true,
-    slidesToScroll: 10,
-    Infinity: false,
-    responsive: [
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 5,
-        },
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 3,
-        },
-      },
-    ],
-    centerPadding: "0px",
-  };
-
-  return (
-    <>
-      <Slider {...settings}>
-        {dumpTime.map((time, index) => (
-          <div key={index} className="d-flex flex-row">
-            <Button
-              className="px-0"
-              textAlign="center"
-              variant="custom"
-              type="button"
-              onMouseEnter={() => setIsHovered(index)}
-              onMouseLeave={() => setIsHovered(false)}
-              onMouseDown={() => setIsActive(index)}
-              onMouseUp={() => setIsActive(false)}
-              style={{
-                // border: "1px solid grey",
-                width: "100%",
-                color:
-                  isActived === index
-                    ? "white"
-                    : isHovered === index
-                    ? "white"
-                    : "black",
-                backgroundColor:
-                  isActived === index
-                    ? "red"
-                    : isHovered === index
-                    ? "purple"
-                    : "white",
-              }}
-            >
-              <div className="text-container">
-                <p style={{ fontWeight: "bold" }} className="mb-0">
-                  {time.day}
-                </p>
-                <p className="mb-0">{time.date}</p>
-              </div>
-            </Button>
-            <Image src={VerticalLine} />
-          </div>
-        ))}
-      </Slider>
-    </>
-  );
-};
-
-const Filter = () => {
+const Filter = ({ dispatch, datafiltering }) => {
   return (
     <Row className="mb-4">
       <Col offset-md={9}></Col>
@@ -280,42 +250,55 @@ const Filter = () => {
         <FormControl fullWidth>
           <Select
             displayEmpty
-            defaultValue={10}
+            defaultValue="price-asc"
             size="small"
             sx={{ borderRadius: 2 }}
+            onClick={() =>
+              dispatch(
+                getFilterFlights(
+                  datafiltering.departure,
+                  datafiltering.arrival,
+                  "departureAt",
+                  datafiltering.departureDate,
+                  defaultValue.split("-")[0] + datafiltering.seatType,
+                  defaultValue.split("-")[1],
+                  datafiltering.seatType
+                )
+              )
+            }
           >
-            <MenuItem value={10}>
+            <MenuItem value="price-asc">
               <Typography>
                 <span style={{ fontWeight: "bold" }}>Harga</span> - Termurah
               </Typography>
             </MenuItem>
-            <MenuItem value={20}>
+            <MenuItem value="duration-asc">
               <Typography>
                 <span style={{ fontWeight: "bold" }}>Durasi</span> - Terpendek
               </Typography>
             </MenuItem>
-            <MenuItem value={30}>
+            <MenuItem value="departureAt-asc">
               <Typography>
                 {" "}
                 <span style={{ fontWeight: "bold" }}>Keberangkatan</span> -
                 Paling Awal
               </Typography>
             </MenuItem>
-            <MenuItem value={40}>
+            <MenuItem value="departureAt-desc">
               <Typography>
                 {" "}
                 <span style={{ fontWeight: "bold" }}>Keberangkatan</span> -
                 Paling Akhir
               </Typography>
             </MenuItem>
-            <MenuItem value={50}>
+            <MenuItem value="arrivalAt-asc">
               <Typography>
                 {" "}
                 <span style={{ fontWeight: "bold" }}>Kedatangan</span> - Paling
                 Awal
               </Typography>
             </MenuItem>
-            <MenuItem value={60}>
+            <MenuItem value="arrivalAt-desc">
               <Typography>
                 {" "}
                 <span style={{ fontWeight: "bold" }}>Kedatangan</span> - Paling
@@ -329,7 +312,7 @@ const Filter = () => {
   );
 };
 
-const FlightList = ({ flights }) => {
+const FlightList = ({ flights, dispatch, datafiltering }) => {
   const [expanded, setExpanded] = useState(null);
   const [rotated, setRotated] = useState({});
   const handleButtonClick = (flightId, e) => {
@@ -345,7 +328,7 @@ const FlightList = ({ flights }) => {
 
   return (
     <>
-      <Filter />
+      <Filter dispatch={dispatch} datafiltering={datafiltering} />
       <Accordion activeKey={expanded}>
         {flights.map((flight) => (
           <Card
@@ -373,12 +356,12 @@ const FlightList = ({ flights }) => {
                       >
                         <div className="d-flex align-items-center">
                           <Image
-                            src={exampleAirlineLogo}
+                            src={flight.Airline.picture}
                             className="me-3"
                             style={{ width: 35 }}
                           />
                           <p style={{ marginBottom: 0 }}>
-                            Garuda Indonesia - First Class
+                            {flight.Airline.name} - {datafiltering.seatType}
                           </p>
                         </div>
                       </Col>
@@ -428,7 +411,7 @@ const FlightList = ({ flights }) => {
                         style={{ padding: 0 }}
                       >
                         <h3 style={{ fontSize: 20, fontWeight: 650 }}>
-                          IDR 100.000.000
+                          IDR {flight["price" + datafiltering.seatType]}
                         </h3>
                         <Button style={{ borderRadius: 14, width: "50%" }}>
                           Pilih
@@ -483,8 +466,8 @@ const FlightList = ({ flights }) => {
                     arrivalAirport={flight.EndAirport.name}
                     arrivalTerminal={flight.EndAirport.terminal}
                     airlineName={flight.Airline.name}
-                    airlineLogo={exampleAirlineLogo}
-                    seatClass={flight.seatClass}
+                    airlineLogo={flight.Airline.picture}
+                    seatClass={datafiltering.seatType}
                     airlineIataCode={flight.Airline.iataCode}
                     flightCode={flight.flightCode}
                     {...(flight.Airline.baggage !== 0 && {

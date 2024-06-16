@@ -29,7 +29,11 @@ const FlightDestination = ({
         style={{ textAlign: "center" }}
       >
         <p className="my-0" style={{ marginBottom: 0 }}>
-          {flightDuration} Hours
+          {Math.floor(flightDuration / 60) == 0
+            ? `${flightDuration % 60} Menit`
+            : `${Math.floor(flightDuration / 60)} Jam ${
+                flightDuration % 60
+              } Menit`}
         </p>
         <Image src={Arrow} className="img-fluid" style={{ marginBottom: 0 }} />
         <p className="my-0">Flight Duration</p>

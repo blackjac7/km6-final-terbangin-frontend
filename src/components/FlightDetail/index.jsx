@@ -71,7 +71,11 @@ const DetailFlight = ({
           </p>
           <br></br>
           <p className="my-0" style={{ fontWeight: "bold" }}>
-            <Image src={airlineLogo} className="me-1" />
+            <Image
+              src={airlineLogo}
+              className="me-1"
+              style={{ maxWidth: "25px" }}
+            />
             Informasi Penerbangan
           </p>
           <p className="my-0 mx-1 ps-4"> {baggage}</p>
