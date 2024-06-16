@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Accordion, Image } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Image,
+  Accordion,
+  Card,
+  OverlayTrigger,
+  Tooltip,
+} from "react-bootstrap";
 import {
   MenuItem,
   FormControl,
@@ -15,6 +25,8 @@ import findTicketLoading from "../../assets/findTicketLoading.svg";
 import findTicketNotFound from "../../assets/findTicketNotFound.svg";
 import findTicketEmpty from "../../assets/findTicketEmpty.svg";
 import VerticalLine from "../../assets/verticalLine.svg";
+import accorTrigger from "../../assets/accorTrigger.svg";
+import freeBaggage from "../../assets/freeBaggage.svg";
 
 import DetailFlight from "../../components/FlightDetail";
 import FlightDestination from "../../components/FlightDestination";
@@ -94,14 +106,12 @@ const FindTicket = () => {
         </Row>
 
         <Row className="mt-4 ">
-          <Col>
-            <DateSelector1 />
-          </Col>
+          <Col>{/* <DateSelector1 /> */}</Col>
         </Row>
       </HeaderShadow>
       {/* Main Content */}
       <Container>
-        <Row className="mt-4 mx-sm-4">
+        <Row className={isFullScreen ? "pt-4 mx-5" : "pt-4"}>
           <Col>
             {flights.length === 0 ? (
               <TicketNotFound />
@@ -116,41 +126,60 @@ const FindTicket = () => {
 };
 
 const DateSelector1 = () => {
-  const data = { hari: "Kamis", tanggal: "24/03/2024" };
-  
+  const baseDate = new Date("2024-03-24");
+  const [selectedDate, setSelectedDate] = useState(baseDate);
+
+  const daysOfWeek = [
+    "Minggu",
+    "Senin",
+    "Selasa",
+    "Rabu",
+    "Kamis",
+    "Jumat",
+    "Sabtu",
+  ];
+
+  const formatDate = (date) => {
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const createButtonData = (baseDate, offset) => {
+    const newDate = new Date(baseDate);
+    newDate.setDate(baseDate.getDate() + offset);
+    const dayName = daysOfWeek[newDate.getDay()];
+    return { hari: dayName, tanggal: formatDate(newDate), date: newDate };
+  };
+
+  const handleButtonClick = (newDate) => {
+    setSelectedDate(newDate);
+  };
+
   return (
     <Container className="d-flex justify-content-between">
-      <Button variant="outline-secondary px-4">
-        <p style={{ margin: 0 }}>Kamis</p>
-        <p style={{ margin: 0 }}> 02/03/2023</p>
-      </Button>
-      <Button variant="outline-secondary px-4">
-        <p style={{ margin: 0 }}>Kamis</p>
-        <p style={{ margin: 0 }}> 02/03/2023</p>
-      </Button>
-      <Button variant="outline-secondary px-4">
-        <p style={{ margin: 0 }}>Kamis</p>
-        <p style={{ margin: 0 }}> 02/03/2023</p>
-      </Button>
-      <Button variant="outline-secondary px-4">
-        <p style={{ margin: 0 }}>Kamis</p>
-        <p style={{ margin: 0 }}> 02/03/2023</p>
-      </Button>
-      <Button variant="outline-secondary px-4">
-        <p style={{ margin: 0 }}>Kamis</p>
-        <p style={{ margin: 0 }}> 02/03/2023</p>
-      </Button>
-      <Button variant="outline-secondary px-4">
-        <p style={{ margin: 0 }}>Kamis</p>
-        <p style={{ margin: 0 }}> 02/03/2023</p>
-      </Button>
-      <Button variant="outline-secondary px-4">
-        <p style={{ margin: 0 }}>Kamis</p>
-        <p style={{ margin: 0 }}> 02/03/2023</p>
-      </Button>
+      {Array.from({ length: 7 }, (_, i) => {
+        const buttonData = createButtonData(selectedDate, i - 3);
+        const isActive = selectedDate.getTime() === buttonData.date.getTime();
+
+        return (
+          <Button
+            key={i}
+            variant={isActive ? "primary" : "outline-secondary"}
+            onClick={() => handleButtonClick(buttonData.date)}
+            className="px-4"
+            style={{ backgroundColor: isActive ? "#007bff" : "#ffffff" }}
+          >
+            <p style={{ margin: 0 }}>{buttonData.hari}</p>
+            <p style={{ margin: 0 }}>{buttonData.tanggal}</p>
+          </Button>
+        );
+      })}
     </Container>
   );
 };
+
 const DateSelector = () => {
   const [isHovered, setIsHovered] = useState(null);
   const [isActived, setIsActived] = useState(null);
@@ -301,115 +330,173 @@ const Filter = () => {
 };
 
 const FlightList = ({ flights }) => {
-  const [isActive, setIsActive] = useState(null);
-  const stopPropagation = (e) => {
+  const [expanded, setExpanded] = useState(null);
+  const [rotated, setRotated] = useState({});
+  const handleButtonClick = (flightId, e) => {
     e.stopPropagation();
+    setExpanded((prevExpanded) =>
+      prevExpanded === flightId ? null : flightId
+    );
+    setRotated((prevRotated) => ({
+      ...prevRotated,
+      [flightId]: !prevRotated[flightId],
+    }));
   };
 
   return (
     <>
       <Filter />
-      <Accordion>
+      <Accordion activeKey={expanded}>
         {flights.map((flight) => (
-          <Accordion.Item
-            eventKey={flight.id}
+          <Card
             key={flight.id}
-            onMouseDown={() =>
-              setIsActive((active) => (active === flight.id ? null : flight.id))
-            }
-            className="mb-3"
+            className="mb-3 py-2"
             style={{
-              border: isActive === flight.id ? "2px solid purple" : "",
+              border: expanded === flight.id ? "2px solid purple" : "",
               boxShadow: "1px 0 5px 1px rgba(0, 0, 0, 0.1)",
               borderRadius: "0.50rem",
             }}
           >
-            <Accordion.Header>
+            <Card.Header
+              style={{ borderBottom: "none", backgroundColor: "white" }}
+            >
               <Container>
                 <Row>
-                  <Col
-                    md={4}
-                    sm={12}
-                    className="d-flex align-items-center justify-content-center justify-content-md-start"
-                  >
-                    <div className="d-flex align-items-center">
-                      <Image
-                        src={exampleAirlineLogo}
-                        className="me-3"
-                        style={{ width: 35 }}
-                      />
-                      <p style={{ fontSize: 18, marginBottom: 0 }}>
-                        {flight.Airline.name} - {flight.seatClass}
-                      </p>
-                    </div>
-                  </Col>
-                  {/* flight time */}
-                  <Col md={4} sm={12} className="d-flex pt-2">
-                    <FlightDestination
-                      departureTime={format(
-                        new Date(flight.departureAt),
-                        "HH:mm"
-                      )}
-                      departureCity={flight.StartAirport.city}
-                      flightDuration={flight.duration}
-                      arrivalTime={format(new Date(flight.arrivalAt), "HH:mm")}
-                      arrivalCity={flight.EndAirport.city}
-                    />
+                  <Col md={11} sm={11} xs={11}>
+                    {" "}
+                    <Row>
+                      {/* airline name */}
+                      <Col
+                        md={4}
+                        sm={12}
+                        className="d-flex align-items-center justify-content-center justify-content-md-start"
+                      >
+                        <div className="d-flex align-items-center">
+                          <Image
+                            src={exampleAirlineLogo}
+                            className="me-3"
+                            style={{ width: 35 }}
+                          />
+                          <p style={{ marginBottom: 0 }}>
+                            Garuda Indonesia - First Class
+                          </p>
+                        </div>
+                      </Col>
+                      {/* destination info */}
+                      <Col
+                        md={4}
+                        sm={12}
+                        className="d-flex justify-content-center pt-2"
+                      >
+                        <FlightDestination
+                          departureTime={format(
+                            new Date(flight.departureAt),
+                            "HH:mm"
+                          )}
+                          departureCity={flight.StartAirport.iataCode}
+                          flightDuration={flight.duration}
+                          arrivalTime={format(
+                            new Date(flight.arrivalAt),
+                            "HH:mm"
+                          )}
+                          arrivalCity={flight.EndAirport.iataCode}
+                        />
+                      </Col>
+                      <Col
+                        md={1}
+                        xs={12}
+                        className="d-flex align-self-center justify-content-center p-3"
+                      >
+                        {flight.Airline.baggage !== 0 && (
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={
+                              <Tooltip>
+                                Free {flight.Airline.baggage} baggage
+                              </Tooltip>
+                            }
+                          >
+                            <Image src={freeBaggage} alt="Free baggage" />
+                          </OverlayTrigger>
+                        )}
+                      </Col>
+                      {/* price and execute button */}
+                      <Col
+                        md={3}
+                        sm={12}
+                        className="d-flex flex-column align-items-md-end align-items-center justify-content-center "
+                        style={{ padding: 0 }}
+                      >
+                        <h3 style={{ fontSize: 20, fontWeight: 650 }}>
+                          IDR 100.000.000
+                        </h3>
+                        <Button style={{ borderRadius: 14, width: "50%" }}>
+                          Pilih
+                        </Button>
+                      </Col>
+                    </Row>
                   </Col>
                   <Col
                     md={1}
-                    xs={12}
-                    className="d-flex align-self-center justify-content-center pt-3"
+                    sm={1}
+                    xs={1}
+                    className="d-flex justify-content-center "
+                    style={{ padding: 0 }}
                   >
-                    <img
-                      src="/icon-park-outline_baggage-delay.png"
-                      alt="Baggage Delay Icon"
+                    {" "}
+                    <Image
+                      src={accorTrigger}
+                      onClick={(e) => handleButtonClick(flight.id, e)}
+                      style={{
+                        width: 25,
+                        transition: "transform 0.3s",
+                        transform: rotated[flight.id]
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
+                      }}
                     />
-                  </Col>
-                  <Col
-                    md={3}
-                    sm={12}
-                    className="d-flex flex-column align-items-md-end align-items-center pt-3"
-                  >
-                    <h3 style={{ fontSize: 20, fontWeight: 650 }}>
-                      IDR {flight.price}
-                    </h3>
-                    <Button style={{ borderRadius: 14, width: "50%" }}>
-                      Pilih
-                    </Button>
                   </Col>
                 </Row>
               </Container>
-            </Accordion.Header>
-            <Accordion.Body onMouseDown={stopPropagation}>
-              <Container>
-                <DetailFlight
-                  TitleDetail={"Detail Penerbangan"}
-                  departureTime={format(new Date(flight.departureAt), "HH:mm")}
-                  departureDate={format(
-                    new Date(flight.departureAt),
-                    "dd MMMM yyyy"
-                  )}
-                  departureAirport={flight.StartAirport.name}
-                  departureTerminal={flight.StartAirport.terminal}
-                  arrivalTime={format(new Date(flight.arrivalAt), "HH:mm")}
-                  arrivalDate={format(
-                    new Date(flight.arrivalAt),
-                    "dd MMMM yyyy"
-                  )}
-                  arrivalAirport={flight.EndAirport.name}
-                  arrivalTerminal={flight.EndAirport.terminal}
-                  airlineName={flight.Airline.name}
-                  seatClass={flight.seatClass}
-                  airlineIataCode={flight.Airline.iataCode}
-                  flightCode={flight.flightCode}
-                  baggage={flight.Airline.baggage}
-                  cabinBaggage={flight.Airline.cabinBaggage}
-                  additionals={flight.Airline.additionals}
-                />
-              </Container>
-            </Accordion.Body>
-          </Accordion.Item>
+            </Card.Header>
+            <Accordion.Collapse eventKey={flight.id}>
+              <Card.Body style={{ paddingTop: 0 }}>
+                <Container>
+                  <hr />
+                  <DetailFlight
+                    TitleDetail={"Detail Penerbangan"}
+                    departureTime={format(
+                      new Date(flight.departureAt),
+                      "HH:mm"
+                    )}
+                    departureDate={format(
+                      new Date(flight.departureAt),
+                      "dd MMMM yyyy"
+                    )}
+                    departureAirport={flight.StartAirport.name}
+                    departureTerminal={flight.StartAirport.terminal}
+                    arrivalTime={format(new Date(flight.arrivalAt), "HH:mm")}
+                    arrivalDate={format(
+                      new Date(flight.arrivalAt),
+                      "dd MMMM yyyy"
+                    )}
+                    arrivalAirport={flight.EndAirport.name}
+                    arrivalTerminal={flight.EndAirport.terminal}
+                    airlineName={flight.Airline.name}
+                    airlineLogo={exampleAirlineLogo}
+                    seatClass={flight.seatClass}
+                    airlineIataCode={flight.Airline.iataCode}
+                    flightCode={flight.flightCode}
+                    {...(flight.Airline.baggage !== 0 && {
+                      baggage: `Baggage ${flight.Airline.baggage}`,
+                    })}
+                    cabinBaggage={flight.Airline.cabinBaggage}
+                    additionals={flight.Airline.additionals}
+                  />
+                </Container>
+              </Card.Body>
+            </Accordion.Collapse>
+          </Card>
         ))}
       </Accordion>
     </>

@@ -1,5 +1,4 @@
 import { Row, Col, Image } from "react-bootstrap";
-import exampleAirlineLogo from "../../assets/airlineLogo.png";
 import PropTypes from "prop-types";
 
 const DetailFlight = ({
@@ -16,6 +15,7 @@ const DetailFlight = ({
   arrivalTerminal,
   airlineName,
   airlineIataCode,
+  airlineLogo,
   flightCode,
   seatClass,
   baggage,
@@ -71,10 +71,10 @@ const DetailFlight = ({
           </p>
           <br></br>
           <p className="my-0" style={{ fontWeight: "bold" }}>
-            <Image src={exampleAirlineLogo} className="me-1" />
+            <Image src={airlineLogo} className="me-1" />
             Informasi Penerbangan
           </p>
-          <p className="my-0 mx-1 ps-4">Baggage {baggage}</p>
+          <p className="my-0 mx-1 ps-4"> {baggage}</p>
           <p className="my-0 mx-1 ps-4">Cabin Baggage {cabinBaggage}</p>
           <p className="my-0 mx-1 ps-4">{additionals}</p>
           <hr className="solid" />
