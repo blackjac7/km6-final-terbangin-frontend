@@ -180,98 +180,6 @@ const DateSelector1 = () => {
   );
 };
 
-const DateSelector = () => {
-  const [isHovered, setIsHovered] = useState(null);
-  const [isActived, setIsActived] = useState(null);
-
-  const dumpTime = [
-    { day: "Senin1", date: "01/01/2024" },
-    { day: "Selasa", date: "02/01//2024" },
-    { day: "Rabu", date: "03/01/2024" },
-    { day: "Kamis", date: "04/01/2024" },
-    { day: "Jumat", date: "05/01/2024" },
-    { day: "Sabtu", date: "06/01/2024" },
-    { day: "Minggu", date: "07/01/2024" },
-    { day: "Senin2", date: "08/01/2024" },
-    { day: "Selasa", date: "09/01/2024" },
-    { day: "Rabu", date: "10/01/2024" },
-    { day: "Kamis", date: "11/01/2024" },
-    { day: "Jumat", date: "12/01/2024" },
-    { day: "Sabtu", date: "13/01/2024" },
-    { day: "Minggu", date: "14/01/2024" },
-  ];
-
-  var settings = {
-    className: "center",
-    centerMode: true,
-    speed: 800,
-    slidesToShow: 7,
-    focusOnSelect: true,
-    slidesToScroll: 10,
-    Infinity: false,
-    responsive: [
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 5,
-        },
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 3,
-        },
-      },
-    ],
-    centerPadding: "0px",
-  };
-
-  return (
-    <>
-      <Slider {...settings}>
-        {dumpTime.map((time, index) => (
-          <div key={index} className="d-flex flex-row">
-            <Button
-              className="px-0"
-              textAlign="center"
-              variant="custom"
-              type="button"
-              onMouseEnter={() => setIsHovered(index)}
-              onMouseLeave={() => setIsHovered(false)}
-              onMouseDown={() => setIsActive(index)}
-              onMouseUp={() => setIsActive(false)}
-              style={{
-                // border: "1px solid grey",
-                width: "100%",
-                color:
-                  isActived === index
-                    ? "white"
-                    : isHovered === index
-                    ? "white"
-                    : "black",
-                backgroundColor:
-                  isActived === index
-                    ? "red"
-                    : isHovered === index
-                    ? "purple"
-                    : "white",
-              }}
-            >
-              <div className="text-container">
-                <p style={{ fontWeight: "bold" }} className="mb-0">
-                  {time.day}
-                </p>
-                <p className="mb-0">{time.date}</p>
-              </div>
-            </Button>
-            <Image src={VerticalLine} />
-          </div>
-        ))}
-      </Slider>
-    </>
-  );
-};
-
 const Filter = () => {
   return (
     <Row className="mb-4">
@@ -378,7 +286,7 @@ const FlightList = ({ flights }) => {
                             style={{ width: 35 }}
                           />
                           <p style={{ marginBottom: 0 }}>
-                            Garuda Indonesia - First Class
+                            {flight.Airline.name}
                           </p>
                         </div>
                       </Col>
