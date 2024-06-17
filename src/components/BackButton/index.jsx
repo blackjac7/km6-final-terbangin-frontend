@@ -5,8 +5,9 @@ import PropTypes from "prop-types";
 const BackButton = ({ ButtonText }) => {
   return (
     <Button
+      href="/"
       variant="primary"
-      className="d-flex flex-fill align-items-center justify-content-center justify-content-md-start "
+      className="d-flex flex-fill align-items-center justify-content-center justify-content-md-start py-md-3 "
       style={{
         color: "white",
         borderRadius: 14,

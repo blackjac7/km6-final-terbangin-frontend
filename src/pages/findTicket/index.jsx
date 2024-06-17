@@ -40,13 +40,13 @@ const FindTicket = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isFullScreen, setIsFullScreen] = useState(window.innerWidth > 1160);
 
-  const departure = "1";
-  const arrival = "2";
+  const departure = "Pyongyang";
+  const arrival = "Tokyo";
   const capacity = 4;
   const baby = 0;
   const child = 1;
   const adult = 3;
-  const departureDate = "2024-06-12";
+  const departureDate = "2024-06-06";
   const flightType = "Return";
   const iataCodeArrival = "BDO";
   const iataCodeDeparture = "CGK";
@@ -114,7 +114,7 @@ const FindTicket = () => {
               Ubah Penerbangan
             </Button>
 
-            <Modal
+            {/* <Modal
               open={isChangeFlight}
               onClose={handleCloseChangeFlight}
               style={{ top: "10%", zIndex: 300 }}
@@ -124,13 +124,13 @@ const FindTicket = () => {
                 isFullScreen={isFullScreen}
                 isMobile={isMobile}
               />
-            </Modal>
+            </Modal> */}
           </Col>
         </Row>
 
         <Row className="mt-4 ">
           <Col>
-            <DateSelector1
+            <DateSelector
               dispatch={dispatch}
               datafiltering={{
                 seatType: seatType,
@@ -146,7 +146,7 @@ const FindTicket = () => {
       <Container>
         <Row className={isFullScreen ? "pt-4 mx-5" : "pt-4"}>
           <Col>
-            {flights.length === 0 ? (
+            {flights === null || flights?.length === 20 ? (
               <TicketNotFound />
             ) : (
               <FlightList
@@ -167,10 +167,11 @@ const FindTicket = () => {
   );
 };
 
-const DateSelector1 = ({ dispatch, datafiltering }) => {
+const DateSelector = ({ dispatch, datafiltering }) => {
   const baseDate = new Date(datafiltering.departureDate);
   const [selectedDate, setSelectedDate] = useState(baseDate);
-
+  const [visibleButtons, setVisibleButtons] = useState(7);
+  const [isHovered, setIsHovered] = useState(null);
   const daysOfWeek = [
     "Minggu",
     "Senin",
@@ -219,22 +220,37 @@ const DateSelector1 = ({ dispatch, datafiltering }) => {
   };
 
   return (
-    <Container className="d-flex justify-content-between">
-      {Array.from({ length: 7 }, (_, i) => {
+    <Container
+      className="d-flex justify-content-center"
+      style={{ overflowX: "hidden" }}
+    >
+      <Image src={VerticalLine} />
+      {Array.from({ length: visibleButtons }, (_, i) => {
         const buttonData = createButtonData(selectedDate, i - 3);
         const isActive = selectedDate.getTime() === buttonData.date.getTime();
 
         return (
-          <Button
-            key={i}
-            variant={isActive ? "primary" : "outline-secondary"}
-            onClick={() => handleButtonClick(buttonData.date)}
-            className="px-4"
-            style={{ backgroundColor: isActive ? "#007bff" : "#ffffff" }}
-          >
-            <p style={{ margin: 0 }}>{buttonData.hari}</p>
-            <p style={{ margin: 0 }}>{buttonData.tanggal}</p>
-          </Button>
+          <React.Fragment key={i}>
+            <Button
+              className="px-4 mx-3"
+              variant="custom"
+              onClick={() => handleButtonClick(buttonData.date)}
+              onMouseEnter={() => setIsHovered(i)}
+              onMouseLeave={() => setIsHovered(null)}
+              style={{
+                backgroundColor: isActive
+                  ? "blue"
+                  : isHovered === i
+                  ? "grey"
+                  : "",
+                color: isActive || isHovered === i ? "white" : "black",
+              }}
+            >
+              <p style={{ margin: 0 }}>{buttonData.hari}</p>
+              <p style={{ margin: 0 }}>{buttonData.tanggal}</p>
+            </Button>
+            <Image src={VerticalLine} />
+          </React.Fragment>
         );
       })}
     </Container>
@@ -242,6 +258,27 @@ const DateSelector1 = ({ dispatch, datafiltering }) => {
 };
 
 const Filter = ({ dispatch, datafiltering }) => {
+  const [sortOption, setSortOption] = useState("price-asc"); // Changed
+
+  const handleChange = (event) => {
+    // Changed
+    const selectedOption = event.target.value; // Changed
+    setSortOption(selectedOption); // Changed
+    const [sortField, sortOrder] = selectedOption.split("-"); // Changed
+    dispatch(
+      // Changed
+      getFilterFlights(
+        // Changed
+        datafiltering.departure, // Changed
+        datafiltering.arrival, // Changed
+        "departureAt", // Changed
+        datafiltering.departureDate, // Changed
+        sortField === "price" ? sortField + datafiltering.seatType : sortField, // Changed
+        sortOrder, // Changed
+        datafiltering.seatType // Changed
+      ) // Changed
+    ); // Changed
+  }; // Changed
   return (
     <Row className="mb-4">
       <Col offset-md={9}></Col>
@@ -252,19 +289,8 @@ const Filter = ({ dispatch, datafiltering }) => {
             defaultValue="price-asc"
             size="small"
             sx={{ borderRadius: 2 }}
-            onClick={() =>
-              dispatch(
-                getFilterFlights(
-                  datafiltering.departure,
-                  datafiltering.arrival,
-                  "departureAt",
-                  datafiltering.departureDate,
-                  defaultValue.split("-")[0] + datafiltering.seatType,
-                  defaultValue.split("-")[1],
-                  datafiltering.seatType
-                )
-              )
-            }
+            value={sortOption} // Changed
+            onChange={handleChange} // Changed
           >
             <MenuItem value="price-asc">
               <Typography>
@@ -314,8 +340,8 @@ const Filter = ({ dispatch, datafiltering }) => {
 const FlightList = ({ flights, dispatch, datafiltering }) => {
   const [expanded, setExpanded] = useState(null);
   const [rotated, setRotated] = useState({});
-  const handleButtonClick = (flightId, e) => {
-    e.stopPropagation();
+
+  const handleHeaderClick = (flightId) => {
     setExpanded((prevExpanded) =>
       prevExpanded === flightId ? null : flightId
     );
@@ -323,6 +349,12 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
       ...prevRotated,
       [flightId]: !prevRotated[flightId],
     }));
+  };
+
+  const handleButtonClick = (e) => {
+    e.stopPropagation(); // Mencegah event klik dari propagasi ke Card.Header
+    // Tambahkan logika untuk penanganan klik pada tombol "Pilih"
+    console.log("Tombol Pilih diklik");
   };
 
   return (
@@ -341,11 +373,11 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
           >
             <Card.Header
               style={{ borderBottom: "none", backgroundColor: "white" }}
+              onClick={() => handleHeaderClick(flight.id)}
             >
               <Container>
                 <Row>
                   <Col md={11} sm={11} xs={11}>
-                    {" "}
                     <Row>
                       {/* airline name */}
                       <Col
@@ -412,7 +444,10 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
                         <h3 style={{ fontSize: 20, fontWeight: 650 }}>
                           IDR {flight["price" + datafiltering.seatType]}
                         </h3>
-                        <Button style={{ borderRadius: 14, width: "50%" }}>
+                        <Button
+                          style={{ borderRadius: 14, width: "50%" }}
+                          onClick={handleButtonClick}
+                        >
                           Pilih
                         </Button>
                       </Col>
@@ -422,13 +457,15 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
                     md={1}
                     sm={1}
                     xs={1}
-                    className="d-flex justify-content-center "
+                    className="d-flex justify-content-center"
                     style={{ padding: 0 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleHeaderClick(flight.id);
+                    }}
                   >
-                    {" "}
                     <Image
                       src={accorTrigger}
-                      onClick={(e) => handleButtonClick(flight.id, e)}
                       style={{
                         width: 25,
                         transition: "transform 0.3s",
