@@ -232,7 +232,7 @@ const DateSelector = ({ dispatch, datafiltering }) => {
         return (
           <React.Fragment key={i}>
             <Button
-              className="px-4 mx-3"
+              className="px-md-4 px-sm-4 px-3 mx-md-3 mx-sm-3 mx-2"
               variant="custom"
               onClick={() => handleButtonClick(buttonData.date)}
               onMouseEnter={() => setIsHovered(i)}
