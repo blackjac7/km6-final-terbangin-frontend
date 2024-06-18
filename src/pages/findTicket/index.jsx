@@ -341,20 +341,27 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
   const [expanded, setExpanded] = useState(null);
   const [rotated, setRotated] = useState({});
 
-  const handleHeaderClick = (flightId) => {
+  // accordion body expand trigger
+  const handleHeaderClick = (flightId, e) => {
     setExpanded((prevExpanded) =>
       prevExpanded === flightId ? null : flightId
     );
-    setRotated((prevRotated) => ({
-      ...prevRotated,
-      [flightId]: !prevRotated[flightId],
-    }));
+
+    setRotated((prevRotated) => {
+      const newRotated = Object.keys(prevRotated).reduce((acc, key) => {
+        acc[key] = key === flightId.toString() ? !prevRotated[key] : false;
+        return acc;
+      }, {});
+      return {
+        ...newRotated,
+        [flightId]: !prevRotated[flightId],
+      };
+    });
   };
 
-  const handleButtonClick = (e) => {
-    e.stopPropagation(); // Mencegah event klik dari propagasi ke Card.Header
-    // Tambahkan logika untuk penanganan klik pada tombol "Pilih"
-    console.log("Tombol Pilih diklik");
+  // pilih button disable button
+  const handlePilihButton = (e) => {
+    e.stopPropagation();
   };
 
   return (
@@ -445,8 +452,9 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
                           IDR {flight["price" + datafiltering.seatType]}
                         </h3>
                         <Button
+                          href="/"
+                          onClick={handlePilihButton}
                           style={{ borderRadius: 14, width: "50%" }}
-                          onClick={handleButtonClick}
                         >
                           Pilih
                         </Button>
@@ -459,10 +467,7 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
                     xs={1}
                     className="d-flex justify-content-center"
                     style={{ padding: 0 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleHeaderClick(flight.id);
-                    }}
+                    onClick={(e) => handleButtonClick(flight.id, e)} // Mengatur klik pada ikon
                   >
                     <Image
                       src={accorTrigger}
@@ -521,7 +526,6 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
     </>
   );
 };
-
 // page status section
 const TicketNotFound = () => {
   return (
