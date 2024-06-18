@@ -1,0 +1,13 @@
+#showPaymentBtn {
+    background-color: #8a2be2;
+    outline: none;
+    border: none;
+}
+
+#showPaymentBtn:hover {
+    background-color: #6918b4;
+}
+
+#snapContainer {
+    width: 100%;
+}

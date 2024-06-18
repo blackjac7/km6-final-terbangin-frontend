@@ -1,5 +1,4 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import React from "react";
 import { Provider } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -11,7 +10,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "react-toastify/dist/ReactToastify.css";
 
 import Navbar from "./components/Navbar";
-import Banner from "./components/Banner";
 import Home from "./pages/home";
 import Search from "./pages/search/search";
 import LoginPage from "./pages/login/login";
