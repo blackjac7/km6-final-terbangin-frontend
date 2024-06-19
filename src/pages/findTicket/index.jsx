@@ -34,19 +34,20 @@ import FormArea from "../../components/FormArea";
 
 import { useDispatch, useSelector } from "react-redux";
 import { getFilterFlights } from "../../redux/actions/flight";
+import moment from "moment";
 
 const FindTicket = () => {
   const [isChangeFlight, setChangeFlight] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isFullScreen, setIsFullScreen] = useState(window.innerWidth > 1160);
 
-  const departure = "Pyongyang";
-  const arrival = "Tokyo";
+  const departure = "New York";
+  const arrival = "London";
   const capacity = 4;
   const baby = 0;
   const child = 1;
   const adult = 3;
-  const departureDate = "2024-06-06";
+  const departureDate = "2024-06-19";
   const flightType = "Return";
   const iataCodeArrival = "BDO";
   const iataCodeDeparture = "CGK";
@@ -146,7 +147,7 @@ const FindTicket = () => {
       <Container>
         <Row className={isFullScreen ? "pt-4 mx-5" : "pt-4"}>
           <Col>
-            {flights === null || flights?.length === 20 ? (
+            {flights === null || flights?.length === 0 ? (
               <TicketNotFound />
             ) : (
               <FlightList
@@ -245,6 +246,9 @@ const DateSelector = ({ dispatch, datafiltering }) => {
                   : "",
                 color: isActive || isHovered === i ? "white" : "black",
               }}
+              disabled={
+                moment().startOf("day") < buttonData.date ? false : true
+              }
             >
               <p style={{ margin: 0 }}>{buttonData.hari}</p>
               <p style={{ margin: 0 }}>{buttonData.tanggal}</p>
