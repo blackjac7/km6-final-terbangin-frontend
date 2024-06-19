@@ -551,7 +551,7 @@ const FormArea = ({ title, isFullScreen, isMobile }) => {
                 borderRadius: "0px 0px 11px 11px",
               }}
               as={Link}
-              to="/search"
+              to="/find-ticket"
             >
               Cari Penerbangan
             </Button>

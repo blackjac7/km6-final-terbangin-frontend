@@ -39,14 +39,6 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/search",
-    element: (
-      <NonProtected>
-        <Search />
-      </NonProtected>
-    ),
-  },
-  {
     path: "/login",
     element: (
       <NonProtected>
