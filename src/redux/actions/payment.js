@@ -32,14 +32,16 @@ export const generateSnapPayment =
 
             navigate("/payment");
         } catch (e) {
+            removeSnapData();
             toast.error(e?.response?.data?.message);
         }
     };
 
 export const updatePayment = (payload) => async (_, getState) => {
-    const { paymentId } = payload;
+    const { transaction_id: paymentId } = payload;
 
     if (!paymentId) {
+        toast.error("Payment ID must not be empty!");
         return;
     }
     const authToken = getState().auth.token;
@@ -60,4 +62,9 @@ export const updatePayment = (payload) => async (_, getState) => {
     } catch (e) {
         toast.error(e?.response?.data?.message);
     }
+};
+
+const removeSnapData = () => (dispatch) => {
+    dispatch(paymentReducer.setSnapToken(null));
+    dispatch(paymentReducer.setSnapLink(null));
 };

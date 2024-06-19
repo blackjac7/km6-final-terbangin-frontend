@@ -12,6 +12,8 @@ import PriceDetail from "../../components/PriceDetail";
 
 import { useState, useEffect } from "react";
 import "./index.css";
+import { updatePayment } from "../../redux/actions/payment";
+import { useNavigate } from "react-router-dom";
 
 const Payment = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -82,7 +84,7 @@ const Payment = () => {
                 </Breadcrumbs>
 
                 {/* Midtrans or Internal timer */}
-                <Row className="my-4 g-2">
+                {/* <Row className="my-4 g-2">
                     <Col md={12} className="d-flex">
                         <Button
                             variant="danger"
@@ -92,7 +94,7 @@ const Payment = () => {
                             Selesaikan Pembayaran sampai 10 Maret 2023 12:00
                         </Button>
                     </Col>
-                </Row>
+                </Row> */}
             </HeaderShadow>
 
             {/* Main Content */}
@@ -124,6 +126,7 @@ const Payment = () => {
 // average fetching data here
 const BookingDetail = () => {
     const [showPayment, setShowPayment] = useState(false);
+    const navigate = useNavigate();
 
     return (
         <Container className="pb-5">
@@ -174,6 +177,19 @@ const BookingDetail = () => {
 
                     window.snap.embed("90e6d0f9-7109-484c-acbb-e023f844c944", {
                         embedId: "snapContainer",
+                        onSuccess: (result) => {
+                            console.log("success");
+                            updatePayment(result).then((_) => {
+                                navigate("/");
+                            });
+                        },
+                        onPending: (_) => {
+                            console.log("pending");
+                        },
+                        onError: (result) => {
+                            console.log("error");
+                            updatePayment(result);
+                        }
                     });
                 }}
             >
