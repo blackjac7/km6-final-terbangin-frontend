@@ -185,7 +185,6 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
             return;
         }
 
-        // Handle form submission logic here
         console.log({
             flightType,
             departure,
