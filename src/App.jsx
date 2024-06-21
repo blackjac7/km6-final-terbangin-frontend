@@ -24,11 +24,13 @@ import VerificationLink from "./pages/verificationLink/verificationLink";
 import FindTicket from "./pages/findTicket";
 import OrderHistoryPages from "./pages/orderHistory";
 import Payment from "./pages/payment";
+import NotificationPage from "./pages/notification";
 
 import ProtectedVerification from "./components/ProtectedVerification/ProtectedVerification";
 import ProtectedForgetPassword from "./components/ProtectedForgetPassword/ProtectedForgetPassword";
 import Protected from "./components/Protected";
 import NonProtected from "./components/NonProtected";
+
 
 const router = createBrowserRouter([
   {
@@ -134,6 +136,17 @@ const router = createBrowserRouter([
         {/* <ProtectedForgetPassword> */}
         <Navbar />
         <Payment />
+        {/* </ProtectedForgetPassword> */}
+      </>
+    ),
+  },
+  {
+    path: "/notification",
+    element: (
+      <>
+        {/* <ProtectedForgetPassword> */}
+        <Navbar />
+        <NotificationPage />
         {/* </ProtectedForgetPassword> */}
       </>
     ),
