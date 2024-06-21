@@ -1,23 +1,32 @@
-.btn-primary {
+/* .home-seat-class:hover {
+    background-color: rgb(184, 146, 218) !important;
+    color: #fff !important;
+} */
+
+.home-seat-class:active {
+    background-color: rgb(142, 48, 225) !important;
+    color: #fff !important;
+}
+
+.button-search {
     background-color: #7126b5;
     border-color: #7126b5;
     align-self: stretch;
     border-radius: 0px 0px 11px 11px;
 }
 
-.btn-primary:hover {
+.button-search:hover {
     background-color: #8046b7;
     border-color: #8046b7;
 }
 
-.btn-primary:focus {
+.button-search:focus {
     background-color: #7126b5;
     border-color: #7126b5;
     outline: none;
-    box-shadow: none;
 }
 
-.btn-primary:active {
+.button-search:active {
     background-color: #8e6fdd !important;
     border-color: #8e6fdd !important;
 }
