@@ -59,7 +59,7 @@ const Profile = () => {
                         className="text-decoration-none text-start"
                         style={{ backgroundColor: "#7126B5", width: "90%" }}
                     >
-                        <FaArrowLeft /> Home
+                        <FaArrowLeft /> Beranda
                     </Button>
                 </div>
             </Container>
