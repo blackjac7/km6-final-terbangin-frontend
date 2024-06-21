@@ -8,7 +8,7 @@ const NonProtected = ({ children }) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(getProfile(navigate, "/login", null));
+        dispatch(getProfile(navigate, "/", null));
     }, [dispatch, navigate]);
 
     return children;
