@@ -32,6 +32,7 @@ import BackButton from "../../components/BackButton";
 import HeaderShadow from "../../components/HeaderShadow";
 import FormArea from "../../components/FormArea";
 
+import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getFilterFlights } from "../../redux/actions/flight";
 import moment from "moment-timezone";
@@ -41,18 +42,22 @@ const FindTicket = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isFullScreen, setIsFullScreen] = useState(window.innerWidth > 1160);
 
-  const departure = "New York";
-  const arrival = "London";
-  const capacity = 4;
-  const baby = 0;
-  const child = 1;
-  const adult = 3;
-  const departureDate = "2024-7-1";
-  const flightType = "Return";
-  const iataCodeArrival = "BDO";
-  const iataCodeDeparture = "CGK";
-  const returnDate = "2024-06-15";
-  const seatType = "Bussines";
+  const location = useLocation();
+
+  const {
+    flightType,
+    departure,
+    iataCodeDeparture,
+    arrival,
+    iataCodeArrival,
+    departureDate,
+    returnDate,
+    seatType,
+    capacity,
+    adult,
+    child,
+    baby,
+  } = location.state || {};
 
   const dispatch = useDispatch();
   const { flights } = useSelector((state) => state.flight);
@@ -89,7 +94,18 @@ const FindTicket = () => {
         seatType
       )
     );
-  }, [dispatch]);
+  }, [
+    dispatch,
+    departure,
+    arrival,
+    flightType,
+    seatType,
+    adult,
+    child,
+    baby,
+    departureDate,
+    returnDate,
+  ]);
 
   return (
     <>
@@ -102,7 +118,7 @@ const FindTicket = () => {
         <Row className="mt-4 g-2">
           <Col sx={12} md={10} className="d-flex">
             <BackButton
-              ButtonText={`${iataCodeArrival}  >  ${iataCodeDeparture} - ${capacity} Penumpang - ${seatType}`}
+              ButtonText={`${iataCodeDeparture} > ${iataCodeArrival} - ${capacity} Penumpang - ${seatType}`}
             />
           </Col>
           <Col sx={12} md={2} className="d-flex">
@@ -115,7 +131,7 @@ const FindTicket = () => {
               Ubah Penerbangan
             </Button>
 
-            {/* <Modal
+            <Modal
               open={isChangeFlight}
               onClose={handleCloseChangeFlight}
               style={{ top: "10%", zIndex: 300 }}
@@ -124,8 +140,9 @@ const FindTicket = () => {
                 title={"Ubah Penerbangan"}
                 isFullScreen={isFullScreen}
                 isMobile={isMobile}
+                onClick={handleCloseChangeFlight}
               />
-            </Modal> */}
+            </Modal>
           </Col>
         </Row>
 
@@ -157,7 +174,7 @@ const FindTicket = () => {
                   seatType: seatType,
                   departure: departure,
                   arrival: arrival,
-                  departureDate: departureDate,
+                  departureDate: flights[0]?.departureAt,
                 }}
               />
             )}
@@ -219,6 +236,11 @@ const DateSelector = ({ dispatch, datafiltering }) => {
       )
     );
   };
+
+  useEffect(() => {
+    const baseDate = new Date(datafiltering.departureDate);
+    setSelectedDate(baseDate);
+  }, [datafiltering.departureDate]);
 
   return (
     <Container

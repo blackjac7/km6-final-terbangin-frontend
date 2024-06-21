@@ -11,7 +11,9 @@ export const getFilterFlights =
     filter = filter ?? "priceEconomy";
     seatType = seatType ?? "Economy";
     try {
-      const url = new URL("http://localhost:3000/api/v1/flight/flightfilter");
+      const url = new URL(
+        `${import.meta.env.VITE_BACKEND_API}/api/v1/flight/flightfilter`
+      );
       url.searchParams.append("start", start);
       url.searchParams.append("end", end);
       url.searchParams.append("key", key);
