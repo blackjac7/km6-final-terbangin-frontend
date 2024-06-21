@@ -34,7 +34,7 @@ import FormArea from "../../components/FormArea";
 
 import { useDispatch, useSelector } from "react-redux";
 import { getFilterFlights } from "../../redux/actions/flight";
-import moment from "moment";
+import moment from "moment-timezone";
 
 const FindTicket = () => {
   const [isChangeFlight, setChangeFlight] = useState(false);
@@ -47,7 +47,7 @@ const FindTicket = () => {
   const baby = 0;
   const child = 1;
   const adult = 3;
-  const departureDate = "2024-06-19";
+  const departureDate = "2024-7-1";
   const flightType = "Return";
   const iataCodeArrival = "BDO";
   const iataCodeDeparture = "CGK";
@@ -414,16 +414,19 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
                         className="d-flex justify-content-center pt-2"
                       >
                         <FlightDestination
-                          departureTime={format(
-                            new Date(flight.departureAt),
-                            "HH:mm"
-                          )}
+                          departureTime={moment
+                            .tz(
+                              flight.departureAt,
+                              flight.StartAirport.timezone
+                            )
+                            .format("HH:mm")}
                           departureCity={flight.StartAirport.iataCode}
                           flightDuration={flight.duration}
-                          arrivalTime={format(
-                            new Date(flight.arrivalAt),
-                            "HH:mm"
-                          )}
+                          arrivalTime={moment
+                            .tz(flight.arrivalAt, flight.StartAirport.timezone)
+                            .clone()
+                            .tz(flight.EndAirport.timezone)
+                            .format("HH:mm")}
                           arrivalCity={flight.EndAirport.iataCode}
                         />
                       </Col>
@@ -493,21 +496,24 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
                   <hr />
                   <DetailFlight
                     TitleDetail={"Detail Penerbangan"}
-                    departureTime={format(
-                      new Date(flight.departureAt),
-                      "HH:mm"
-                    )}
-                    departureDate={format(
-                      new Date(flight.departureAt),
-                      "dd MMMM yyyy"
-                    )}
+                    departureTime={moment
+                      .tz(flight.departureAt, flight.StartAirport.timezone)
+                      .format("HH:mm")}
+                    departureDate={moment
+                      .tz(flight.departureAt, flight.StartAirport.timezone)
+                      .format("DD MMMM yyyy")}
                     departureAirport={flight.StartAirport.name}
                     departureTerminal={flight.StartAirport.terminal}
-                    arrivalTime={format(new Date(flight.arrivalAt), "HH:mm")}
-                    arrivalDate={format(
-                      new Date(flight.arrivalAt),
-                      "dd MMMM yyyy"
-                    )}
+                    arrivalTime={moment
+                      .tz(flight.arrivalAt, flight.StartAirport.timezone)
+                      .clone()
+                      .tz(flight.EndAirport.timezone)
+                      .format("HH:mm")}
+                    arrivalDate={moment
+                      .tz(flight.arrivalAt, flight.StartAirport.timezone)
+                      .clone()
+                      .tz(flight.EndAirport.timezone)
+                      .format("DD MMMM yyyy")}
                     arrivalAirport={flight.EndAirport.name}
                     arrivalTerminal={flight.EndAirport.terminal}
                     airlineName={flight.Airline.name}
