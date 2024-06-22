@@ -9,9 +9,9 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-toastify/dist/ReactToastify.css";
+import "./App.css";
 
 import Navbar from "./components/Navbar";
-import Banner from "./components/Banner";
 import Home from "./pages/home";
 import Search from "./pages/search/search";
 import LoginPage from "./pages/login/login";
@@ -28,110 +28,118 @@ import NotificationPage from "./pages/notification";
 
 import ProtectedVerification from "./components/ProtectedVerification/ProtectedVerification";
 import ProtectedForgetPassword from "./components/ProtectedForgetPassword/ProtectedForgetPassword";
+import ProtectedFilterTicket from "./components/ProtectedFilterTicket/ProtectedVerification";
 import Protected from "./components/Protected";
 import NonProtected from "./components/NonProtected";
 
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: (
-      <NonProtected>
-        <Navbar />
-        <Home />
-      </NonProtected>
-    ),
-  },
-  {
-    path: "/login",
-    element: (
-      <NonProtected>
-        <LoginPage />
-      </NonProtected>
-    ),
-  },
-  {
-    path: "/register",
-    element: (
-      <NonProtected>
-        <RegisterPage />
-      </NonProtected>
-    ),
-  },
+    {
+        path: "/",
+        element: (
+            <NonProtected>
+                <Navbar />
+                <Home />
+            </NonProtected>
+        ),
+    },
+    {
+        path: "/search",
+        element: (
+            <NonProtected>
+                <Search />
+            </NonProtected>
+        ),
+    },
+    {
+        path: "/login",
+        element: (
+            <NonProtected>
+                <LoginPage />
+            </NonProtected>
+        ),
+    },
+    {
+        path: "/register",
+        element: (
+            <NonProtected>
+                <RegisterPage />
+            </NonProtected>
+        ),
+    },
 
-  {
-    path: "/profile",
-    element: (
-      <Protected>
-        <Profile />
-      </Protected>
-    ),
-  },
-  {
-    path: "/verification",
-    element: (
-      <ProtectedVerification>
-        <OtpVerification />
-      </ProtectedVerification>
-    ),
-  },
-  {
-    path: "/request-reset-password",
-    element: (
-      <NonProtected>
-        <RequestResetPassword />,
-      </NonProtected>
-    ),
-  },
-  {
-    path: "/verify-link",
-    element: (
-      <NonProtected>
-        <VerificationLink />,
-      </NonProtected>
-    ),
-  },
-  {
-    path: "/forget-password",
-    element: (
-      <ProtectedForgetPassword>
-        <ForgetPassword />
-      </ProtectedForgetPassword>
-    ),
-  },
-  {
-    path: "/find-ticket",
-    element: (
-      //   <ProtectedForgetPassword>
-      <>
-        <Navbar />
-        <FindTicket />
-      </>
-      //   </ProtectedForgetPassword>
-    ),
-  },
-  {
-    path: "/order-history",
-    element: (
-      <>
-        {/* <ProtectedForgetPassword> */}
-        <Navbar />
-        <OrderHistoryPages />
-        {/* </ProtectedForgetPassword> */}
-      </>
-    ),
-  },
-  {
-    path: "/payment",
-    element: (
-      <>
-        {/* <ProtectedForgetPassword> */}
-        <Navbar />
-        <Payment />
-        {/* </ProtectedForgetPassword> */}
-      </>
-    ),
-  },
+    {
+        path: "/profile",
+        element: (
+            <Protected>
+                <Navbar />
+                <Profile />
+            </Protected>
+        ),
+    },
+    {
+        path: "/verification",
+        element: (
+            <ProtectedVerification>
+                <OtpVerification />
+            </ProtectedVerification>
+        ),
+    },
+    {
+        path: "/request-reset-password",
+        element: (
+            <NonProtected>
+                <RequestResetPassword />,
+            </NonProtected>
+        ),
+    },
+    {
+        path: "/verify-link",
+        element: (
+            <NonProtected>
+                <VerificationLink />,
+            </NonProtected>
+        ),
+    },
+    {
+        path: "/forget-password",
+        element: (
+            <ProtectedForgetPassword>
+                <ForgetPassword />
+            </ProtectedForgetPassword>
+        ),
+    },
+    {
+        path: "/find-ticket",
+        element: (
+            <ProtectedFilterTicket>
+                <Navbar />
+                <FindTicket />
+            </ProtectedFilterTicket>
+        ),
+    },
+    {
+        path: "/order-history",
+        element: (
+            <>
+                {/* <ProtectedForgetPassword> */}
+                <Navbar />
+                <OrderHistoryPages />
+                {/* </ProtectedForgetPassword> */}
+            </>
+        ),
+    },
+    {
+        path: "/payment",
+        element: (
+            <>
+                {/* <ProtectedForgetPassword> */}
+                <Navbar />
+                <Payment />
+                {/* </ProtectedForgetPassword> */}
+            </>
+        ),
+    },
   {
     path: "/notification",
     element: (
@@ -146,14 +154,16 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return (
-    <Provider store={store}>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-        <RouterProvider router={router} />
-        <ToastContainer theme="colored" />
-      </GoogleOAuthProvider>
-    </Provider>
-  );
+    return (
+        <Provider store={store}>
+            <GoogleOAuthProvider
+                clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
+            >
+                <RouterProvider router={router} />
+                <ToastContainer theme="colored" />
+            </GoogleOAuthProvider>
+        </Provider>
+    );
 }
 
 export default App;

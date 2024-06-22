@@ -3,11 +3,11 @@ import PropTypes from "prop-types";
 import Arrow from "../../assets/Arrow.svg";
 
 const FlightDestination = ({
-  departureAt,
+  departureTime,
   departureDate,
   departureCity,
   flightDuration,
-  arrivalAt,
+  arrivalTime,
   arrivalDate,
   arrivalCity,
 }) => {
@@ -18,7 +18,7 @@ const FlightDestination = ({
         xs={3}
         className="d-flex flex-column align-items-center  justify-content-center"
       >
-        <p style={{ fontWeight: "bold", marginBottom: 0 } }>{departureAt}</p>
+        <p style={{ fontWeight: "bold", marginBottom: 0 }}>{departureTime}</p>
         <p style={{ marginBottom: 0 }}>{departureDate}</p>
         <p style={{ marginBottom: 0 }}>{departureCity}</p>
       </Col>
@@ -29,7 +29,13 @@ const FlightDestination = ({
         style={{ textAlign: "center" }}
       >
         <p className="my-0" style={{ marginBottom: 0 }}>
-          {flightDuration}
+          {Math.floor(flightDuration % 60) == 0
+            ? `${flightDuration / 60} Jam`
+            : flightDuration < 60 ? `${
+                flightDuration % 60
+              } Menit`:`${Math.floor(flightDuration / 60)} Jam ${
+                flightDuration % 60
+              } Menit`}
         </p>
         <Image src={Arrow} className="img-fluid" style={{ marginBottom: 0 }} />
         <p className="my-0">Flight Duration</p>
@@ -39,7 +45,7 @@ const FlightDestination = ({
         xs={3}
         className="d-flex flex-column align-items-center justify-content-center"
       >
-        <p style={{ fontWeight: "bold", marginBottom: 0 }}>{arrivalAt}</p>
+        <p style={{ fontWeight: "bold", marginBottom: 0 }}>{arrivalTime}</p>
         {arrivalDate}
         <p style={{ marginBottom: 0 }}>{arrivalCity}</p>
       </Col>
