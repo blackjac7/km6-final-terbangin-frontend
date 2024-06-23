@@ -38,3 +38,23 @@ export const getFilterFlights =
       console.error("Error fetching flights:", error);
     }
   };
+
+export const getFlightById = (id) => async () => {
+  let config = {
+    method: "get",
+    url: `${import.meta.env.VITE_BACKEND_API}/api/v1/flight/id/${id}`,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  try {
+    const response = await axios.request(config);
+
+    const { data } = response.data;
+    console.log(data);
+    return data;
+  } catch (error) {
+    toast.error(error?.response?.data?.message);
+  }
+};
