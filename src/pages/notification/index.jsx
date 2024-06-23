@@ -11,26 +11,34 @@ import {
 } from "react-bootstrap";
 import { FaCircle, FaArrowLeft, FaSearch, FaFilter } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { getNotifications } from "../../redux/actions/notification";
+import {
+  getNotificationByUserId,
+  readNotification,
+} from "../../redux/actions/notification";
 
 const NotificationPage = () => {
   const dispatch = useDispatch();
   const notifications = useSelector(
     (state) => state.notification.notifications
   );
+  const userId = useSelector((state) => state.auth.user?.id); // Pastikan userId diambil dari state auth
   const [searchVisible, setSearchVisible] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [selectedNotification, setSelectedNotification] = useState(null); // Tambahkan state untuk notifikasi yang dipilih
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    dispatch(getNotifications());
-  }, [dispatch]);
+    if (userId) {
+      dispatch(getNotificationByUserId(userId)); // Panggil action dengan userId
+    }
+  }, [dispatch, userId]);
 
   const toggleSearch = () => {
     setSearchVisible(!searchVisible);
   };
 
-  const handleClose = () => {
+  const handleCloseSearch = () => {
     setSearchVisible(false);
   };
 
@@ -38,7 +46,17 @@ const NotificationPage = () => {
     setFilterStatus(status);
   };
 
-  // Filter notifications based on read status
+  const handleNotificationClick = (notif) => {
+    setSelectedNotification(notif);
+    setModalVisible(true);
+    dispatch(readNotification(notif.id)); // Tandai notifikasi sebagai telah dibaca
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setSelectedNotification(null);
+  };
+
   const filteredNotifications =
     notifications.length > 0
       ? notifications.filter((notif) => {
@@ -118,6 +136,7 @@ const NotificationPage = () => {
                 }}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
+                onClick={() => handleNotificationClick(notif)} // Tambahkan event click
               >
                 <div className="me-md-2 mb-2 mb-md-0">
                   <div className="fw-regular">{notif.title}</div>
@@ -134,7 +153,7 @@ const NotificationPage = () => {
           </ListGroup>
         </Col>
       </Row>
-      <Modal show={searchVisible} onHide={handleClose} centered>
+      <Modal show={searchVisible} onHide={handleCloseSearch} centered>
         <Modal.Header closeButton>
           <Modal.Title>Cari notifikasi</Modal.Title>
         </Modal.Header>
@@ -146,6 +165,14 @@ const NotificationPage = () => {
           />
         </Modal.Body>
       </Modal>
+      {selectedNotification && (
+        <Modal show={modalVisible} onHide={handleCloseModal} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>{selectedNotification.title}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>{selectedNotification.message}</Modal.Body>
+        </Modal>
+      )}
     </Container>
   );
 };

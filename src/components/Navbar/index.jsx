@@ -118,7 +118,7 @@ function NavScrollExample() {
                                 <IconButton
                                     color="inherit"
                                     onClick={() => {
-                                        navigate("/notifications");
+                                        navigate("/notification");
                                         handleClose();
                                     }}
                                 >

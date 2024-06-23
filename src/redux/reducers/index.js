@@ -4,4 +4,4 @@ import flight from "./flight";
 import notification from "./notification";
 
 //combining some reducers
-export default combineReducers({ auth, notification,, flight });
+export default combineReducers({ auth, notification, flight });
