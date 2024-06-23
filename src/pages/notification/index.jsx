@@ -21,16 +21,16 @@ const NotificationPage = () => {
   const notifications = useSelector(
     (state) => state.notification.notifications
   );
-  const userId = useSelector((state) => state.auth.user?.id); // Pastikan userId diambil dari state auth
+  const userId = useSelector((state) => state.auth.user?.id); 
   const [searchVisible, setSearchVisible] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  const [selectedNotification, setSelectedNotification] = useState(null); // Tambahkan state untuk notifikasi yang dipilih
+  const [selectedNotification, setSelectedNotification] = useState(null); 
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     if (userId) {
-      dispatch(getNotificationByUserId(userId)); // Panggil action dengan userId
+      dispatch(getNotificationByUserId(userId)); 
     }
   }, [dispatch, userId]);
 
@@ -49,7 +49,7 @@ const NotificationPage = () => {
   const handleNotificationClick = (notif) => {
     setSelectedNotification(notif);
     setModalVisible(true);
-    dispatch(readNotification(notif.id)); // Tandai notifikasi sebagai telah dibaca
+    dispatch(readNotification(notif.id)); 
   };
 
   const handleCloseModal = () => {
@@ -124,7 +124,11 @@ const NotificationPage = () => {
       </Row>
       <Row>
         <Col>
-          <ListGroup>
+          <ListGroup
+            style={{
+              cursor: "pointer",
+            }}
+          >
             {filteredNotifications.map((notif, index) => (
               <ListGroup.Item
                 key={index}
@@ -136,7 +140,7 @@ const NotificationPage = () => {
                 }}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                onClick={() => handleNotificationClick(notif)} // Tambahkan event click
+                onClick={() => handleNotificationClick(notif)}
               >
                 <div className="me-md-2 mb-2 mb-md-0">
                   <div className="fw-regular">{notif.title}</div>
