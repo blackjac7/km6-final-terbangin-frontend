@@ -439,24 +439,25 @@ const BookingForm = () => {
                             </Button>
                         </div>
                     </Col>
-                    {showFlightDetails && (
-                        <Col md={4}>
-                            <Card className="mb-4 mt-5">
-                                <h4 className="mb-0" style={{ marginLeft: '18px', marginTop: '15px' }}>Detail Penerbangan</h4>
-                                <Card.Body>
-                                    <DetailFlight
-                                        departTime="08:00"
-                                        arrivalTime="10:00"
-                                        from="CGK"
-                                        to="PKU"
-                                        flightCode="GA 123"
-                                        classType="Ekonomi"
-                                        price="1300000"
-                                        duration="2 Jam"
-                                        selectedDate="22 Oktober 2022"
-                                    />
-                                </Card.Body>
-                            </Card>
+
+                    <Col md={4}>
+                        <Card className="mb-4 mt-5">
+                            <h4 className="mb-0" style={{ marginLeft: '18px', marginTop: '15px' }}>Detail Penerbangan</h4>
+                            <Card.Body>
+                                <DetailFlight
+                                    departTime="08:00"
+                                    arrivalTime="10:00"
+                                    from="CGK"
+                                    to="PKU"
+                                    flightCode="GA 123"
+                                    classType="Ekonomi"
+                                    price="1300000"
+                                    duration="2 Jam"
+                                    selectedDate="22 Oktober 2022"
+                                />
+                            </Card.Body>
+                        </Card>
+                        {showFlightDetails && (
                             <div>
                                 <Button
                                     type="submit"
@@ -467,8 +468,9 @@ const BookingForm = () => {
                                     {loading ? "Loading..." : "Lanjut Bayar"}
                                 </Button>
                             </div>
-                        </Col>
-                    )}
+
+                        )}
+                    </Col>
                 </Row>
             </Container>
             <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
