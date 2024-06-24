@@ -23,6 +23,7 @@ import RequestResetPassword from "./pages/requestResetPassword/requestResetPassw
 import VerificationLink from "./pages/verificationLink/verificationLink";
 import FindTicket from "./pages/findTicket";
 import OrderHistoryPages from "./pages/orderHistory";
+import BookingForm from "./pages/checkout/index";
 import Payment from "./pages/payment";
 import NotificationPage from "./pages/notification";
 
@@ -127,6 +128,15 @@ const router = createBrowserRouter([
                 <OrderHistoryPages />
                 {/* </ProtectedForgetPassword> */}
             </>
+        ),
+    },
+    {
+        path: "/booking",
+        element: (
+            <NonProtected>
+              <Navbar />
+                <BookingForm />
+            </NonProtected>
         ),
     },
     {
