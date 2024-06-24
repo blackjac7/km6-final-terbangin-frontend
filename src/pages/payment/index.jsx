@@ -5,6 +5,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 // hard data
 import PaymentData from "../../dumpData/payment.json";
 
+import BookingCode from "../../components/BookingWithCode";
 import HeaderShadow from "../../components/HeaderShadow";
 import DetailFlight from "../../components/FlightDetail";
 import PassangerDetail from "../../components/PassangerDetail";
@@ -93,7 +94,7 @@ const BookingDetail = () => {
   return (
     <Container className="pb-5">
       {/* Flight Information */}
-      <DetailFlight
+      {/* <DetailFlight
         TitleDetail={"Detail Pesanan"}
         BookingCode={`Booking Code: ${PaymentData.bookingCode}`}
         departureAt={PaymentData.departureAt}
@@ -110,9 +111,9 @@ const BookingDetail = () => {
         baggage={PaymentData.baggage}
         cabinBaggage={PaymentData.cabinBaggage}
         additionals={PaymentData.additionals}
-      />
+      /> */}
       {/* Passanger Information */}
-      <div>
+      {/* <div>
         <hr />
         <p style={{ marginBottom: 0, fontWeight: "bold" }}>
           Informasi Penumpang
@@ -125,9 +126,10 @@ const BookingDetail = () => {
             passangerId={passenger.id}
           />
         ))}
-      </div>
+      </div> */}
       {/* Price Information, confused for implement hard data xD  */}
-      <PriceDetail />
+      {/* <PriceDetail /> */}
+      <BookingCode />
     </Container>
   );
 };
