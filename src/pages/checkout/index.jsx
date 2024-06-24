@@ -178,7 +178,6 @@ const BookingForm = () => {
                                             <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Email</Form.Label>
                                             <Form.Control type="email" placeholder="Contoh: johndoe@gmail.com" readOnly={isSaved} />
                                         </Form.Group>
-
                                     </div>
                                 </Form>
                             </Card.Body>
@@ -260,7 +259,6 @@ const BookingForm = () => {
                                                 />
                                             </div>
                                         </Form.Group>
-
                                     </div>
                                 </Form>
                                 <Form style={{ paddingTop: '30px' }}>
@@ -348,9 +346,9 @@ const BookingForm = () => {
                                     <div style={{ backgroundColor: '#343a40', padding: '10px', color: 'white', borderTopLeftRadius: '10px', borderTopRightRadius: '10px' }}>
                                         <h6 className="mb-0" style={{ marginLeft: '4px' }}>Economy - 90 Seat Available</h6>
                                     </div>
-                                    <div style={{ padding: '40px' }}>
+                                    <div style={{ padding: '50px' }}>
                                         {seats.map((row, rowIndex) => (
-                                            <div key={rowIndex} className="d-flex justify-content-center mb-2">
+                                            <div key={rowIndex} className="d-flex justify-content-center">
                                                 {row.map((seat, colIndex) => (
                                                     <React.Fragment key={colIndex}>
                                                         <Button
@@ -358,9 +356,9 @@ const BookingForm = () => {
                                                             onClick={() => handleSeatClick(rowIndex, colIndex)}
                                                             style={{
                                                                 width: "40px",
+                                                                top: "5px",
                                                                 height: "40px",
-                                                                margin: "7px",
-                                                                top: "10px",
+                                                                margin: "3px",
                                                                 textAlign: "center",
                                                                 fontSize: "16px",
                                                                 borderRadius: "8px",
@@ -376,7 +374,9 @@ const BookingForm = () => {
                                                             disabled={seatsConfirmed}
                                                         >
                                                             {seat.isSelected ? "" : ""}
-                                                            <span style={{ fontSize: "10px", marginTop: "3px", display: "block" }}>{seat.number}</span>
+                                                            <span style={{ fontSize: "10px", marginTop: "3px" }}>
+                                                                {`${(rowIndex + 1).toString().padStart(2, '0')}${String.fromCharCode(65 + colIndex)}`}
+                                                            </span>
                                                             {rowIndex === 0 && (
                                                                 <div
                                                                     style={{
@@ -399,7 +399,6 @@ const BookingForm = () => {
                                                                     width: "40px",
                                                                     height: "40px",
                                                                     margin: "7px",
-                                                                    top: "10px",
                                                                     textAlign: "center",
                                                                     fontSize: "16px",
                                                                     borderRadius: "8px",
@@ -414,16 +413,15 @@ const BookingForm = () => {
                                                                 }}
                                                                 disabled
                                                             >
-                                                                {`${rowIndex + 1}`}
+                                                                {`${(rowIndex + 1).toString().padStart(2, '0')}`}
                                                             </Button>
                                                         )}
                                                     </React.Fragment>
                                                 ))}
                                             </div>
                                         ))}
-
-
                                     </div>
+
                                 </Form>
                             </Card.Body>
                         </Card>
@@ -468,7 +466,6 @@ const BookingForm = () => {
                                     {loading ? "Loading..." : "Lanjut Bayar"}
                                 </Button>
                             </div>
-
                         )}
                     </Col>
                 </Row>
