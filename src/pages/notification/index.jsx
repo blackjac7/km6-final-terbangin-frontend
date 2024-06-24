@@ -5,11 +5,10 @@ import {
   Col,
   Button,
   Dropdown,
-  FormControl,
   ListGroup,
   Modal,
 } from "react-bootstrap";
-import { FaCircle, FaArrowLeft, FaSearch, FaFilter } from "react-icons/fa";
+import { FaCircle, FaArrowLeft, FaFilter } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getNotificationByUserId,
@@ -18,29 +17,21 @@ import {
 
 const NotificationPage = () => {
   const dispatch = useDispatch();
+  const userId = useSelector((state) => state.auth.user?.id);
   const notifications = useSelector(
     (state) => state.notification.notifications
   );
-  const userId = useSelector((state) => state.auth.user?.id); 
-  const [searchVisible, setSearchVisible] = useState(false);
+
   const [filterStatus, setFilterStatus] = useState("all");
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  const [selectedNotification, setSelectedNotification] = useState(null); 
+  const [selectedNotification, setSelectedNotification] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     if (userId) {
-      dispatch(getNotificationByUserId(userId)); 
+      dispatch(getNotificationByUserId(userId));
     }
   }, [dispatch, userId]);
-
-  const toggleSearch = () => {
-    setSearchVisible(!searchVisible);
-  };
-
-  const handleCloseSearch = () => {
-    setSearchVisible(false);
-  };
 
   const handleFilterChange = (status) => {
     setFilterStatus(status);
@@ -49,7 +40,7 @@ const NotificationPage = () => {
   const handleNotificationClick = (notif) => {
     setSelectedNotification(notif);
     setModalVisible(true);
-    dispatch(readNotification(notif.id)); 
+    dispatch(readNotification(notif.id));
   };
 
   const handleCloseModal = () => {
@@ -57,17 +48,16 @@ const NotificationPage = () => {
     setSelectedNotification(null);
   };
 
-  const filteredNotifications =
-    notifications.length > 0
-      ? notifications.filter((notif) => {
-          if (filterStatus === "false") {
-            return !notif.statusRead;
-          } else if (filterStatus === "true") {
-            return notif.statusRead;
-          }
-          return true;
-        })
-      : [];
+  const filteredNotifications = notifications
+    .filter((notif) => {
+      if (filterStatus === "false") {
+        return !notif.statusRead;
+      } else if (filterStatus === "true") {
+        return notif.statusRead;
+      }
+      return true;
+    })
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   return (
     <Container>
@@ -99,36 +89,24 @@ const NotificationPage = () => {
                   Filter
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
+                  <Dropdown.Item onClick={() => handleFilterChange("all")}>
+                    Semua
+                  </Dropdown.Item>
                   <Dropdown.Item onClick={() => handleFilterChange("false")}>
                     Belum Dibaca
                   </Dropdown.Item>
                   <Dropdown.Item onClick={() => handleFilterChange("true")}>
                     Sudah Dibaca
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={() => handleFilterChange("all")}>
-                    Semua
-                  </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-              <FaSearch
-                size={20}
-                onClick={toggleSearch}
-                style={{
-                  cursor: "pointer",
-                  fontSize: "20px",
-                }}
-              />
             </div>
           </div>
         </Col>
       </Row>
       <Row>
         <Col>
-          <ListGroup
-            style={{
-              cursor: "pointer",
-            }}
-          >
+          <ListGroup style={{ cursor: "pointer" }}>
             {filteredNotifications.map((notif, index) => (
               <ListGroup.Item
                 key={index}
@@ -157,18 +135,6 @@ const NotificationPage = () => {
           </ListGroup>
         </Col>
       </Row>
-      <Modal show={searchVisible} onHide={handleCloseSearch} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Cari notifikasi</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <FormControl
-            type="text"
-            placeholder="Cari notifikasi..."
-            className="mb-3"
-          />
-        </Modal.Body>
-      </Modal>
       {selectedNotification && (
         <Modal show={modalVisible} onHide={handleCloseModal} centered>
           <Modal.Header closeButton>
