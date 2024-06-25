@@ -2,9 +2,12 @@ import Login from "../../components/Login/Login";
 import image from "../../assets/travel.svg";
 import logo from "../../assets/logo-white.png";
 import logo2 from "../../assets/logo-no-background.png";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import CloseIcon from "@mui/icons-material/Close";
+import { useNavigate } from "react-router-dom";
 
 const loginPage = () => {
+  const navigate = useNavigate();
   return (
     <Container fluid className="vh-100">
       <Row className="h-100">
@@ -51,6 +54,13 @@ const loginPage = () => {
               zIndex: "1",
             }}
           />
+          <Button
+            variant="link"
+            className="text-decoration-none position-absolute top-0 end-0 mt-3 me-3"
+            onClick={() => navigate("/")}
+          >
+            <CloseIcon style={{ color: "black" }} />
+          </Button>
           <div className="w-75">
             <h2 className="mb-4">Masuk</h2>
             <Login />

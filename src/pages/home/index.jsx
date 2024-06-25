@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Button, Card, Row, Col, Container } from "react-bootstrap";
 import FormArea from "../../components/FormArea";
 
@@ -6,6 +6,9 @@ import Banner from "../../components/Banner";
 import "bootstrap/dist/css/bootstrap.min.css";
 import initialSearchImage from "../../assets/Cards/b_search.png";
 import clickedSearchImage from "../../assets/Cards/w_search.png";
+import PropTypes from "prop-types";
+import { getDestinations } from "../../redux/actions/home";
+import { useDispatch } from "react-redux";
 
 const Home = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -46,6 +49,7 @@ const Home = () => {
 };
 
 const DestinationFavorit = ({ isFullScreen }) => {
+  const dispatch = useDispatch();
   const [activeButton, setActiveButton] = useState(null);
 
   const getButtonStyle = (buttonId) => {
@@ -63,6 +67,10 @@ const DestinationFavorit = ({ isFullScreen }) => {
   const handleClick = (buttonId) => {
     setActiveButton(buttonId);
   };
+
+  useEffect(() => {
+    dispatch(getDestinations());
+  }, [dispatch]);
 
   return (
     <Container>
@@ -106,13 +114,25 @@ const DestinationFavorit = ({ isFullScreen }) => {
               />
               <Card.Body>
                 <p style={{ margin: 0 }}>Jakarta &rarr; Bangkok</p>
-                <p style={{ color: "#7126b5", fontWeight: "900", margin: 0 }}>
+                <p
+                  style={{
+                    color: "#7126b5",
+                    fontWeight: "900",
+                    margin: 0,
+                  }}
+                >
                   AirAsia
                 </p>
                 <p style={{ margin: 0 }}>20 - 30 Maret 2023</p>
                 <p>
                   Mulai dari IDR&nbsp;
-                  <span style={{ color: "red", margin: 0, fontWeight: 700 }}>
+                  <span
+                    style={{
+                      color: "red",
+                      margin: 0,
+                      fontWeight: 700,
+                    }}
+                  >
                     950.000
                   </span>
                 </p>
@@ -123,6 +143,10 @@ const DestinationFavorit = ({ isFullScreen }) => {
       </Row>
     </Container>
   );
+};
+
+DestinationFavorit.propTypes = {
+  isFullScreen: PropTypes.bool.isRequired,
 };
 
 export default Home;

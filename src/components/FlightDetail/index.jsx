@@ -67,7 +67,7 @@ const DetailFlight = ({
             {airlineName} - {seatClass}
           </p>
           <p style={{ fontWeight: "bold" }} className="my-0 mx-1 ps-4">
-            {airlineIataCode} - {flightCode}
+            {flightCode}
           </p>
           <br></br>
           <p className="my-0" style={{ fontWeight: "bold" }}>

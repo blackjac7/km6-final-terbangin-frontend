@@ -1,23 +1,15 @@
 import { Breadcrumbs, Link, Typography } from "@mui/material";
-import {
-  Row,
-  Col,
-  Button,
-  Container,
-  Accordion,
-  Modal,
-  Image,
-} from "react-bootstrap";
+import { Row, Col, Button, Container, Accordion, Modal } from "react-bootstrap";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 // hard data
 import PaymentData from "../../dumpData/payment.json";
 
+import BookingCode from "../../components/BookingWithCode";
 import HeaderShadow from "../../components/HeaderShadow";
 import DetailFlight from "../../components/FlightDetail";
 import PassangerDetail from "../../components/PassangerDetail";
 import PriceDetail from "../../components/PriceDetail";
-import { FaArrowRight } from "react-icons/fa";
 
 import { useState, useEffect } from "react";
 
@@ -102,7 +94,7 @@ const BookingDetail = () => {
   return (
     <Container className="pb-5">
       {/* Flight Information */}
-      <DetailFlight
+      {/* <DetailFlight
         TitleDetail={"Detail Pesanan"}
         BookingCode={`Booking Code: ${PaymentData.bookingCode}`}
         departureAt={PaymentData.departureAt}
@@ -119,9 +111,9 @@ const BookingDetail = () => {
         baggage={PaymentData.baggage}
         cabinBaggage={PaymentData.cabinBaggage}
         additionals={PaymentData.additionals}
-      />
+      /> */}
       {/* Passanger Information */}
-      <div>
+      {/* <div>
         <hr />
         <p style={{ marginBottom: 0, fontWeight: "bold" }}>
           Informasi Penumpang
@@ -134,9 +126,10 @@ const BookingDetail = () => {
             passangerId={passenger.id}
           />
         ))}
-      </div>
+      </div> */}
       {/* Price Information, confused for implement hard data xD  */}
-      <PriceDetail />
+      {/* <PriceDetail /> */}
+      <BookingCode />
     </Container>
   );
 };
@@ -149,24 +142,8 @@ const DetailBookingMobile = () => {
 
   return (
     <>
-      <Button
-        className="d-flex flex-fill flex-column justify-content-start"
-        variant="custom"
-        onClick={handleShow}
-        style={{
-          border: "0.10rem solid grey",
-          boxShadow: "1px 0 5px 1px rgba(0, 0, 0, 0.1)",
-          borderRadius: "0.50rem",
-        }}
-      >
-        <p style={{ margin: 0 }}>{PaymentData.departureDate}</p>
-        <p style={{ margin: 0, fontWeight: 700 }}>
-          {PaymentData.departureCity} <FaArrowRight /> {PaymentData.arrivalCity}
-        </p>
-        <p style={{ margin: 0 }}>
-          {PaymentData.departureAt} - {PaymentData.arrivalAt}
-        </p>
-        <p style={{ margin: 0 }}>{PaymentData.seatClass}</p>
+      <Button className="flex-fill" variant="primary" onClick={handleShow}>
+        Detail Flight
       </Button>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton></Modal.Header>

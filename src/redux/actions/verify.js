@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import { register } from "./auth";
+import { updateProfileEmailPhone } from "./profile";
 
 export const generateOTP =
     (navigate, name, email, phoneNumber, password, picture, setLoading) =>
@@ -46,6 +47,66 @@ export const generateOTP =
         }
     };
 
+export const generateOTPProfile =
+    (navigate, email, phoneNumber, setLoading) => async () => {
+        setLoading(true);
+
+        let data;
+        let config;
+
+        if (email && !phoneNumber) {
+            data = JSON.stringify({
+                email,
+            });
+
+            config = {
+                method: "post",
+                url: `${
+                    import.meta.env.VITE_BACKEND_API
+                }/api/v1/verification/generate-otp-email`,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                data,
+            };
+        } else if (phoneNumber && !email) {
+            data = JSON.stringify({
+                phoneNumber,
+            });
+
+            config = {
+                method: "post",
+                url: `${
+                    import.meta.env.VITE_BACKEND_API
+                }/api/v1/verification/generate-otp-sms`,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                data,
+            };
+        }
+
+        try {
+            const response = await axios.request(config);
+
+            const { data } = response.data;
+            console.log(data);
+            toast.success(response.data.message, {
+                position: "top-center",
+            });
+            navigate("/verification-profile", {
+                state: {
+                    email,
+                    phoneNumber,
+                },
+            });
+        } catch (error) {
+            toast.error(error?.response?.data?.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
 export const verifyOTP =
     (navigate, name, email, phoneNumber, password, picture, otp, setLoading) =>
     async (dispatch) => {
@@ -68,13 +129,11 @@ export const verifyOTP =
         };
 
         try {
-            console.log(name, email, phoneNumber, password, picture, otp);
             const response = await axios.request(config);
-            console.log("verify", email, otp);
 
-            const { data } = response.data;
+            const { message } = response.data;
 
-            toast.success(data.message, {
+            toast.success(message, {
                 position: "top-center",
             });
             dispatch(
@@ -85,6 +144,58 @@ export const verifyOTP =
                     phoneNumber,
                     password,
                     picture,
+                    setLoading
+                )
+            );
+        } catch (error) {
+            toast.error(error?.response?.data?.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+export const verifyOTPProfile =
+    (navigate, email, phoneNumber, otp, setLoading) => async (dispatch) => {
+        setLoading(true);
+        let data;
+
+        if (email) {
+            data = JSON.stringify({
+                email,
+                otp,
+            });
+        } else if (phoneNumber) {
+            data = JSON.stringify({
+                phoneNumber,
+                otp,
+            });
+        }
+
+        let config = {
+            method: "post",
+            url: `${
+                import.meta.env.VITE_BACKEND_API
+            }/api/v1/verification/verify-otp`,
+            headers: {
+                "Content-Type": "application/json",
+            },
+            data,
+        };
+
+        try {
+            const response = await axios.request(config);
+            const { data } = response.data;
+            console.log(data);
+
+            toast.success("Verification success. Updating profile...", {
+                position: "top-center",
+            });
+
+            dispatch(
+                updateProfileEmailPhone(
+                    navigate,
+                    email,
+                    phoneNumber,
                     setLoading
                 )
             );
