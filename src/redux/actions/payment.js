@@ -37,32 +37,41 @@ export const generateSnapPayment =
         }
     };
 
-export const updatePayment = (payload) => async (_, getState) => {
-    const { transaction_id: paymentId } = payload;
+// export const updatePayment = (navigate, payload) => async (dispatch, getState) => {
+//     const { transaction_id: paymentId, pdf_url: pdfLink } = payload;
+//     console.log("ini jalan 1");
 
-    if (!paymentId) {
-        toast.error("Payment ID must not be empty!");
-        return;
-    }
-    const authToken = getState().auth.token;
+//     if (!paymentId) {
+//         toast.error("Payment ID must not be empty!");
+//         return;
+//     }
+//     const authToken = getState().auth.token;
 
-    try {
-        await axios.patch(
-            `${
-                import.meta.env.VITE_BACKEND_API
-            }/api/v1/payment/id/${paymentId}`,
-            JSON.stringify(payload),
-            {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-    } catch (e) {
-        toast.error(e?.response?.data?.message);
-    }
-};
+//     try {
+//         console.log("ini jalan 2");
+//         console.log(paymentId);
+//         await axios.patch(
+//             `${
+//                 import.meta.env.VITE_BACKEND_API
+//             }/api/v1/payment/id/${paymentId}`,
+//             JSON.stringify(payload),
+//             {
+//                 headers: {
+//                     Authorization: `Bearer ${authToken}`,
+//                     "Content-Type": "application/json",
+//                 },
+//             }
+//         );
+//         console.log("ini jalan 3");
+//         if (pdfLink) {
+//             dispatch(paymentReducer.setPdfLink(pdfLink));
+//         }
+//         navigate("/payment-success");
+//     } catch (e) {
+//         console.log("ini jalan error");
+//         toast.error(e?.response?.data?.message);
+//     }
+// };
 
 const removeSnapData = () => (dispatch) => {
     dispatch(paymentReducer.setSnapToken(null));

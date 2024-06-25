@@ -2,9 +2,13 @@ import EmailForgeted from "../../components/EmailForgetPassword/EmailForgetPassw
 import image from "../../assets/travel.svg";
 import logo from "../../assets/logo-white.png";
 import logo2 from "../../assets/logo-no-background.png";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
 
 const RequestResetPassword = () => {
+    const navigate = useNavigate();
+
     return (
         <Container fluid className="vh-100">
             <Row className="h-100">
@@ -52,7 +56,16 @@ const RequestResetPassword = () => {
                         }}
                     />
                     <div className="w-75">
-                        <h2 className="mb-4">Verification Email</h2>
+                        <div className="d-flex align-items-center">
+                            <Button
+                                variant="light"
+                                className="text-decoration-none border-0 me-3 p-2 mb-4"
+                                onClick={() => navigate(-1)}
+                            >
+                                <FaArrowLeft style={{ color: "black" }} />
+                            </Button>
+                            <h2 className="mb-4">Verification Email</h2>
+                        </div>
                         <EmailForgeted />
                     </div>
                 </Col>

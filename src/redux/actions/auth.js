@@ -30,7 +30,7 @@ export const login =
             dispatch(setUser(user));
             console.log(data);
 
-            navigate("/profile");
+            navigate("/");
 
             toast.success("Login success");
         } catch (error) {
@@ -40,48 +40,45 @@ export const login =
         setLoading(false);
     };
 
-    export const loginWithGoogle =
-      (navigate, accessToken) => async (dispatch) => {
-        console.log("running dispatch login with google...");
+export const loginWithGoogle = (navigate, accessToken) => async (dispatch) => {
+    console.log("running dispatch login with google...");
 
-        let data = JSON.stringify({
-          access_token: accessToken,
-        });
+    let data = JSON.stringify({
+        access_token: accessToken,
+    });
 
-        console.log("data:", data);
+    console.log("data:", data);
 
-        let config = {
-          method: "post",
-          url: `${import.meta.env.VITE_BACKEND_API}/api/v1/auth/google-login`,
-          headers: {
+    let config = {
+        method: "post",
+        url: `${import.meta.env.VITE_BACKEND_API}/api/v1/auth/google-login`,
+        headers: {
             "Content-Type": "application/json",
-          },
-          data: data,
-        };
+        },
+        data: data,
+    };
 
-        try {
-          const response = await axios.request(config);
-          console.log("loginWithGoogle -> ", response);
+    try {
+        const response = await axios.request(config);
+        console.log("loginWithGoogle -> ", response);
 
-          // get and save the token to local storage
-          const { data } = response.data;
-          const { token, user } = data;
+        // get and save the token to local storage
+        const { data } = response.data;
+        const { token, user } = data;
 
-          // Change the token value in the reducer
-          dispatch(setToken(token));
-          dispatch(setUser(user));
+        // Change the token value in the reducer
+        dispatch(setToken(token));
+        dispatch(setUser(user));
 
-          // redirect to home
-          navigate("/profile"); // it will be not consistent, so alternative we use window until we used the state management
-        } catch (error) {
-          console.error(
-            "running error in dispatch try catch loginWithGoogle..."
-          );
-          toast.error(error?.response?.data?.message);
+        // redirect to home
+        navigate("/");
+    } catch (error) {
+        console.error("running error in dispatch try catch loginWithGoogle...");
+        toast.error(error?.response?.data?.message);
 
-          dispatch(logout());
-        }
-      };
+        dispatch(logout());
+    }
+};
 
 export const register =
     (navigate, name, email, phoneNumber, password, picture, setLoading) =>
@@ -117,7 +114,7 @@ export const register =
             dispatch(setToken(token));
 
             console.log(data);
-            navigate("/profile");
+            navigate("/");
             toast.success("Register success", {
                 position: "top-center",
             });

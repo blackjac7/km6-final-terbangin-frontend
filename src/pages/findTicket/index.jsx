@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Accordion, Image } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Image,
+  Accordion,
+  Card,
+  OverlayTrigger,
+  Tooltip,
+} from "react-bootstrap";
 import {
   MenuItem,
   FormControl,
@@ -7,15 +17,14 @@ import {
   Typography,
   Modal,
 } from "@mui/material";
-import Slider from "react-slick";
+import { format } from "date-fns";
 
-import flightData from "../../dumpData/flight.json"; // delete when fetching
-
-import exampleAirlineLogo from "../../assets/airlineLogo.png";
 import findTicketLoading from "../../assets/findTicketLoading.svg";
 import findTicketNotFound from "../../assets/findTicketNotFound.svg";
 import findTicketEmpty from "../../assets/findTicketEmpty.svg";
 import VerticalLine from "../../assets/verticalLine.svg";
+import accorTrigger from "../../assets/accorTrigger.svg";
+import freeBaggage from "../../assets/freeBaggage.svg";
 
 import DetailFlight from "../../components/FlightDetail";
 import FlightDestination from "../../components/FlightDestination";
@@ -23,11 +32,35 @@ import BackButton from "../../components/BackButton";
 import HeaderShadow from "../../components/HeaderShadow";
 import FormArea from "../../components/FormArea";
 
+import { useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getFilterFlights } from "../../redux/actions/flight";
+import moment from "moment-timezone";
+
 const FindTicket = () => {
   const [isChangeFlight, setChangeFlight] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isFullScreen, setIsFullScreen] = useState(window.innerWidth > 1160);
 
+  const location = useLocation();
+
+  const {
+    flightType,
+    departure,
+    iataCodeDeparture,
+    arrival,
+    iataCodeArrival,
+    departureDate,
+    returnDate,
+    seatType,
+    capacity,
+    adult,
+    child,
+    baby,
+  } = location.state || {};
+
+  const dispatch = useDispatch();
+  const { flights } = useSelector((state) => state.flight);
   const handleOpenChangeFlight = () => {
     setChangeFlight(true);
   };
@@ -49,6 +82,31 @@ const FindTicket = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    dispatch(
+      getFilterFlights(
+        departure,
+        arrival,
+        "departureAt",
+        departureDate,
+        "price" + seatType,
+        "asc",
+        seatType
+      )
+    );
+  }, [
+    dispatch,
+    departure,
+    arrival,
+    flightType,
+    seatType,
+    adult,
+    child,
+    baby,
+    departureDate,
+    returnDate,
+  ]);
+
   return (
     <>
       {/* Header */}
@@ -59,7 +117,9 @@ const FindTicket = () => {
 
         <Row className="mt-4 g-2">
           <Col sx={12} md={10} className="d-flex">
-            <BackButton ButtonText={"JKT  >  MLB - 2 Penumpang - Economy"} />
+            <BackButton
+              ButtonText={`${iataCodeDeparture} > ${iataCodeArrival} - ${capacity} Penumpang - ${seatType}`}
+            />
           </Col>
           <Col sx={12} md={2} className="d-flex">
             <Button
@@ -80,6 +140,7 @@ const FindTicket = () => {
                 title={"Ubah Penerbangan"}
                 isFullScreen={isFullScreen}
                 isMobile={isMobile}
+                onClick={handleCloseChangeFlight}
               />
             </Modal>
           </Col>
@@ -87,15 +148,36 @@ const FindTicket = () => {
 
         <Row className="mt-4 ">
           <Col>
-            <DateSelector />
+            <DateSelector
+              dispatch={dispatch}
+              datafiltering={{
+                seatType: seatType,
+                departure: departure,
+                arrival: arrival,
+                departureDate: departureDate,
+              }}
+            />
           </Col>
         </Row>
       </HeaderShadow>
       {/* Main Content */}
       <Container>
-        <Row className="mt-4 mx-sm-4">
+        <Row className={isFullScreen ? "pt-4 mx-5" : "pt-4"}>
           <Col>
-            <FlightList />
+            {flights === null || flights?.length === 0 ? (
+              <TicketNotFound />
+            ) : (
+              <FlightList
+                flights={flights}
+                dispatch={dispatch}
+                datafiltering={{
+                  seatType: seatType,
+                  departure: departure,
+                  arrival: arrival,
+                  departureDate: flights[0]?.departureAt,
+                }}
+              />
+            )}
           </Col>
         </Row>
       </Container>
@@ -103,99 +185,126 @@ const FindTicket = () => {
   );
 };
 
-const DateSelector = () => {
+const DateSelector = ({ dispatch, datafiltering }) => {
+  const baseDate = new Date(datafiltering.departureDate);
+  const [selectedDate, setSelectedDate] = useState(baseDate);
+  const [visibleButtons, setVisibleButtons] = useState(7);
   const [isHovered, setIsHovered] = useState(null);
-  const [isActived, setIsActived] = useState(null);
-
-  const dumpTime = [
-    { day: "Senin1", date: "01/01/2024" },
-    { day: "Selasa", date: "02/01//2024" },
-    { day: "Rabu", date: "03/01/2024" },
-    { day: "Kamis", date: "04/01/2024" },
-    { day: "Jumat", date: "05/01/2024" },
-    { day: "Sabtu", date: "06/01/2024" },
-    { day: "Minggu", date: "07/01/2024" },
-    { day: "Senin2", date: "08/01/2024" },
-    { day: "Selasa", date: "09/01/2024" },
-    { day: "Rabu", date: "10/01/2024" },
-    { day: "Kamis", date: "11/01/2024" },
-    { day: "Jumat", date: "12/01/2024" },
-    { day: "Sabtu", date: "13/01/2024" },
-    { day: "Minggu", date: "14/01/2024" },
+  const daysOfWeek = [
+    "Minggu",
+    "Senin",
+    "Selasa",
+    "Rabu",
+    "Kamis",
+    "Jumat",
+    "Sabtu",
   ];
 
-  var settings = {
-    className: "center",
-    centerMode: true,
-    speed: 800,
-    slidesToShow: 7,
-    focusOnSelect: true,
-    slidesToScroll: 10,
-    Infinity: false,
-    responsive: [
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 5,
-        },
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 3,
-        },
-      },
-    ],
-    centerPadding: "0px",
+  const formatDate = (date) => {
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
+  const formatDateyearfirst = (date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const createButtonData = (baseDate, offset) => {
+    const newDate = new Date(baseDate);
+    newDate.setDate(baseDate.getDate() + offset);
+    const dayName = daysOfWeek[newDate.getDay()];
+    return { hari: dayName, tanggal: formatDate(newDate), date: newDate };
+  };
+
+  const handleButtonClick = (newDate) => {
+    let newdate = formatDateyearfirst(newDate);
+    setSelectedDate(newDate);
+    dispatch(
+      getFilterFlights(
+        datafiltering.departure,
+        datafiltering.arrival,
+        "departureAt",
+        newdate,
+        "price" + datafiltering.seatType,
+        "asc",
+        datafiltering.seatType
+      )
+    );
+  };
+
+  useEffect(() => {
+    const baseDate = new Date(datafiltering.departureDate);
+    setSelectedDate(baseDate);
+  }, [datafiltering.departureDate]);
+
   return (
-    <>
-      <Slider {...settings}>
-        {dumpTime.map((time, index) => (
-          <div key={index} className="d-flex flex-row">
+    <Container
+      className="d-flex justify-content-center"
+      style={{ overflowX: "hidden" }}
+    >
+      <Image src={VerticalLine} />
+      {Array.from({ length: visibleButtons }, (_, i) => {
+        const buttonData = createButtonData(selectedDate, i - 3);
+        const isActive = selectedDate.getTime() === buttonData.date.getTime();
+
+        return (
+          <React.Fragment key={i}>
             <Button
-              className="px-0"
-              textAlign="center"
+              className="px-md-4 px-sm-4 px-3 mx-md-3 mx-sm-3 mx-2"
               variant="custom"
-              type="button"
-              onMouseEnter={() => setIsHovered(index)}
-              onMouseLeave={() => setIsHovered(false)}
-              onMouseDown={() => setIsActive(index)}
-              onMouseUp={() => setIsActive(false)}
+              onClick={() => handleButtonClick(buttonData.date)}
+              onMouseEnter={() => setIsHovered(i)}
+              onMouseLeave={() => setIsHovered(null)}
               style={{
-                // border: "1px solid grey",
-                width: "100%",
-                color:
-                  isActived === index
-                    ? "white"
-                    : isHovered === index
-                    ? "white"
-                    : "black",
-                backgroundColor:
-                  isActived === index
-                    ? "red"
-                    : isHovered === index
-                    ? "purple"
-                    : "white",
+                backgroundColor: isActive
+                  ? "blue"
+                  : isHovered === i
+                  ? "grey"
+                  : "",
+                color: isActive || isHovered === i ? "white" : "black",
               }}
+              disabled={
+                moment().startOf("day") < buttonData.date ? false : true
+              }
             >
-              <div className="text-container">
-                <p style={{ fontWeight: "bold" }} className="mb-0">
-                  {time.day}
-                </p>
-                <p className="mb-0">{time.date}</p>
-              </div>
+              <p style={{ margin: 0 }}>{buttonData.hari}</p>
+              <p style={{ margin: 0 }}>{buttonData.tanggal}</p>
             </Button>
             <Image src={VerticalLine} />
-          </div>
-        ))}
-      </Slider>
-    </>
+          </React.Fragment>
+        );
+      })}
+    </Container>
   );
 };
 
-const Filter = () => {
+const Filter = ({ dispatch, datafiltering }) => {
+  const [sortOption, setSortOption] = useState("price-asc"); // Changed
+
+  const handleChange = (event) => {
+    // Changed
+    const selectedOption = event.target.value; // Changed
+    setSortOption(selectedOption); // Changed
+    const [sortField, sortOrder] = selectedOption.split("-"); // Changed
+    dispatch(
+      // Changed
+      getFilterFlights(
+        // Changed
+        datafiltering.departure, // Changed
+        datafiltering.arrival, // Changed
+        "departureAt", // Changed
+        datafiltering.departureDate, // Changed
+        sortField === "price" ? sortField + datafiltering.seatType : sortField, // Changed
+        sortOrder, // Changed
+        datafiltering.seatType // Changed
+      ) // Changed
+    ); // Changed
+  }; // Changed
   return (
     <Row className="mb-4">
       <Col offset-md={9}></Col>
@@ -203,42 +312,44 @@ const Filter = () => {
         <FormControl fullWidth>
           <Select
             displayEmpty
-            defaultValue={10}
+            defaultValue="price-asc"
             size="small"
             sx={{ borderRadius: 2 }}
+            value={sortOption} // Changed
+            onChange={handleChange} // Changed
           >
-            <MenuItem value={10}>
+            <MenuItem value="price-asc">
               <Typography>
                 <span style={{ fontWeight: "bold" }}>Harga</span> - Termurah
               </Typography>
             </MenuItem>
-            <MenuItem value={20}>
+            <MenuItem value="duration-asc">
               <Typography>
                 <span style={{ fontWeight: "bold" }}>Durasi</span> - Terpendek
               </Typography>
             </MenuItem>
-            <MenuItem value={30}>
+            <MenuItem value="departureAt-asc">
               <Typography>
                 {" "}
                 <span style={{ fontWeight: "bold" }}>Keberangkatan</span> -
                 Paling Awal
               </Typography>
             </MenuItem>
-            <MenuItem value={40}>
+            <MenuItem value="departureAt-desc">
               <Typography>
                 {" "}
                 <span style={{ fontWeight: "bold" }}>Keberangkatan</span> -
                 Paling Akhir
               </Typography>
             </MenuItem>
-            <MenuItem value={50}>
+            <MenuItem value="arrivalAt-asc">
               <Typography>
                 {" "}
                 <span style={{ fontWeight: "bold" }}>Kedatangan</span> - Paling
                 Awal
               </Typography>
             </MenuItem>
-            <MenuItem value={60}>
+            <MenuItem value="arrivalAt-desc">
               <Typography>
                 {" "}
                 <span style={{ fontWeight: "bold" }}>Kedatangan</span> - Paling
@@ -252,112 +363,201 @@ const Filter = () => {
   );
 };
 
-const FlightList = () => {
-  const [isActive, setIsActive] = useState(null);
-  const stopPropagation = (e) => {
+const FlightList = ({ flights, dispatch, datafiltering }) => {
+  const [expanded, setExpanded] = useState(null);
+  const [rotated, setRotated] = useState({});
+
+  // accordion body expand trigger
+  const handleHeaderClick = (flightId, e) => {
+    setExpanded((prevExpanded) =>
+      prevExpanded === flightId ? null : flightId
+    );
+
+    setRotated((prevRotated) => {
+      const newRotated = Object.keys(prevRotated).reduce((acc, key) => {
+        acc[key] = key === flightId.toString() ? !prevRotated[key] : false;
+        return acc;
+      }, {});
+      return {
+        ...newRotated,
+        [flightId]: !prevRotated[flightId],
+      };
+    });
+  };
+
+  // pilih button disable button
+  const handlePilihButton = (e) => {
     e.stopPropagation();
   };
 
   return (
     <>
-      <Filter />
-      <Accordion>
-        {flightData.map((flight) => (
-          <Accordion.Item
-            eventKey={flight.id}
+      <Filter dispatch={dispatch} datafiltering={datafiltering} />
+      <Accordion activeKey={expanded}>
+        {flights.map((flight) => (
+          <Card
             key={flight.id}
-            onMouseDown={() =>
-              setIsActive((active) => (active === flight.id ? null : flight.id))
-            }
-            className="mb-3"
+            className="mb-3 py-2"
             style={{
-              border: isActive === flight.id ? "2px solid purple" : "",
+              border: expanded === flight.id ? "2px solid purple" : "",
               boxShadow: "1px 0 5px 1px rgba(0, 0, 0, 0.1)",
               borderRadius: "0.50rem",
             }}
           >
-            <Accordion.Header>
+            <Card.Header
+              style={{ borderBottom: "none", backgroundColor: "white" }}
+              onClick={() => handleHeaderClick(flight.id)}
+            >
               <Container>
                 <Row>
-                  <Col
-                    md={4}
-                    sm={12}
-                    className="d-flex align-items-center justify-content-center justify-content-md-start"
-                  >
-                    <div className="d-flex align-items-center">
-                      <Image
-                        src={exampleAirlineLogo}
-                        className="me-3"
-                        style={{ width: 35 }}
-                      />
-                      <p style={{ fontSize: 18, marginBottom: 0 }}>
-                        {flight.airlineName} - {flight.seatClass}
-                      </p>
-                    </div>
-                  </Col>
-                  {/* flight time */}
-                  <Col md={4} sm={12} className="d-flex pt-2">
-                    <FlightDestination
-                      departureAt={flight.departureAt}
-                      departureCity={flight.departureCity}
-                      flightDuration={flight.flightDuration}
-                      arrivalAt={flight.arrivalAt}
-                      arrivalCity={flight.arrivalCity}
-                    />
+                  <Col md={11} sm={11} xs={11}>
+                    <Row>
+                      {/* airline name */}
+                      <Col
+                        md={4}
+                        sm={12}
+                        className="d-flex align-items-center justify-content-center justify-content-md-start"
+                      >
+                        <div className="d-flex align-items-center">
+                          <Image
+                            src={flight.Airline.picture}
+                            className="me-3"
+                            style={{ width: 35 }}
+                          />
+                          <p style={{ marginBottom: 0 }}>
+                            {flight.Airline.name} - {datafiltering.seatType}
+                          </p>
+                        </div>
+                      </Col>
+                      {/* destination info */}
+                      <Col
+                        md={4}
+                        sm={12}
+                        className="d-flex justify-content-center pt-2"
+                      >
+                        <FlightDestination
+                          departureTime={moment
+                            .tz(
+                              flight.departureAt,
+                              flight.StartAirport.timezone
+                            )
+                            .format("HH:mm")}
+                          departureCity={flight.StartAirport.iataCode}
+                          flightDuration={flight.duration}
+                          arrivalTime={moment
+                            .tz(flight.arrivalAt, flight.StartAirport.timezone)
+                            .clone()
+                            .tz(flight.EndAirport.timezone)
+                            .format("HH:mm")}
+                          arrivalCity={flight.EndAirport.iataCode}
+                        />
+                      </Col>
+                      <Col
+                        md={1}
+                        xs={12}
+                        className="d-flex align-self-center justify-content-center p-3"
+                      >
+                        {flight.Airline.baggage !== 0 && (
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={
+                              <Tooltip>
+                                Free {flight.Airline.baggage} baggage
+                              </Tooltip>
+                            }
+                          >
+                            <Image src={freeBaggage} alt="Free baggage" />
+                          </OverlayTrigger>
+                        )}
+                      </Col>
+                      {/* price and execute button */}
+                      <Col
+                        md={3}
+                        sm={12}
+                        className="d-flex flex-column align-items-md-end align-items-center justify-content-center "
+                        style={{ padding: 0 }}
+                      >
+                        <h3 style={{ fontSize: 20, fontWeight: 650 }}>
+                          IDR {flight["price" + datafiltering.seatType]}
+                        </h3>
+                        <Button
+                          href="/"
+                          onClick={handlePilihButton}
+                          style={{ borderRadius: 14, width: "50%" }}
+                        >
+                          Pilih
+                        </Button>
+                      </Col>
+                    </Row>
                   </Col>
                   <Col
                     md={1}
-                    xs={12}
-                    className="d-flex align-self-center justify-content-center pt-3"
+                    sm={1}
+                    xs={1}
+                    className="d-flex justify-content-center"
+                    style={{ padding: 0 }}
+                    onClick={(e) => handleButtonClick(flight.id, e)} // Mengatur klik pada ikon
                   >
-                    <img
-                      src="/icon-park-outline_baggage-delay.png"
-                      alt="Baggage Delay Icon"
+                    <Image
+                      src={accorTrigger}
+                      style={{
+                        width: 25,
+                        transition: "transform 0.3s",
+                        transform: rotated[flight.id]
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
+                      }}
                     />
-                  </Col>
-                  <Col
-                    md={3}
-                    sm={12}
-                    className="d-flex flex-column align-items-md-end align-items-center pt-3"
-                  >
-                    <h3 style={{ fontSize: 20, fontWeight: 650 }}>
-                      IDR {flight.price}
-                    </h3>
-                    <Button style={{ borderRadius: 14, width: "50%" }}>
-                      Pilih
-                    </Button>
                   </Col>
                 </Row>
               </Container>
-            </Accordion.Header>
-            <Accordion.Body onMouseDown={stopPropagation}>
-              <Container>
-                <DetailFlight
-                  TitleDetail={"Detail Penerbangan"}
-                  departureAt={flight.departureAt}
-                  departureDate={flight.arrivalDate}
-                  departureAirport={flight.departureAirport}
-                  departureTerminal={flight.departureTerminal}
-                  arrivalAt={flight.arrivalAt}
-                  arrivalDate={flight.arrivalDate}
-                  arrivalAirport={flight.arrivalAirport}
-                  arrivalTerminal={flight.arrivalTerminal}
-                  airlineName={flight.airlineName}
-                  seatClass={flight.seatClass}
-                  airlineSerialNumber={flight.airlineSerialNumber}
-                  baggage={flight.baggage}
-                  cabinBaggage={flight.cabinBaggage}
-                  additionals={flight.additionals}
-                />
-              </Container>
-            </Accordion.Body>
-          </Accordion.Item>
+            </Card.Header>
+            <Accordion.Collapse eventKey={flight.id}>
+              <Card.Body style={{ paddingTop: 0 }}>
+                <Container>
+                  <hr />
+                  <DetailFlight
+                    TitleDetail={"Detail Penerbangan"}
+                    departureTime={moment
+                      .tz(flight.departureAt, flight.StartAirport.timezone)
+                      .format("HH:mm")}
+                    departureDate={moment
+                      .tz(flight.departureAt, flight.StartAirport.timezone)
+                      .format("DD MMMM yyyy")}
+                    departureAirport={flight.StartAirport.name}
+                    departureTerminal={flight.StartAirport.terminal}
+                    arrivalTime={moment
+                      .tz(flight.arrivalAt, flight.StartAirport.timezone)
+                      .clone()
+                      .tz(flight.EndAirport.timezone)
+                      .format("HH:mm")}
+                    arrivalDate={moment
+                      .tz(flight.arrivalAt, flight.StartAirport.timezone)
+                      .clone()
+                      .tz(flight.EndAirport.timezone)
+                      .format("DD MMMM yyyy")}
+                    arrivalAirport={flight.EndAirport.name}
+                    arrivalTerminal={flight.EndAirport.terminal}
+                    airlineName={flight.Airline.name}
+                    airlineLogo={flight.Airline.picture}
+                    seatClass={datafiltering.seatType}
+                    airlineIataCode={flight.Airline.iataCode}
+                    flightCode={flight.flightCode}
+                    {...(flight.Airline.baggage !== 0 && {
+                      baggage: `Baggage ${flight.Airline.baggage}`,
+                    })}
+                    cabinBaggage={flight.Airline.cabinBaggage}
+                    additionals={flight.Airline.additionals}
+                  />
+                </Container>
+              </Card.Body>
+            </Accordion.Collapse>
+          </Card>
         ))}
       </Accordion>
     </>
   );
 };
-
 // page status section
 const TicketNotFound = () => {
   return (
@@ -365,7 +565,7 @@ const TicketNotFound = () => {
       className="justify-content-center pt-5"
       style={{ textAlign: "center" }}
     >
-      <Image src={findTicketNotFound} style={{ width: 400 }} />
+      <Image src={findTicketNotFound} style={{ width: 250 }} />
       <Row className="pt-3">
         <p style={{ marginBottom: 0 }}>Maaf, pencarian Anda tidak ditemukan</p>
         <p style={{ color: "purple" }}>Coba cari perjalanan lainnya!</p>
@@ -392,7 +592,7 @@ const TicketEmpty = () => {
       className="justify-content-center pt-5"
       style={{ textAlign: "center" }}
     >
-      <Image src={findTicketEmpty} style={{ width: 250 }} />
+      <Image src={findTicketEmpty} style={{ width: 200 }} />
       <Row className="pt-5">
         {" "}
         <p style={{ marginBottom: 0 }}>Maaf, Tiket terjual habis!</p>

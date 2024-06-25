@@ -1,30 +1,26 @@
 import { Row, Col, Image } from "react-bootstrap";
-import exampleAirlineLogo from "../../assets/airlineLogo.png";
 import PropTypes from "prop-types";
 
 const DetailFlight = ({
   TitleDetail,
   BookingCode,
   BookingStatus,
-  departureAt,
+  departureTime,
   departureDate,
   departureAirport,
   departureTerminal,
-  arrivalAt,
+  arrivalTime,
   arrivalDate,
   arrivalAirport,
   arrivalTerminal,
   airlineName,
-  airlineSerialNumber,
+  airlineIataCode,
+  airlineLogo,
+  flightCode,
   seatClass,
   baggage,
   cabinBaggage,
   additionals,
-  passangerId,
-  passangerName,
-  index,
-  isPassanger,
-  isPrice,
 }) => {
   return (
     <>
@@ -47,7 +43,7 @@ const DetailFlight = ({
       <Row>
         <Col xs={6}>
           <p style={{ fontWeight: "bold" }} className="m-0">
-            {departureAt}
+            {departureTime}
           </p>
         </Col>
         <Col xs={6} className="d-flex justify-content-end">
@@ -71,14 +67,18 @@ const DetailFlight = ({
             {airlineName} - {seatClass}
           </p>
           <p style={{ fontWeight: "bold" }} className="my-0 mx-1 ps-4">
-            {airlineSerialNumber}
+            {flightCode}
           </p>
           <br></br>
           <p className="my-0" style={{ fontWeight: "bold" }}>
-            <Image src={exampleAirlineLogo} className="me-1" />
+            <Image
+              src={airlineLogo}
+              className="me-1"
+              style={{ maxWidth: "25px" }}
+            />
             Informasi Penerbangan
           </p>
-          <p className="my-0 mx-1 ps-4">Baggage {baggage}</p>
+          <p className="my-0 mx-1 ps-4"> {baggage}</p>
           <p className="my-0 mx-1 ps-4">Cabin Baggage {cabinBaggage}</p>
           <p className="my-0 mx-1 ps-4">{additionals}</p>
           <hr className="solid" />
@@ -87,7 +87,7 @@ const DetailFlight = ({
       <Row>
         <Col xs={6}>
           <p style={{ fontWeight: "bold" }} className="m-0">
-            {arrivalAt}
+            {arrivalTime}
           </p>
         </Col>
         <Col xs={6} className="d-flex justify-content-end">

@@ -16,6 +16,6 @@ const paymentSlice = createSlice({
     },
 });
 
-export const { setSnapToken, setSnapLink } = paymentSlice.actions;
+export const { setSnapToken, setSnapLink, snapPdfLink } = paymentSlice.actions;
 
 export default paymentSlice.reducer;

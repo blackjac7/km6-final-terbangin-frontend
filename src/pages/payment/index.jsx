@@ -5,6 +5,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 // hard data
 import PaymentData from "../../dumpData/payment.json";
 
+import BookingCode from "../../components/BookingWithCode";
 import HeaderShadow from "../../components/HeaderShadow";
 import DetailFlight from "../../components/FlightDetail";
 import PassangerDetail from "../../components/PassangerDetail";
@@ -12,7 +13,6 @@ import PriceDetail from "../../components/PriceDetail";
 
 import { useState, useEffect } from "react";
 import "./index.css";
-import { updatePayment } from "../../redux/actions/payment";
 import { useNavigate } from "react-router-dom";
 
 const Payment = () => {
@@ -114,7 +114,6 @@ const Payment = () => {
                     </Col>
                     {/* Embed for Midtrans */}
                     <Col md={7} xs={12}>
-                        <h4>Isi Data Pembayaran </h4>
                         <PaymentEmbedMidtrans />
                     </Col>
                 </Row>
@@ -175,22 +174,27 @@ const BookingDetail = () => {
 
                     setShowPayment(true);
 
-                    window.snap.embed("90e6d0f9-7109-484c-acbb-e023f844c944", {
+                    window.snap.embed("de584484-f96f-40be-9333-c67aa36b3002", {
                         embedId: "snapContainer",
                         onSuccess: (result) => {
                             console.log("success");
-                            updatePayment(result).then((_) => {
-                                navigate("/");
-                            });
+                            console.log("masuk sini");
+                            console.log(result);
+                            navigate("/payment-success");
                         },
-                        onPending: (_) => {
+                        onPending: (result) => {
                             console.log("pending");
+                            console.log(result);
                         },
                         onError: (result) => {
                             console.log("error");
-                            updatePayment(result);
-                        }
+                            console.log(result);
+                        },
+                        onClose: () => {
+                            console.log("closed");
+                        },
                     });
+                    setShowPayment(false);
                 }}
             >
                 Show Payment
@@ -239,6 +243,7 @@ const DetailBookingMobile = () => {
 const PaymentEmbedMidtrans = () => {
     return (
         <>
+            <h4>Isi Data Pembayaran </h4>
             <div id={"snapContainer"} className={"mt-4"}></div>
         </>
     );
