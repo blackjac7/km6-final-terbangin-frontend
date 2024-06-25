@@ -6,6 +6,10 @@ import { generateOTP } from "../../redux/actions/verify";
 import { toast } from "react-toastify";
 import logo2 from "../../assets/Vector.png";
 import GoogleLoginComponent from "../GoogleLogin/GoogleLogin";
+import {
+    getUserByEmail,
+    getUserByPhoneNumber,
+} from "../../redux/actions/profile";
 
 function Register() {
     const dispatch = useDispatch();
@@ -22,7 +26,7 @@ function Register() {
     const [showPhoneLogo, setShowPhoneLogo] = useState(false);
     const [showPasswordLogo, setShowPasswordLogo] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!name) {
@@ -42,17 +46,43 @@ function Register() {
             return;
         }
 
-        dispatch(
-            generateOTP(
-                navigate,
-                name,
-                email,
-                phone,
-                password,
-                photo,
-                setLoading
-            )
-        );
+        try {
+            const [emailData, phoneData] = await Promise.all([
+                dispatch(getUserByEmail(email)),
+                dispatch(getUserByPhoneNumber(phone)),
+            ]);
+
+            let isEmailAvailable = true;
+            let isPhoneAvailable = true;
+
+            if (emailData) {
+                isEmailAvailable = false;
+                toast.error("Email sudah terdaftar");
+            }
+
+            if (phoneData) {
+                isPhoneAvailable = false;
+                toast.error("Nomor telepon sudah terdaftar");
+            }
+
+            if (!isEmailAvailable || !isPhoneAvailable) {
+                return;
+            }
+
+            dispatch(
+                generateOTP(
+                    navigate,
+                    name,
+                    email,
+                    phone,
+                    password,
+                    photo,
+                    setLoading
+                )
+            );
+        } catch (error) {
+            toast.error("Terjadi kesalahan: " + error.message);
+        }
     };
 
     return (
