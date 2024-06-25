@@ -114,7 +114,7 @@ const FindTicket = () => {
               Ubah Penerbangan
             </Button>
 
-            {/* <Modal
+            <Modal
               open={isChangeFlight}
               onClose={handleCloseChangeFlight}
               style={{ top: "10%", zIndex: 300 }}
@@ -124,7 +124,7 @@ const FindTicket = () => {
                 isFullScreen={isFullScreen}
                 isMobile={isMobile}
               />
-            </Modal> */}
+            </Modal>
           </Col>
         </Row>
 
@@ -367,160 +367,164 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
   return (
     <>
       <Filter dispatch={dispatch} datafiltering={datafiltering} />
+
       <Accordion activeKey={expanded}>
         {flights.map((flight) => (
-          <Card
-            key={flight.id}
-            className="mb-3 py-2"
-            style={{
-              border: expanded === flight.id ? "2px solid purple" : "",
-              boxShadow: "1px 0 5px 1px rgba(0, 0, 0, 0.1)",
-              borderRadius: "0.50rem",
-            }}
-          >
-            <Card.Header
-              style={{ borderBottom: "none", backgroundColor: "white" }}
+          <>
+            <Card
+              key={flight.id}
+              className="mb-3 py-2"
               onClick={() => handleHeaderClick(flight.id)}
+              style={{
+                border: expanded === flight.id ? "2px solid purple" : "",
+                boxShadow: "1px 0 5px 1px rgba(0, 0, 0, 0.1)",
+                borderRadius: "0.50rem",
+                cursor: "pointer",
+              }}
             >
-              <Container>
-                <Row>
-                  <Col md={11} sm={11} xs={11}>
-                    <Row>
-                      {/* airline name */}
-                      <Col
-                        md={4}
-                        sm={12}
-                        className="d-flex align-items-center justify-content-center justify-content-md-start"
-                      >
-                        <div className="d-flex align-items-center">
-                          <Image
-                            src={flight.Airline.picture}
-                            className="me-3"
-                            style={{ width: 35 }}
-                          />
-                          <p style={{ marginBottom: 0 }}>
-                            {flight.Airline.name} - {datafiltering.seatType}
-                          </p>
-                        </div>
-                      </Col>
-                      {/* destination info */}
-                      <Col
-                        md={4}
-                        sm={12}
-                        className="d-flex justify-content-center pt-2"
-                      >
-                        <FlightDestination
-                          departureTime={format(
-                            new Date(flight.departureAt),
-                            "HH:mm"
-                          )}
-                          departureCity={flight.StartAirport.iataCode}
-                          flightDuration={flight.duration}
-                          arrivalTime={format(
-                            new Date(flight.arrivalAt),
-                            "HH:mm"
-                          )}
-                          arrivalCity={flight.EndAirport.iataCode}
-                        />
-                      </Col>
-                      <Col
-                        md={1}
-                        xs={12}
-                        className="d-flex align-self-center justify-content-center p-3"
-                      >
-                        {flight.Airline.baggage !== 0 && (
-                          <OverlayTrigger
-                            placement="top"
-                            overlay={
-                              <Tooltip>
-                                Free {flight.Airline.baggage} baggage
-                              </Tooltip>
-                            }
-                          >
-                            <Image src={freeBaggage} alt="Free baggage" />
-                          </OverlayTrigger>
-                        )}
-                      </Col>
-                      {/* price and execute button */}
-                      <Col
-                        md={3}
-                        sm={12}
-                        className="d-flex flex-column align-items-md-end align-items-center justify-content-center "
-                        style={{ padding: 0 }}
-                      >
-                        <h3 style={{ fontSize: 20, fontWeight: 650 }}>
-                          IDR {flight["price" + datafiltering.seatType]}
-                        </h3>
-                        <Button
-                          href="/"
-                          onClick={handlePilihButton}
-                          style={{ borderRadius: 14, width: "50%" }}
-                        >
-                          Pilih
-                        </Button>
-                      </Col>
-                    </Row>
-                  </Col>
-                  <Col
-                    md={1}
-                    sm={1}
-                    xs={1}
-                    className="d-flex justify-content-center"
-                    style={{ padding: 0 }}
-                    onClick={(e) => handleButtonClick(flight.id, e)} // Mengatur klik pada ikon
-                  >
-                    <Image
-                      src={accorTrigger}
-                      style={{
-                        width: 25,
-                        transition: "transform 0.3s",
-                        transform: rotated[flight.id]
-                          ? "rotate(180deg)"
-                          : "rotate(0deg)",
-                      }}
-                    />
-                  </Col>
-                </Row>
-              </Container>
-            </Card.Header>
-            <Accordion.Collapse eventKey={flight.id}>
-              <Card.Body style={{ paddingTop: 0 }}>
+              <Card.Header
+                style={{ borderBottom: "none", backgroundColor: "white" }}
+              >
                 <Container>
-                  <hr />
-                  <DetailFlight
-                    TitleDetail={"Detail Penerbangan"}
-                    departureTime={format(
-                      new Date(flight.departureAt),
-                      "HH:mm"
-                    )}
-                    departureDate={format(
-                      new Date(flight.departureAt),
-                      "dd MMMM yyyy"
-                    )}
-                    departureAirport={flight.StartAirport.name}
-                    departureTerminal={flight.StartAirport.terminal}
-                    arrivalTime={format(new Date(flight.arrivalAt), "HH:mm")}
-                    arrivalDate={format(
-                      new Date(flight.arrivalAt),
-                      "dd MMMM yyyy"
-                    )}
-                    arrivalAirport={flight.EndAirport.name}
-                    arrivalTerminal={flight.EndAirport.terminal}
-                    airlineName={flight.Airline.name}
-                    airlineLogo={flight.Airline.picture}
-                    seatClass={datafiltering.seatType}
-                    airlineIataCode={flight.Airline.iataCode}
-                    flightCode={flight.flightCode}
-                    {...(flight.Airline.baggage !== 0 && {
-                      baggage: `Baggage ${flight.Airline.baggage}`,
-                    })}
-                    cabinBaggage={flight.Airline.cabinBaggage}
-                    additionals={flight.Airline.additionals}
-                  />
+                  <Row>
+                    <Col md={11} sm={11} xs={11}>
+                      <Row>
+                        {/* airline name */}
+                        <Col
+                          md={4}
+                          sm={12}
+                          className="d-flex align-items-center justify-content-center justify-content-md-start"
+                        >
+                          <div className="d-flex align-items-center">
+                            <Image
+                              src={flight.Airline.picture}
+                              className="me-3"
+                              style={{ width: 35 }}
+                            />
+                            <p style={{ marginBottom: 0 }}>
+                              {flight.Airline.name} - {datafiltering.seatType}
+                            </p>
+                          </div>
+                        </Col>
+                        {/* destination info */}
+                        <Col
+                          md={4}
+                          sm={12}
+                          className="d-flex justify-content-center pt-2"
+                        >
+                          <FlightDestination
+                            departureTime={format(
+                              new Date(flight.departureAt),
+                              "HH:mm"
+                            )}
+                            departureCity={flight.StartAirport.iataCode}
+                            flightDuration={flight.duration}
+                            arrivalTime={format(
+                              new Date(flight.arrivalAt),
+                              "HH:mm"
+                            )}
+                            arrivalCity={flight.EndAirport.iataCode}
+                          />
+                        </Col>
+                        <Col
+                          md={1}
+                          xs={12}
+                          className="d-flex align-self-center justify-content-center p-3"
+                        >
+                          {flight.Airline.baggage !== 0 && (
+                            <OverlayTrigger
+                              placement="top"
+                              overlay={
+                                <Tooltip>
+                                  Free {flight.Airline.baggage} baggage
+                                </Tooltip>
+                              }
+                            >
+                              <Image src={freeBaggage} alt="Free baggage" />
+                            </OverlayTrigger>
+                          )}
+                        </Col>
+                        {/* price and execute button */}
+                        <Col
+                          md={3}
+                          sm={12}
+                          className="d-flex flex-column align-items-md-end align-items-center justify-content-center "
+                          style={{ padding: 0 }}
+                        >
+                          <h3 style={{ fontSize: 20, fontWeight: 650 }}>
+                            IDR {flight["price" + datafiltering.seatType]}
+                          </h3>
+                          <Button
+                            href="/"
+                            onClick={handlePilihButton}
+                            style={{ borderRadius: 14, width: "50%" }}
+                          >
+                            Pilih
+                          </Button>
+                        </Col>
+                      </Row>
+                    </Col>
+                    <Col
+                      md={1}
+                      sm={1}
+                      xs={1}
+                      className="d-flex justify-content-center"
+                      style={{ padding: 0 }}
+                      onClick={(e) => handleButtonClick(flight.id, e)} // Mengatur klik pada ikon
+                    >
+                      <Image
+                        src={accorTrigger}
+                        style={{
+                          width: 25,
+                          transition: "transform 0.3s",
+                          transform: rotated[flight.id]
+                            ? "rotate(180deg)"
+                            : "rotate(0deg)",
+                        }}
+                      />
+                    </Col>
+                  </Row>
                 </Container>
-              </Card.Body>
-            </Accordion.Collapse>
-          </Card>
+              </Card.Header>
+              <Accordion.Collapse eventKey={flight.id}>
+                <Card.Body style={{ paddingTop: 0 }}>
+                  <Container>
+                    <hr />
+                    <DetailFlight
+                      TitleDetail={"Detail Penerbangan"}
+                      departureTime={format(
+                        new Date(flight.departureAt),
+                        "HH:mm"
+                      )}
+                      departureDate={format(
+                        new Date(flight.departureAt),
+                        "dd MMMM yyyy"
+                      )}
+                      departureAirport={flight.StartAirport.name}
+                      departureTerminal={flight.StartAirport.terminal}
+                      arrivalTime={format(new Date(flight.arrivalAt), "HH:mm")}
+                      arrivalDate={format(
+                        new Date(flight.arrivalAt),
+                        "dd MMMM yyyy"
+                      )}
+                      arrivalAirport={flight.EndAirport.name}
+                      arrivalTerminal={flight.EndAirport.terminal}
+                      airlineName={flight.Airline.name}
+                      airlineLogo={flight.Airline.picture}
+                      seatClass={datafiltering.seatType}
+                      airlineIataCode={flight.Airline.iataCode}
+                      flightCode={flight.flightCode}
+                      {...(flight.Airline.baggage !== 0 && {
+                        baggage: `Baggage ${flight.Airline.baggage}`,
+                      })}
+                      cabinBaggage={flight.Airline.cabinBaggage}
+                      additionals={flight.Airline.additionals}
+                    />
+                  </Container>
+                </Card.Body>
+              </Accordion.Collapse>
+            </Card>
+          </>
         ))}
       </Accordion>
     </>
