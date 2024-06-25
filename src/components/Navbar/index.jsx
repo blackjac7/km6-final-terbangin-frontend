@@ -10,19 +10,19 @@ import login from "../../assets/fi_log-in.png";
 import { useEffect, useState } from "react";
 import { getProfile, logout } from "../../redux/actions/auth";
 import SearchIcon from "@mui/icons-material/Search";
-import { Menu, MenuItem, IconButton } from "@mui/material";
+import { Menu, MenuItem, IconButton, Avatar } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 
 const StyledMenuItemLogout = styled(MenuItem)(({ theme }) => ({
     "&:hover": {
-        backgroundColor: "#f44336",
-        color: "#fff",
+        backgroundColor: theme.palette.error.main,
+        color: theme.palette.error.contrastText,
     },
     "&:active": {
-        backgroundColor: "#d32f2f",
-        color: "#fff",
+        backgroundColor: theme.palette.error.dark,
+        color: theme.palette.error.contrastText,
     },
 }));
 
@@ -43,7 +43,7 @@ function NavScrollExample() {
 
     const handleLogout = () => {
         dispatch(logout());
-        navigate("/login");
+        navigate("/");
         handleClose();
     };
 
@@ -57,16 +57,16 @@ function NavScrollExample() {
             expand="lg"
             className="bg-body-tertiary border-bottom"
             style={{
-                boxShadow: " 1px 0 10px 2px rgba(0, 0, 0, 0.1)",
+                boxShadow: "1px 0 10px 2px rgba(0, 0, 0, 0.1)",
             }}
         >
             <Container>
                 <Navbar.Brand as={Link} to="/">
-                    <img src={logo} height={55} />
+                    <img src={logo} height={55} alt="Logo" />
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="navbarScroll" />
                 <Navbar.Collapse id="navbarScroll">
-                    <Form className="d-flex mt-2">
+                    {/* <Form className="d-flex mt-2">
                         <Form.Control
                             type="search"
                             placeholder="Search"
@@ -81,10 +81,10 @@ function NavScrollExample() {
                         >
                             <SearchIcon />
                         </button>
-                    </Form>
+                    </Form> */}
                     {!user && (
                         <Button
-                            className="d-flex ms-auto mt-2 "
+                            className="d-flex ms-auto mt-2"
                             style={{
                                 backgroundColor: "#7126b5",
                                 borderColor: "#7126b5",
@@ -98,7 +98,11 @@ function NavScrollExample() {
                                     alignItems: "center",
                                 }}
                             >
-                                <img src={login} className="me-2" />
+                                <img
+                                    src={login}
+                                    className="me-2"
+                                    alt="Login Icon"
+                                />
                                 Masuk
                             </span>
                         </Button>
@@ -128,7 +132,18 @@ function NavScrollExample() {
                                     color="inherit"
                                     onClick={handleMenu}
                                 >
-                                    <AccountCircle />
+                                    {user.picture ? (
+                                        <Avatar
+                                            src={user.picture}
+                                            alt="User Profile"
+                                            sx={{
+                                                width: 30,
+                                                height: 30,
+                                            }}
+                                        />
+                                    ) : (
+                                        <AccountCircle />
+                                    )}
                                 </IconButton>
                             </div>
 
@@ -136,6 +151,9 @@ function NavScrollExample() {
                                 anchorEl={anchorEl}
                                 open={open}
                                 onClose={handleClose}
+                                MenuListProps={{
+                                    "aria-labelledby": "basic-button",
+                                }}
                             >
                                 <MenuItem
                                     onClick={() => {
@@ -143,10 +161,10 @@ function NavScrollExample() {
                                         handleClose();
                                     }}
                                 >
-                                    Profile
+                                    Profil
                                 </MenuItem>
                                 <StyledMenuItemLogout onClick={handleLogout}>
-                                    Logout
+                                    Keluar
                                 </StyledMenuItemLogout>
                             </Menu>
                         </>
