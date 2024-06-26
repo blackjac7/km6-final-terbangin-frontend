@@ -114,7 +114,7 @@ export const register =
             dispatch(setToken(token));
 
             console.log(data);
-            navigate("/profile");
+            navigate("/");
             toast.success("Register success", {
                 position: "top-center",
             });

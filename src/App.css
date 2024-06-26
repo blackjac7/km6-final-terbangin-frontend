@@ -1,7 +1,6 @@
 .btn-primary {
     background-color: #7126b5;
     border-color: #7126b5;
-    /* align-self: stretch; */
     border-radius: 0px 0px 11px 11px;
 }
 
@@ -20,4 +19,10 @@
 .btn-primary:active {
     background-color: #8e6fdd !important;
     border-color: #8e6fdd !important;
+}
+
+.btn-primary:disabled {
+    background-color: #d3d3d3;
+    border-color: #d3d3d3;
+    cursor: not-allowed;
 }
