@@ -11,13 +11,9 @@ export const getFilterFlights =
     filter = filter ?? "priceEconomy";
     seatType = seatType ?? "Economy";
     try {
-<<<<<<< HEAD
-      const url = new URL("http://localhost:3000/api/v1/flight/flightfilter");
-=======
       const url = new URL(
         `${import.meta.env.VITE_BACKEND_API}/api/v1/flight/flightfilter`
       );
->>>>>>> db97bc951a04d5acd4a851774580a614cd038524
       url.searchParams.append("start", start);
       url.searchParams.append("end", end);
       url.searchParams.append("key", key);
@@ -42,8 +38,6 @@ export const getFilterFlights =
       console.error("Error fetching flights:", error);
     }
   };
-<<<<<<< HEAD
-=======
 
 export const getFlightById = (id) => async () => {
   let config = {
@@ -64,4 +58,3 @@ export const getFlightById = (id) => async () => {
     toast.error(error?.response?.data?.message);
   }
 };
->>>>>>> db97bc951a04d5acd4a851774580a614cd038524
