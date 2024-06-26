@@ -79,17 +79,17 @@ const FindTicket = () => {
       flightIdReturn,
     });
 
-    // navigate("/find-ticket", {
-    //   state: {
-    //     flightIdDeparture,
-    //     flightIdReturn,
-    //     capacity,
-    //     adult,
-    //     child,
-    //     baby,
-    //     seatType,
-    //   },
-    // });
+    navigate("/booking", {
+      state: {
+        flightIdDeparture,
+        flightIdReturn,
+        capacity,
+        adult,
+        child,
+        baby,
+        seatType,
+      },
+    });
   };
 
   const dispatch = useDispatch();
