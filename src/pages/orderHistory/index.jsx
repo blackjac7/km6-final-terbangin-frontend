@@ -11,6 +11,13 @@ import FlightDestination from "../../components/FlightDestination";
 import PassangerDetail from "../../components/PassangerDetail";
 import PriceDetail from "../../components/PriceDetail";
 
+import {
+  getHistoryCardDetails,
+  getHistoryCards,
+} from "../../redux/actions/history";
+import { useDispatch, useSelector } from "react-redux";
+import moment from "moment-timezone";
+
 const OrderHistory = () => {
   const [showModal, setShowModal] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
@@ -18,23 +25,33 @@ const OrderHistory = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+  const dispatch = useDispatch();
+  const { historycards, historycard } = useSelector((state) => state.history);
+
   const handleResize = () => {
     setIsMobile(window.innerWidth < 768);
   };
 
   // this function is for toggle active status history list, for purple border purpose
   const handleDetailClick = (booking) => {
-    if (selectedBooking?.id === booking.id) {
+    if (historycard[0]?.bookingId === booking) {
+      console.log("masuk a");
       setShowDetail(!showDetail);
     } else {
-      setSelectedBooking(booking);
+      // setSelectedBooking(booking);
       setShowDetail(true);
+      console.log("masuk b");
+      dispatch(getHistoryCardDetails(booking));
     }
 
     if (isMobile) {
       setShowModal(true);
     }
   };
+
+  useEffect(() => {
+    dispatch(getHistoryCards());
+  }, []);
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
@@ -80,13 +97,14 @@ const OrderHistory = () => {
               onDetailClick={handleDetailClick}
               isActive={isActive}
               setIsActive={setIsActive}
-              selectedBooking={selectedBooking}
+              selectedBooking={historycard}
+              historycards={historycards}
             />
           </Col>
           {/* If mobile breakpoint is false, the detail history will show on right side page */}
           {showDetail && !isMobile && selectedBooking && (
             <Col md={5} className="px-4">
-              <HistoryDetail booking={selectedBooking} />
+              <HistoryDetail booking={historycard} />
             </Col>
           )}
         </Row>
@@ -97,30 +115,35 @@ const OrderHistory = () => {
         <HistoryDetailMobile
           setShowModal={setShowModal}
           showModal={showModal}
-          booking={selectedBooking}
+          booking={historycard}
         />
       )}
     </>
   );
 };
 
-const HistoryDestination = ({ onDetailClick, isActive, setIsActive }) => {
+const HistoryDestination = ({
+  onDetailClick,
+  isActive,
+  setIsActive,
+  historycards,
+}) => {
   return (
     <>
-      {bookingData.map((booking) => {
+      {historycards.map((booking) => {
         return (
           <Button
-            key={booking.id}
+            key={booking?.bookingId}
             className="mb-3"
             variant="custom"
             onMouseDown={() =>
               setIsActive((active) =>
-                active === booking.id ? null : booking.id
+                active === booking?.bookingId ? null : booking?.bookingId
               )
             }
-            onClick={() => onDetailClick(booking)}
+            onClick={() => onDetailClick(booking?.bookingId)}
             style={{
-              border: isActive === booking.id ? "2px solid purple" : "",
+              border: isActive === booking?.bookingId ? "2px solid purple" : "",
               boxShadow: "1px 0 5px 1px rgba(0, 0, 0, 0.1)",
               borderRadius: "0.50rem",
             }}
@@ -128,19 +151,45 @@ const HistoryDestination = ({ onDetailClick, isActive, setIsActive }) => {
             <Row>
               {/* Section for render booking status */}
               <Col md={12} className="d-flex justify-content-start py-2">
-                <StatusPayment bookingStatus={booking.status} />
+                <StatusPayment
+                  bookingStatus={booking?.Booking?.Payment?.status}
+                />
               </Col>
               <Col md={12}>
                 {/* Section for render history destination or history list */}
                 {booking && (
                   <FlightDestination
-                    departureAt={booking.departureAt}
-                    departureDate={booking.departureDate}
-                    departureCity={booking.departureCity}
-                    flightDuration={booking.flightDuration}
-                    arrivalCity={booking.arrivalCity}
-                    arrivalDate={booking.arrivalDate}
-                    arrivalAt={booking.arrivalAt}
+                    departureTime={moment
+                      .tz(
+                        booking?.Seat?.Flight?.departureAt,
+                        booking?.Seat?.Flight?.StartAirport?.timezone
+                      )
+                      .format("HH:mm")}
+                    departureDate={moment
+                      .tz(
+                        booking?.Seat?.Flight?.departureAt,
+                        booking?.Seat?.Flight?.StartAirport?.timezone
+                      )
+                      .format("DD MMMM yyyy")}
+                    departureCity={booking?.Seat?.Flight?.StartAirport?.city}
+                    flightDuration={booking?.Seat?.Flight?.duration}
+                    arrivalCity={booking?.Seat?.Flight?.EndAirport?.city}
+                    arrivalTime={moment
+                      .tz(
+                        booking?.Seat?.Flight?.arrivalAt,
+                        booking?.Seat?.Flight?.StartAirport?.timezone
+                      )
+                      .clone()
+                      .tz(booking?.Seat?.Flight?.EndAirport?.timezone)
+                      .format("HH:mm")}
+                    arrivalDate={moment
+                      .tz(
+                        booking?.Seat?.Flight?.arrivalAt,
+                        booking?.Seat?.Flight?.StartAirport?.timezone
+                      )
+                      .clone()
+                      .tz(booking?.Seat?.Flight?.EndAirport?.timezone)
+                      .format("DD MMMM yyyy")}
                   />
                 )}
                 <hr className="solid" />
@@ -148,15 +197,15 @@ const HistoryDestination = ({ onDetailClick, isActive, setIsActive }) => {
               <Row style={{ textAlign: "left" }}>
                 <Col md={4}>
                   <p style={{ margin: 0, fontWeight: "700" }}>Booking Code:</p>
-                  <p>{booking.id}</p>
+                  <p>{booking?.bookingId}</p>
                 </Col>
                 <Col md={4}>
                   <p style={{ margin: 0, fontWeight: "700" }}>Class:</p>
-                  <p>{booking.seatClass}</p>
+                  <p>{booking?.Seat?.airlineClass}</p>
                 </Col>
                 <Col md={4} className="">
                   <p style={{ margin: 0, fontWeight: "700" }}>Total Payment:</p>
-                  <p>{booking.totalPrice}</p>
+                  <p>Rp {booking?.Booking?.Payment?.totalPrice}</p>
                 </Col>
               </Row>
             </Row>
@@ -204,26 +253,52 @@ const HistoryDetail = ({ booking }) => {
     <Container className="pb-5">
       <DetailFlight
         TitleDetail={"Detail Pesanan"}
-        BookingCode={`Booking Code: ${booking.id}`}
-        BookingStatus={<StatusPayment bookingStatus={booking.status} />}
-        departureAt={booking.departureAt}
-        departureDate={booking.arrivalDate}
-        departureAirport={booking.departureAirport}
-        departureTerminal={booking.departureTerminal}
-        arrivalAt={booking.arrivalAt}
-        arrivalDate={booking.arrivalDate}
-        arrivalAirport={booking.arrivalAirport}
-        arrivalTerminal={booking.arrivalTerminal}
-        airlineName={booking.airlineName}
-        seatClass={booking.seatClass}
-        airlineSerialNumber={booking.airlineSerialNumber}
-        baggage={booking.baggage}
-        cabinBaggage={booking.cabinBaggage}
-        additionals={booking.additionals}
+        BookingCode={`Booking Code: ${booking[0]?.bookingId}`}
+        BookingStatus={
+          <StatusPayment bookingStatus={booking[0]?.Booking?.Payment?.status} />
+        }
+        departureTime={moment
+          .tz(
+            booking[0]?.Seat?.Flight?.departureAt,
+            booking[0]?.Seat?.Flight?.StartAirport?.timezone
+          )
+          .format("HH:mm")}
+        departureDate={moment
+          .tz(
+            booking[0]?.Seat?.Flight?.departureAt,
+            booking[0]?.Seat?.Flight?.StartAirport?.timezone
+          )
+          .format("DD MMMM yyyy")}
+        departureAirport={booking[0]?.Seat?.Flight?.StartAirport?.name}
+        departureTerminal={booking[0]?.Seat?.Flight?.StartAirport?.terminal}
+        arrivalTime={moment
+          .tz(
+            booking[0]?.Seat?.Flight?.arrivalAt,
+            booking[0]?.Seat?.Flight?.StartAirport?.timezone
+          )
+          .clone()
+          .tz(booking[0]?.Seat?.Flight?.EndAirport?.timezone)
+          .format("HH:mm")}
+        arrivalDate={moment
+          .tz(
+            booking[0]?.Seat?.Flight?.arrivalAt,
+            booking[0]?.Seat?.Flight?.StartAirport?.timezone
+          )
+          .clone()
+          .tz(booking[0]?.Seat?.Flight?.EndAirport?.timezone)
+          .format("DD MMMM yyyy")}
+        arrivalAirport={booking[0]?.Seat?.Flight?.EndAirport?.name}
+        arrivalTerminal={booking[0]?.Seat?.Flight?.EndAirport?.terminal}
+        airlineName={booking[0]?.Seat?.Flight?.Airline?.name}
+        seatClass={booking[0]?.Seat?.airlineClass}
+        flightCode={booking[0]?.Seat?.Flight?.flightCode}
+        baggage={booking[0]?.Seat?.Flight?.Airline?.baggage}
+        cabinBaggage={booking[0]?.Seat?.Flight?.Airline?.cabinBaggage}
+        additionals={booking[0]?.Seat?.Flight?.Airline?.additionals}
       />
 
       {/* Passanger Information */}
-      <div>
+      {/* <div>
         <hr />
         <p style={{ marginBottom: 0, fontWeight: "bold" }}>
           Informasi Penumpang
@@ -236,7 +311,7 @@ const HistoryDetail = ({ booking }) => {
             passangerId={passenger.id}
           />
         ))}
-      </div>
+      </div> */}
       {/* Price Information, confused for implement hard data xD  */}
       <PriceDetail />
       <Row className="pt-3 d-flex justify-content-between">
