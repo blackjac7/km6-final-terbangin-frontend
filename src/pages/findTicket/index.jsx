@@ -37,61 +37,61 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getFilterFlights } from "../../redux/actions/flight";
 import moment from "moment-timezone";
-import { set } from "lodash";
+
 
 const FindTicket = () => {
-    const [isChangeFlight, setChangeFlight] = useState(false);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-    const [isFullScreen, setIsFullScreen] = useState(window.innerWidth > 1160);
-    const [flightIdDeparture, setflightIdDeparture] = useState("");
-    const [flightIdReturn, setflightIdReturn] = useState("");
+  const [isChangeFlight, setChangeFlight] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isFullScreen, setIsFullScreen] = useState(window.innerWidth > 1160);
+  const [flightIdDeparture, setflightIdDeparture] = useState("");
+  const [flightIdReturn, setflightIdReturn] = useState("");
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
     const location = useLocation();
 
-    let {
-        flightType,
-        departure,
-        iataCodeDeparture,
-        arrival,
-        iataCodeArrival,
-        departureDate,
-        returnDate,
-        seatType,
+  let {
+    flightType,
+    departure,
+    iataCodeDeparture,
+    arrival,
+    iataCodeArrival,
+    departureDate,
+    returnDate,
+    seatType,
+    capacity,
+    adult,
+    child,
+    baby,
+  } = location.state || {};
+
+  console.log(departure);
+
+  const handleSubmit = (e) => {
+    if (flightType == "Return") {
+      if (!flightIdReturn || flightIdReturn == "") {
+        toast.error("Return flight is not choose");
+        return;
+      }
+    }
+
+    console.log({
+      flightIdDeparture,
+      flightIdReturn,
+    });
+
+    navigate("/booking", {
+      state: {
+        flightIdDeparture,
+        flightIdReturn,
         capacity,
         adult,
         child,
         baby,
-    } = location.state || {};
-
-    console.log(departure);
-
-    const handleSubmit = (e) => {
-        if (flightType == "Return") {
-            if (!flightIdReturn || flightIdReturn == "") {
-                toast.error("Return flight is not choose");
-                return;
-            }
-        }
-
-        console.log({
-            flightIdDeparture,
-            flightIdReturn,
-        });
-
-        navigate("/booking", {
-            state: {
-                flightIdDeparture,
-                flightIdReturn,
-                capacity,
-                adult,
-                child,
-                baby,
-                seatType,
-            },
-        });
-    };
+        seatType,
+      },
+    });
+  };
 
     const dispatch = useDispatch();
     const { flights } = useSelector((state) => state.flight);
@@ -117,52 +117,52 @@ const FindTicket = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    useEffect(() => {
-        let temp;
-        if (flightIdDeparture != "") {
-            temp = departure;
-            departure = arrival;
-            arrival = temp;
-            temp = iataCodeDeparture;
-            iataCodeDeparture = iataCodeArrival;
-            iataCodeArrival = temp;
-            dispatch(
-                getFilterFlights(
-                    departure,
-                    arrival,
-                    "departureAt",
-                    returnDate,
-                    "price" + seatType,
-                    "asc",
-                    seatType
-                )
-            );
-        } else {
-            dispatch(
-                getFilterFlights(
-                    departure,
-                    arrival,
-                    "departureAt",
-                    departureDate,
-                    "price" + seatType,
-                    "asc",
-                    seatType
-                )
-            );
-        }
-    }, [
-        dispatch,
-        departure,
-        arrival,
-        flightType,
-        seatType,
-        adult,
-        child,
-        baby,
-        departureDate,
-        returnDate,
-        flightIdDeparture,
-    ]);
+  useEffect(() => {
+    let temp;
+    if (flightIdDeparture != "") {
+      temp = departure;
+      departure = arrival;
+      arrival = temp;
+      temp = iataCodeDeparture;
+      iataCodeDeparture = iataCodeArrival;
+      iataCodeArrival = temp;
+      dispatch(
+        getFilterFlights(
+          departure,
+          arrival,
+          "departureAt",
+          returnDate,
+          "price" + seatType,
+          "asc",
+          seatType
+        )
+      );
+    } else {
+      dispatch(
+        getFilterFlights(
+          departure,
+          arrival,
+          "departureAt",
+          departureDate,
+          "price" + seatType,
+          "asc",
+          seatType
+        )
+      );
+    }
+  }, [
+    dispatch,
+    departure,
+    arrival,
+    flightType,
+    seatType,
+    adult,
+    child,
+    baby,
+    departureDate,
+    returnDate,
+    flightIdDeparture,
+  ]);
 
     return (
         <>
@@ -172,21 +172,21 @@ const FindTicket = () => {
                     Pilih Penerbangan
                 </h4>
 
-                <Row className="mt-4 g-2">
-                    <Col sx={12} md={10} className="d-flex">
-                        <BackButton
-                            ButtonText={`${flights[0]?.StartAirport?.iataCode} > ${flights[0]?.EndAirport?.iataCode} - ${capacity} Penumpang - ${seatType}`}
-                        />
-                    </Col>
-                    <Col sx={12} md={2} className="d-flex">
-                        <Button
-                            variant="success"
-                            style={{ borderRadius: 14 }}
-                            className="flex-fill"
-                            onClick={handleOpenChangeFlight}
-                        >
-                            Ubah Penerbangan
-                        </Button>
+        <Row className="mt-4 g-2">
+          <Col sx={12} md={10} className="d-flex">
+            <BackButton
+              ButtonText={`${flights[0]?.StartAirport?.iataCode} > ${flights[0]?.EndAirport?.iataCode} - ${capacity} Penumpang - ${seatType}`}
+            />
+          </Col>
+          <Col sx={12} md={2} className="d-flex">
+            <Button
+              variant="success"
+              style={{ borderRadius: 14 }}
+              className="flex-fill"
+              onClick={handleOpenChangeFlight}
+            >
+              Ubah Penerbangan
+            </Button>
 
                         <Modal
                             open={isChangeFlight}
@@ -209,69 +209,69 @@ const FindTicket = () => {
                     </Col>
                 </Row>
 
-                <Row className="mt-4 ">
-                    <Col>
-                        <DateSelector
-                            dispatch={dispatch}
-                            datafiltering={{
-                                seatType: seatType,
-                                departure: flights[0]?.StartAirport?.city,
-                                arrival: flights[0]?.EndAirport?.city,
-                                departureDate: departureDate,
-                                returnDate: returnDate,
-                                flightType: flightType,
-                            }}
-                            flightIdDeparture={flightIdDeparture}
-                        />
-                    </Col>
-                </Row>
-            </HeaderShadow>
-            {/* Main Content */}
-            <Container>
-                <Row className={isFullScreen ? "pt-4 mx-5" : "pt-4"}>
-                    <Col>
-                        {flights === null || flights?.length === 0 ? (
-                            <TicketNotFound />
-                        ) : (
-                            <FlightList
-                                flights={flights}
-                                dispatch={dispatch}
-                                datafiltering={{
-                                    seatType: seatType,
-                                    departure: flights[0]?.StartAirport?.city,
-                                    arrival: flights[0]?.EndAirport?.city,
-                                    departureDate: flights[0]?.departureAt,
-                                    flightType: flightType,
-                                    returnDate: flights[0]?.arrivalAt,
-                                }}
-                                flightIdDeparture={flightIdDeparture}
-                                flightIdReturn={flightIdReturn}
-                                setflightIdDeparture={setflightIdDeparture}
-                                setflightIdReturn={setflightIdReturn}
-                                handleSubmit={handleSubmit}
-                            />
-                        )}
-                    </Col>
-                </Row>
-            </Container>
-        </>
-    );
+        <Row className="mt-4 ">
+          <Col>
+            <DateSelector
+              dispatch={dispatch}
+              datafiltering={{
+                seatType: seatType,
+                departure: flights[0]?.StartAirport?.city,
+                arrival: flights[0]?.EndAirport?.city,
+                departureDate: departureDate,
+                returnDate: returnDate,
+                flightType: flightType,
+              }}
+              flightIdDeparture={flightIdDeparture}
+            />
+          </Col>
+        </Row>
+      </HeaderShadow>
+      {/* Main Content */}
+      <Container>
+        <Row className={isFullScreen ? "pt-4 mx-5" : "pt-4"}>
+          <Col>
+            {flights === null || flights?.length === 0 ? (
+              <TicketNotFound />
+            ) : (
+              <FlightList
+                flights={flights}
+                dispatch={dispatch}
+                datafiltering={{
+                  seatType: seatType,
+                  departure: flights[0]?.StartAirport?.city,
+                  arrival: flights[0]?.EndAirport?.city,
+                  departureDate: flights[0]?.departureAt,
+                  flightType: flightType,
+                  returnDate: flights[0]?.arrivalAt,
+                }}
+                flightIdDeparture={flightIdDeparture}
+                flightIdReturn={flightIdReturn}
+                setflightIdDeparture={setflightIdDeparture}
+                setflightIdReturn={setflightIdReturn}
+                handleSubmit={handleSubmit}
+              />
+            )}
+          </Col>
+        </Row>
+      </Container>
+    </>
+  );
 };
 
 const DateSelector = ({ dispatch, datafiltering, flightIdDeparture }) => {
-    const baseDate = new Date(datafiltering.departureDate);
-    const [selectedDate, setSelectedDate] = useState(baseDate);
-    const [visibleButtons, setVisibleButtons] = useState(7);
-    const [isHovered, setIsHovered] = useState(null);
-    const daysOfWeek = [
-        "Minggu",
-        "Senin",
-        "Selasa",
-        "Rabu",
-        "Kamis",
-        "Jumat",
-        "Sabtu",
-    ];
+  const baseDate = new Date(datafiltering.departureDate);
+  const [selectedDate, setSelectedDate] = useState(baseDate);
+  const [visibleButtons, setVisibleButtons] = useState(7);
+  const [isHovered, setIsHovered] = useState(null);
+  const daysOfWeek = [
+    "Minggu",
+    "Senin",
+    "Selasa",
+    "Rabu",
+    "Kamis",
+    "Jumat",
+    "Sabtu",
+  ];
 
     const formatDate = (date) => {
         const day = date.getDate().toString().padStart(2, "0");
@@ -294,28 +294,28 @@ const DateSelector = ({ dispatch, datafiltering, flightIdDeparture }) => {
         return { hari: dayName, tanggal: formatDate(newDate), date: newDate };
     };
 
-    const handleButtonClick = (newDate) => {
-        let newdate = formatDateyearfirst(newDate);
-        setSelectedDate(newDate);
-        dispatch(
-            getFilterFlights(
-                datafiltering.departure,
-                datafiltering.arrival,
-                "departureAt",
-                newdate,
-                "price" + datafiltering.seatType,
-                "asc",
-                datafiltering.seatType
-            )
-        );
-    };
+  const handleButtonClick = (newDate) => {
+    let newdate = formatDateyearfirst(newDate);
+    setSelectedDate(newDate);
+    dispatch(
+      getFilterFlights(
+        datafiltering.departure,
+        datafiltering.arrival,
+        "departureAt",
+        newdate,
+        "price" + datafiltering.seatType,
+        "asc",
+        datafiltering.seatType
+      )
+    );
+  };
 
-    useEffect(() => {
-        if (datafiltering.flightType == "Return" && flightIdDeparture != "") {
-            const baseDate = new Date(datafiltering.returnDate);
-            setSelectedDate(baseDate);
-        }
-    }, [flightIdDeparture]);
+  useEffect(() => {
+    if (datafiltering.flightType == "Return" && flightIdDeparture != "") {
+      const baseDate = new Date(datafiltering.returnDate);
+      setSelectedDate(baseDate);
+    }
+  }, [flightIdDeparture]);
 
     useEffect(() => {
         const baseDate = new Date(datafiltering.departureDate);
@@ -466,19 +466,19 @@ const Filter = ({ dispatch, datafiltering }) => {
 };
 
 const FlightList = ({
-    flights,
-    dispatch,
-    datafiltering,
-    flightIdDeparture,
-    flightIdReturn,
-    setflightIdDeparture,
-    setflightIdReturn,
-    handleSubmit,
+  flights,
+  dispatch,
+  datafiltering,
+  flightIdDeparture,
+  flightIdReturn,
+  setflightIdDeparture,
+  setflightIdReturn,
+  handleSubmit,
 }) => {
-    const [expanded, setExpanded] = useState(null);
-    const [rotated, setRotated] = useState({});
-    const [status, setStatus] = useState();
-    const [isFirstRender, setIsFirstRender] = useState(true);
+  const [expanded, setExpanded] = useState(null);
+  const [rotated, setRotated] = useState({});
+  const [status, setStatus] = useState();
+  const [isFirstRender, setIsFirstRender] = useState(true);
 
     // accordion body expand trigger
     const handleHeaderClick = (flightId, e) => {
@@ -499,285 +499,202 @@ const FlightList = ({
         });
     };
 
-    // pilih button disable button
-    const handlePilihButton = (flightid, e) => {
-        e.stopPropagation();
-        if (datafiltering.flightType == "Return") {
-            if (flightIdDeparture == "") {
-                setflightIdDeparture(flightid);
-                console.log("a");
-            } else {
-                setflightIdReturn(flightid);
-                console.log("b");
-                setStatus(true);
-            }
-        }
-        if (datafiltering.flightType == "One Way") {
-            setflightIdDeparture(flightid);
-            console.log("c");
-            setStatus(true);
-        }
-    };
+  // pilih button disable button
+  const handlePilihButton = (flightid, e) => {
+    e.stopPropagation();
+    if (datafiltering.flightType == "Return") {
+      if (flightIdDeparture == "") {
+        setflightIdDeparture(flightid);
+        console.log("a");
+      } else {
+        setflightIdReturn(flightid);
+        console.log("b");
+        setStatus(true);
+      }
+    }
+    if (datafiltering.flightType == "One Way") {
+      setflightIdDeparture(flightid);
+      console.log("c");
+      setStatus(true);
+    }
+  };
 
-    useEffect(() => {
-        if (!isFirstRender) {
-            handleSubmit();
-        }
-    }, [status]);
+  useEffect(() => {
+    if (!isFirstRender) {
+      handleSubmit();
+    }
+  }, [status]);
 
-    useEffect(() => {
-        setIsFirstRender(false);
-    }, []);
+  useEffect(() => {
+    setIsFirstRender(false);
+  }, []);
 
-    return (
-        <>
-            <Filter dispatch={dispatch} datafiltering={datafiltering} />
-            <Accordion activeKey={expanded}>
-                {flights.map((flight) => (
-                    <Card
-                        key={flight.id}
-                        className="mb-3 py-2"
-                        style={{
-                            border:
-                                expanded === flight.id
-                                    ? "2px solid purple"
-                                    : "",
-                            boxShadow: "1px 0 5px 1px rgba(0, 0, 0, 0.1)",
-                            borderRadius: "0.50rem",
-                        }}
-                    >
-                        <Card.Header
-                            style={{
-                                borderBottom: "none",
-                                backgroundColor: "white",
-                            }}
-                            onClick={() => handleHeaderClick(flight.id)}
+  return (
+    <>
+      <Filter dispatch={dispatch} datafiltering={datafiltering} />
+      <Accordion activeKey={expanded}>
+        {flights.map((flight) => (
+          <Card
+            key={flight.id}
+            className="mb-3 py-2"
+            style={{
+              border: expanded === flight.id ? "2px solid purple" : "",
+              boxShadow: "1px 0 5px 1px rgba(0, 0, 0, 0.1)",
+              borderRadius: "0.50rem",
+            }}
+          >
+            <Card.Header
+              style={{ borderBottom: "none", backgroundColor: "white" }}
+              onClick={() => handleHeaderClick(flight.id)}
+            >
+              <Container>
+                <Row>
+                  <Col md={11} sm={11} xs={11}>
+                    <Row>
+                      {/* airline name */}
+                      <Col
+                        md={4}
+                        sm={12}
+                        className="d-flex align-items-center justify-content-center justify-content-md-start"
+                      >
+                        <div className="d-flex align-items-center">
+                          <Image
+                            src={flight.Airline.picture}
+                            className="me-3"
+                            style={{ width: 35 }}
+                          />
+                          <p style={{ marginBottom: 0 }}>
+                            {flight.Airline.name} - {datafiltering.seatType}
+                          </p>
+                        </div>
+                      </Col>
+                      {/* destination info */}
+                      <Col
+                        md={4}
+                        sm={12}
+                        className="d-flex justify-content-center pt-2"
+                      >
+                        <FlightDestination
+                          departureTime={moment
+                            .tz(
+                              flight.departureAt,
+                              flight.StartAirport.timezone
+                            )
+                            .format("HH:mm")}
+                          departureCity={flight.StartAirport.iataCode}
+                          flightDuration={flight.duration}
+                          arrivalTime={moment
+                            .tz(flight.arrivalAt, flight.StartAirport.timezone)
+                            .clone()
+                            .tz(flight.EndAirport.timezone)
+                            .format("HH:mm")}
+                          arrivalCity={flight.EndAirport.iataCode}
+                        />
+                      </Col>
+                      <Col
+                        md={1}
+                        xs={12}
+                        className="d-flex align-self-center justify-content-center p-3"
+                      >
+                        {flight.Airline.baggage !== 0 && (
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={
+                              <Tooltip>
+                                Free {flight.Airline.baggage} baggage
+                              </Tooltip>
+                            }
+                          >
+                            <Image src={freeBaggage} alt="Free baggage" />
+                          </OverlayTrigger>
+                        )}
+                      </Col>
+                      {/* price and execute button */}
+                      <Col
+                        md={3}
+                        sm={12}
+                        className="d-flex flex-column align-items-md-end align-items-center justify-content-center"
+                        style={{ padding: 0 }}
+                      >
+                        <h3 style={{ fontSize: 20, fontWeight: 650 }}>
+                          IDR {flight["price" + datafiltering.seatType]}
+                        </h3>
+                        <Button
+                          onClick={(e) => handlePilihButton(flight.id, e)}
+                          style={{ borderRadius: 14, width: "50%" }}
                         >
-                            <Container>
-                                <Row>
-                                    <Col md={11} sm={11} xs={11}>
-                                        <Row>
-                                            {/* airline name */}
-                                            <Col
-                                                md={4}
-                                                sm={12}
-                                                className="d-flex align-items-center justify-content-center justify-content-md-start"
-                                            >
-                                                <div className="d-flex align-items-center">
-                                                    <Image
-                                                        src={
-                                                            flight.Airline
-                                                                .picture
-                                                        }
-                                                        className="me-3"
-                                                        style={{ width: 35 }}
-                                                    />
-                                                    <p
-                                                        style={{
-                                                            marginBottom: 0,
-                                                        }}
-                                                    >
-                                                        {flight.Airline.name} -{" "}
-                                                        {datafiltering.seatType}
-                                                    </p>
-                                                </div>
-                                            </Col>
-                                            {/* destination info */}
-                                            <Col
-                                                md={4}
-                                                sm={12}
-                                                className="d-flex justify-content-center pt-2"
-                                            >
-                                                <FlightDestination
-                                                    departureTime={moment
-                                                        .tz(
-                                                            flight.departureAt,
-                                                            flight.StartAirport
-                                                                .timezone
-                                                        )
-                                                        .format("HH:mm")}
-                                                    departureCity={
-                                                        flight.StartAirport
-                                                            .iataCode
-                                                    }
-                                                    flightDuration={
-                                                        flight.duration
-                                                    }
-                                                    arrivalTime={moment
-                                                        .tz(
-                                                            flight.arrivalAt,
-                                                            flight.StartAirport
-                                                                .timezone
-                                                        )
-                                                        .clone()
-                                                        .tz(
-                                                            flight.EndAirport
-                                                                .timezone
-                                                        )
-                                                        .format("HH:mm")}
-                                                    arrivalCity={
-                                                        flight.EndAirport
-                                                            .iataCode
-                                                    }
-                                                />
-                                            </Col>
-                                            <Col
-                                                md={1}
-                                                xs={12}
-                                                className="d-flex align-self-center justify-content-center p-3"
-                                            >
-                                                {flight.Airline.baggage !==
-                                                    0 && (
-                                                    <OverlayTrigger
-                                                        placement="top"
-                                                        overlay={
-                                                            <Tooltip>
-                                                                Free{" "}
-                                                                {
-                                                                    flight
-                                                                        .Airline
-                                                                        .baggage
-                                                                }{" "}
-                                                                baggage
-                                                            </Tooltip>
-                                                        }
-                                                    >
-                                                        <Image
-                                                            src={freeBaggage}
-                                                            alt="Free baggage"
-                                                        />
-                                                    </OverlayTrigger>
-                                                )}
-                                            </Col>
-                                            {/* price and execute button */}
-                                            <Col
-                                                md={3}
-                                                sm={12}
-                                                className="d-flex flex-column align-items-md-end align-items-center justify-content-center"
-                                                style={{ padding: 0 }}
-                                            >
-                                                <h3
-                                                    style={{
-                                                        fontSize: 20,
-                                                        fontWeight: 650,
-                                                    }}
-                                                >
-                                                    IDR{" "}
-                                                    {
-                                                        flight[
-                                                            "price" +
-                                                                datafiltering.seatType
-                                                        ]
-                                                    }
-                                                </h3>
-                                                <Button
-                                                    onClick={(e) =>
-                                                        handlePilihButton(
-                                                            flight.id,
-                                                            e
-                                                        )
-                                                    }
-                                                    style={{
-                                                        borderRadius: 14,
-                                                        width: "50%",
-                                                    }}
-                                                >
-                                                    Pilih
-                                                </Button>
-                                            </Col>
-                                        </Row>
-                                    </Col>
-                                    <Col
-                                        md={1}
-                                        sm={1}
-                                        xs={1}
-                                        className="d-flex justify-content-center"
-                                        style={{ padding: 0 }}
-                                        onClick={(e) =>
-                                            handleButtonClick(flight.id, e)
-                                        } // Mengatur klik pada ikon
-                                    >
-                                        <Image
-                                            src={accorTrigger}
-                                            style={{
-                                                width: 25,
-                                                transition: "transform 0.3s",
-                                                transform: rotated[flight.id]
-                                                    ? "rotate(180deg)"
-                                                    : "rotate(0deg)",
-                                            }}
-                                        />
-                                    </Col>
-                                </Row>
-                            </Container>
-                        </Card.Header>
-                        <Accordion.Collapse eventKey={flight.id}>
-                            <Card.Body style={{ paddingTop: 0 }}>
-                                <Container>
-                                    <hr />
-                                    <DetailFlight
-                                        TitleDetail={"Detail Penerbangan"}
-                                        departureTime={moment
-                                            .tz(
-                                                flight.departureAt,
-                                                flight.StartAirport.timezone
-                                            )
-                                            .format("HH:mm")}
-                                        departureDate={moment
-                                            .tz(
-                                                flight.departureAt,
-                                                flight.StartAirport.timezone
-                                            )
-                                            .format("DD MMMM yyyy")}
-                                        departureAirport={
-                                            flight.StartAirport.name
-                                        }
-                                        departureTerminal={
-                                            flight.StartAirport.terminal
-                                        }
-                                        arrivalTime={moment
-                                            .tz(
-                                                flight.arrivalAt,
-                                                flight.StartAirport.timezone
-                                            )
-                                            .clone()
-                                            .tz(flight.EndAirport.timezone)
-                                            .format("HH:mm")}
-                                        arrivalDate={moment
-                                            .tz(
-                                                flight.arrivalAt,
-                                                flight.StartAirport.timezone
-                                            )
-                                            .clone()
-                                            .tz(flight.EndAirport.timezone)
-                                            .format("DD MMMM yyyy")}
-                                        arrivalAirport={flight.EndAirport.name}
-                                        arrivalTerminal={
-                                            flight.EndAirport.terminal
-                                        }
-                                        airlineName={flight.Airline.name}
-                                        airlineLogo={flight.Airline.picture}
-                                        seatClass={datafiltering.seatType}
-                                        airlineIataCode={
-                                            flight.Airline.iataCode
-                                        }
-                                        flightCode={flight.flightCode}
-                                        {...(flight.Airline.baggage !== 0 && {
-                                            baggage: `Baggage ${flight.Airline.baggage}`,
-                                        })}
-                                        cabinBaggage={
-                                            flight.Airline.cabinBaggage
-                                        }
-                                        additionals={flight.Airline.additionals}
-                                    />
-                                </Container>
-                            </Card.Body>
-                        </Accordion.Collapse>
-                    </Card>
-                ))}
-            </Accordion>
-        </>
-    );
+                          Pilih
+                        </Button>
+                      </Col>
+                    </Row>
+                  </Col>
+                  <Col
+                    md={1}
+                    sm={1}
+                    xs={1}
+                    className="d-flex justify-content-center"
+                    style={{ padding: 0 }}
+                    onClick={(e) => handleButtonClick(flight.id, e)} // Mengatur klik pada ikon
+                  >
+                    <Image
+                      src={accorTrigger}
+                      style={{
+                        width: 25,
+                        transition: "transform 0.3s",
+                        transform: rotated[flight.id]
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
+                      }}
+                    />
+                  </Col>
+                </Row>
+              </Container>
+            </Card.Header>
+            <Accordion.Collapse eventKey={flight.id}>
+              <Card.Body style={{ paddingTop: 0 }}>
+                <Container>
+                  <hr />
+                  <DetailFlight
+                    TitleDetail={"Detail Penerbangan"}
+                    departureTime={moment
+                      .tz(flight.departureAt, flight.StartAirport.timezone)
+                      .format("HH:mm")}
+                    departureDate={moment
+                      .tz(flight.departureAt, flight.StartAirport.timezone)
+                      .format("DD MMMM yyyy")}
+                    departureAirport={flight.StartAirport.name}
+                    departureTerminal={flight.StartAirport.terminal}
+                    arrivalTime={moment
+                      .tz(flight.arrivalAt, flight.StartAirport.timezone)
+                      .clone()
+                      .tz(flight.EndAirport.timezone)
+                      .format("HH:mm")}
+                    arrivalDate={moment
+                      .tz(flight.arrivalAt, flight.StartAirport.timezone)
+                      .clone()
+                      .tz(flight.EndAirport.timezone)
+                      .format("DD MMMM yyyy")}
+                    arrivalAirport={flight.EndAirport.name}
+                    arrivalTerminal={flight.EndAirport.terminal}
+                    airlineName={flight.Airline.name}
+                    airlineLogo={flight.Airline.picture}
+                    seatClass={datafiltering.seatType}
+                    airlineIataCode={flight.Airline.iataCode}
+                    flightCode={flight.flightCode}
+                    {...(flight.Airline.baggage !== 0 && {
+                      baggage: `Baggage ${flight.Airline.baggage}`,
+                    })}
+                    cabinBaggage={flight.Airline.cabinBaggage}
+                    additionals={flight.Airline.additionals}
+                  />
+                </Container>
+              </Card.Body>
+            </Accordion.Collapse>
+          </Card>
+        ))}
+      </Accordion>
+    </>
+  );
 };
 // page status section
 const TicketNotFound = () => {
