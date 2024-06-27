@@ -37,6 +37,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getFilterFlights } from "../../redux/actions/flight";
 import moment from "moment-timezone";
+import { set } from "lodash";
 
 const FindTicket = () => {
     const [isChangeFlight, setChangeFlight] = useState(false);
@@ -100,6 +101,7 @@ const FindTicket = () => {
 
     const handleCloseChangeFlight = () => {
         setChangeFlight(false);
+        setflightIdDeparture("");
     };
 
     useEffect(() => {

@@ -170,11 +170,13 @@ const BookingForm = () => {
         dispatch(getFlightById(flightIdDeparture)).then((data) => {
             setFlightDeparture(data[0]);
         });
-        dispatch(getFlightById(flightIdReturn)).then((data) => {
-            setFlightReturn(data[0]);
-        });
+        if (flightIdReturn) {
+            dispatch(getFlightById(flightIdReturn)).then((data) => {
+                setFlightReturn(data[0]);
+            });
+        }
         setCapacityUser(capacity - baby);
-    }, [dispatch, flightIdDeparture, flightIdReturn]);
+    }, [dispatch, flightIdDeparture]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -215,24 +217,26 @@ const BookingForm = () => {
                         availableSeatsDeparture
                     );
 
-                    console.log("Data Penerbangan Pulang: ", flightReturn);
-                    const dataReturn = await dispatch(
-                        getSeatByFlightId(flightReturn?.id)
-                    );
-                    const filteredDataReturn = dataReturn?.filter(
-                        (seat) => seat.airlineClass === selectedAirlineClass
-                    );
-                    const availableSeatsReturn = filteredDataReturn?.filter(
-                        (seat) => seat.isAvailable === true
-                    );
-                    setSeatReturn(filteredDataReturn);
-                    setSeatReturnAvailable(availableSeatsReturn);
+                    if (flightIdReturn) {
+                        console.log("Data Penerbangan Pulang: ", flightReturn);
+                        const dataReturn = await dispatch(
+                            getSeatByFlightId(flightReturn?.id)
+                        );
+                        const filteredDataReturn = dataReturn?.filter(
+                            (seat) => seat.airlineClass === selectedAirlineClass
+                        );
+                        const availableSeatsReturn = filteredDataReturn?.filter(
+                            (seat) => seat.isAvailable === true
+                        );
+                        setSeatReturn(filteredDataReturn);
+                        setSeatReturnAvailable(availableSeatsReturn);
 
-                    // console.log("Data Kursi Pulang: ", filteredDataReturn);
-                    console.log(
-                        "Data Kursi Tersedia Pulang: ",
-                        availableSeatsReturn
-                    );
+                        // console.log("Data Kursi Pulang: ", filteredDataReturn);
+                        console.log(
+                            "Data Kursi Tersedia Pulang: ",
+                            availableSeatsReturn
+                        );
+                    }
                 } catch (error) {
                     console.error("Error fetching seat data:", error);
                 }
@@ -253,8 +257,8 @@ const BookingForm = () => {
             toast.error("Silahkan lengkapi data penumpang.");
             return;
         } else if (
-            seatSelectedDeparture.length < capacityUser ||
-            seatSelectedReturn.length < capacityUser
+            seatSelectedDeparture.length < capacityUser
+            // seatSelectedReturn.length < capacityUser
         ) {
             toast.error("Silahkan pilih kursi terlebih dahulu.");
             return;
@@ -262,18 +266,22 @@ const BookingForm = () => {
             setErrorStatus(false);
             console.log("Data yang disimpan: ", passangerData);
             console.log("Kursi yang dipesan: ", seatSelectedDeparture);
-            console.log("Total Harga: ", totalPrice);
+            console.log(
+                "Total Harga: ",
+                totalPrice ? totalPrice : departureTotalPrice
+            );
 
             try {
-                setSaveDisabled(true);
+                // setSaveDisabled(true);
 
                 const passangerResult = await dispatch(
                     createPassanger(passangerData)
                 );
                 // console.log("Data Penumpang: ", passangerResult);
+                const price = totalPrice ? totalPrice : departureTotalPrice;
 
-                const paymentResult = await dispatch(createPayment(totalPrice));
-                // console.log("Data Pembayaran: ", paymentResult);
+                const paymentResult = await dispatch(createPayment(price));
+                console.log("Data Pembayaran: ", paymentResult);
 
                 let bookingData = {
                     userId: user?.id,
@@ -284,7 +292,7 @@ const BookingForm = () => {
                 const bookingResult = await dispatch(
                     createBooking(bookingData)
                 );
-                // console.log("Data Booking: ", bookingResult);
+                console.log("Data Booking: ", bookingResult);
 
                 setBookingIdResult(bookingResult?.id);
 
