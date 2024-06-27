@@ -1,63 +1,44 @@
-import { Container, Row, Col, Form, Button, Nav } from "react-bootstrap";
+import { Container, Row, Col, Button, Nav } from "react-bootstrap";
 import { FaUserEdit, FaCog, FaSignOutAlt, FaArrowLeft } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import profilePicture from "../../assets/undraw_male_avatar_g98d.svg";
-import { updateProfile } from "../../redux/actions/profile";
-import { useState, useEffect } from "react";
+import { logout } from "../../redux/actions/auth";
+import ProfileForm from "../../components/Profile/ProfileForm";
+import AccountSettingsForm from "../../components/Profile/AccountSettingsForm";
+import "./profile.css";
 
 const Profile = () => {
     const user = useSelector((state) => state.auth.user);
+    const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const [fullName, setFullName] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
-    const [email, setEmail] = useState("");
-    const [picture, setPicture] = useState();
-    const [loading, setLoading] = useState(false);
+    const [currentForm, setCurrentForm] = useState("profile");
 
     const handleUbahProfil = () => {
-        const buttonSimpan = document.querySelector(".profile-button-simpan");
-        const formControls = document.querySelectorAll(".form-control");
-        formControls.forEach((control) => {
-            control.disabled = false;
-        });
-        buttonSimpan.style.display = "block";
+        setCurrentForm("profile");
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // console.log("handle", fullName, phoneNumber, email, picture);
-        dispatch(
-            updateProfile(fullName, phoneNumber, email, picture, setLoading)
-        );
-        const buttonSimpan = document.querySelector(".profile-button-simpan");
-        const formControls = document.querySelectorAll(".form-control");
-        formControls.forEach((control) => {
-            control.disabled = true;
-        });
-        buttonSimpan.style.display = "none";
+    const handlePengaturanAkun = () => {
+        setCurrentForm("accountSettings");
     };
 
-    useEffect(() => {
-        if (user) {
-            setFullName(user?.fullName || "");
-            setPhoneNumber(user?.phoneNumber || "");
-            setEmail(user?.email || "");
-            setPicture(user?.picture || "");
-        }
-    }, [user]);
+    const handleLogout = () => {
+        dispatch(logout());
+        navigate("/");
+    };
 
     return (
         <div style={{ minHeight: "100vh", paddingTop: "20px" }}>
             <Container>
-                <h2 className="pt-5 pb-3">Akun</h2>
+                <h2 className="pb-3">Akun</h2>
                 <div className="justify-content-center d-flex mb-2">
                     <Button
                         as={Link}
                         to={"/"}
                         className="text-decoration-none text-start"
-                        style={{ backgroundColor: "#7126B5", width: "90%" }}
+                        style={{ width: "90%" }}
                     >
                         <FaArrowLeft /> Beranda
                     </Button>
@@ -69,13 +50,14 @@ const Profile = () => {
                     className="mt-1 mx-auto"
                     style={{ maxWidth: "800px", paddingTop: "25px" }}
                 >
-                    <Col md={4}>
+                    <Col md={4} className="mb-3">
                         <div
                             style={{
                                 boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
                                 padding: "25px",
                                 borderRadius: "8px",
                                 backgroundColor: "white",
+                                border: "1px solid #7126B5",
                             }}
                         >
                             <img
@@ -96,148 +78,57 @@ const Profile = () => {
                             />
                         </div>
 
-                        <Nav className="flex-column justify-content-end">
+                        <Nav
+                            className="flex-column justify-content-end"
+                            style={{
+                                border: "1px solid #7126B5",
+                                borderRadius: "8px",
+                                marginTop: "20px",
+                            }}
+                        >
                             <Nav.Link
-                                className="d-flex align-items-center"
-                                style={{ color: "black" }}
+                                className={`menu-profile d-flex align-items-center ${
+                                    currentForm === "profile" ? "active" : ""
+                                }`}
                                 onClick={handleUbahProfil}
+                                style={{
+                                    borderBottomLeftRadius: "0px",
+                                    borderBottomRightRadius: "0px",
+                                }}
                             >
-                                <FaUserEdit
-                                    className="me-2"
-                                    style={{ color: "#7126B5" }}
-                                />{" "}
-                                Ubah Profil
+                                <FaUserEdit className="me-2 FaUserEdit" /> Ubah
+                                Profil
                             </Nav.Link>
                             <Nav.Link
-                                href="#"
-                                className="d-flex align-items-center"
-                                style={{ color: "black" }}
+                                className={`menu-profile d-flex align-items-center ${
+                                    currentForm === "accountSettings"
+                                        ? "active"
+                                        : ""
+                                }`}
+                                onClick={handlePengaturanAkun}
+                                style={{ borderRadius: "0px" }}
                             >
-                                <FaCog
-                                    className="me-2"
-                                    style={{ color: "#7126B5" }}
-                                />{" "}
-                                Pengaturan Akun
+                                <FaCog className="me-2 FaCog" /> Pengaturan Akun
                             </Nav.Link>
                             <Nav.Link
-                                href="#"
-                                className="d-flex align-items-center mb-3"
-                                style={{ color: "black" }}
+                                onClick={handleLogout}
+                                className="menu-profile-logout d-flex align-items-center"
+                                style={{
+                                    borderTopLeftRadius: "0px",
+                                    borderTopRightRadius: "0px",
+                                }}
                             >
-                                <FaSignOutAlt
-                                    className="me-2"
-                                    style={{ color: "#7126B5" }}
-                                />{" "}
+                                <FaSignOutAlt className="menu-profile-logout-icon me-2" />{" "}
                                 Keluar
                             </Nav.Link>
                         </Nav>
                     </Col>
-                    <Col md={8} style={{ paddingTop: "20px" }}>
-                        <div
-                            style={{
-                                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                                padding: "0px",
-                                borderRadius: "8px",
-                                paddingTop: "25px",
-                                paddingLeft: "25px",
-                                paddingRight: "25px",
-                                backgroundColor: "white",
-                            }}
-                        >
-                            <div
-                                style={{
-                                    backgroundColor: "#7126B5",
-                                    color: "white",
-                                    padding: "10px",
-                                    borderTopLeftRadius: "8px",
-                                    borderTopRightRadius: "8px",
-                                    paddingLeft: "21px",
-                                }}
-                            >
-                                Data diri
-                            </div>
-                            <div style={{ padding: "20px" }}>
-                                <Form onSubmit={handleSubmit}>
-                                    <Form.Group
-                                        controlId="formNamaLengkap"
-                                        className="mb-3"
-                                    >
-                                        <Form.Label>Nama Lengkap</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={fullName}
-                                            onChange={(e) =>
-                                                setFullName(e.target.value)
-                                            }
-                                            disabled
-                                        />
-                                    </Form.Group>
-                                    <Form.Group
-                                        controlId="formNomorTelepon"
-                                        className="mb-3"
-                                    >
-                                        <Form.Label>Nomor Telepon</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={phoneNumber}
-                                            onChange={(e) =>
-                                                setPhoneNumber(e.target.value)
-                                            }
-                                            disabled
-                                        />
-                                    </Form.Group>
-                                    <Form.Group
-                                        controlId="formEmail"
-                                        className="mb-3"
-                                    >
-                                        <Form.Label>Email</Form.Label>
-                                        <Form.Control
-                                            type="email"
-                                            value={email}
-                                            onChange={(e) =>
-                                                setEmail(e.target.value)
-                                            }
-                                            disabled
-                                        />
-                                    </Form.Group>
-                                    <Form.Group
-                                        controlId="picture"
-                                        className="mb-3"
-                                    >
-                                        <Form.Label>Foto Profil</Form.Label>
-                                        <Form.Control
-                                            type="file"
-                                            onChange={(e) =>
-                                                setPicture(e.target.files[0])
-                                            }
-                                            disabled
-                                        />
-                                    </Form.Group>
-                                    <div
-                                        className="d-flex justify-content-center"
-                                        style={{
-                                            paddingTop: "20px",
-                                        }}
-                                    >
-                                        <Button
-                                            className="profile-button-simpan"
-                                            variant="primary"
-                                            type="submit"
-                                            style={{
-                                                borderRadius: "10px",
-                                                backgroundColor: "#7126B5",
-                                                paddingLeft: "30px",
-                                                paddingRight: "30px",
-                                                display: "none",
-                                            }}
-                                            disabled={loading}
-                                        >
-                                            {loading ? "Loading..." : "Simpan"}
-                                        </Button>
-                                    </div>
-                                </Form>
-                            </div>
-                        </div>
+                    <Col md={8} className="mb-5">
+                        {currentForm === "profile" ? (
+                            <ProfileForm />
+                        ) : (
+                            <AccountSettingsForm />
+                        )}
                     </Col>
                 </Row>
             </Container>
