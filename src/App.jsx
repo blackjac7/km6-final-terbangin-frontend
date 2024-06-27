@@ -13,7 +13,6 @@ import "./App.css";
 
 import Navbar from "./components/Navbar";
 import Home from "./pages/home";
-import Search from "./pages/search/search";
 import LoginPage from "./pages/login/login";
 import RegisterPage from "./pages/register/register";
 import ForgetPassword from "./pages/forgetPassword/forgetPassword";
@@ -32,6 +31,7 @@ import ProtectedVerification from "./components/ProtectedVerification/ProtectedV
 import ProtectedVerificationProfile from "./components/ProtectedVerification/ProtectedVerificationProfile";
 import ProtectedForgetPassword from "./components/ProtectedForgetPassword/ProtectedForgetPassword";
 import ProtectedFilterTicket from "./components/ProtectedFilterTicket/ProtectedVerification";
+import ProtectedBooking from "./components/ProtectedBooking";
 import Protected from "./components/Protected";
 import NonProtected from "./components/NonProtected";
 
@@ -42,14 +42,6 @@ const router = createBrowserRouter([
             <NonProtected>
                 <Navbar />
                 <Home />
-            </NonProtected>
-        ),
-    },
-    {
-        path: "/search",
-        element: (
-            <NonProtected>
-                <Search />
             </NonProtected>
         ),
     },
@@ -142,10 +134,10 @@ const router = createBrowserRouter([
     {
         path: "/booking",
         element: (
-            <NonProtected>
-              <Navbar />
+            <ProtectedBooking>
+                <Navbar />
                 <BookingForm />
-            </NonProtected>
+            </ProtectedBooking>
         ),
     },
     {
