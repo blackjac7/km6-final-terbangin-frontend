@@ -1,9 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import Button from "react-bootstrap/Button";
-import Container from "react-bootstrap/Container";
-import Form from "react-bootstrap/Form";
-import Navbar from "react-bootstrap/Navbar";
+import { Button, Image, Container, Form, Navbar } from "react-bootstrap";
 import logo from "../../assets/Logo/svg/logo-no-background.svg";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import login from "../../assets/fi_log-in.png";
@@ -62,7 +59,7 @@ function NavScrollExample() {
         >
             <Container>
                 <Navbar.Brand as={Link} to="/">
-                    <img src={logo} height={55} alt="Logo" />
+                    <Image src={logo} height={55} alt="Logo" />
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="navbarScroll" />
                 <Navbar.Collapse id="navbarScroll">

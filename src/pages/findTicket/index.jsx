@@ -18,6 +18,7 @@ import {
     Modal,
 } from "@mui/material";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
 
 import findTicketLoading from "../../assets/findTicketLoading.svg";
 import findTicketNotFound from "../../assets/findTicketNotFound.svg";
@@ -41,10 +42,14 @@ const FindTicket = () => {
     const [isChangeFlight, setChangeFlight] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [isFullScreen, setIsFullScreen] = useState(window.innerWidth > 1160);
+    const [flightIdDeparture, setflightIdDeparture] = useState("");
+    const [flightIdReturn, setflightIdReturn] = useState("");
+
+    const navigate = useNavigate();
 
     const location = useLocation();
 
-    const {
+    let {
         flightType,
         departure,
         iataCodeDeparture,
@@ -58,6 +63,34 @@ const FindTicket = () => {
         child,
         baby,
     } = location.state || {};
+
+    console.log(departure);
+
+    const handleSubmit = (e) => {
+        if (flightType == "Return") {
+            if (!flightIdReturn || flightIdReturn == "") {
+                toast.error("Return flight is not choose");
+                return;
+            }
+        }
+
+        console.log({
+            flightIdDeparture,
+            flightIdReturn,
+        });
+
+        navigate("/booking", {
+            state: {
+                flightIdDeparture,
+                flightIdReturn,
+                capacity,
+                adult,
+                child,
+                baby,
+                seatType,
+            },
+        });
+    };
 
     const dispatch = useDispatch();
     const { flights } = useSelector((state) => state.flight);
@@ -83,17 +116,38 @@ const FindTicket = () => {
     }, []);
 
     useEffect(() => {
-        dispatch(
-            getFilterFlights(
-                departure,
-                arrival,
-                "departureAt",
-                departureDate,
-                "price" + seatType,
-                "asc",
-                seatType
-            )
-        );
+        let temp;
+        if (flightIdDeparture != "") {
+            temp = departure;
+            departure = arrival;
+            arrival = temp;
+            temp = iataCodeDeparture;
+            iataCodeDeparture = iataCodeArrival;
+            iataCodeArrival = temp;
+            dispatch(
+                getFilterFlights(
+                    departure,
+                    arrival,
+                    "departureAt",
+                    returnDate,
+                    "price" + seatType,
+                    "asc",
+                    seatType
+                )
+            );
+        } else {
+            dispatch(
+                getFilterFlights(
+                    departure,
+                    arrival,
+                    "departureAt",
+                    departureDate,
+                    "price" + seatType,
+                    "asc",
+                    seatType
+                )
+            );
+        }
     }, [
         dispatch,
         departure,
@@ -105,6 +159,7 @@ const FindTicket = () => {
         baby,
         departureDate,
         returnDate,
+        flightIdDeparture,
     ]);
 
     return (
@@ -118,7 +173,7 @@ const FindTicket = () => {
                 <Row className="mt-4 g-2">
                     <Col sx={12} md={10} className="d-flex">
                         <BackButton
-                            ButtonText={`${iataCodeDeparture} > ${iataCodeArrival} - ${capacity} Penumpang - ${seatType}`}
+                            ButtonText={`${flights[0]?.StartAirport?.iataCode} > ${flights[0]?.EndAirport?.iataCode} - ${capacity} Penumpang - ${seatType}`}
                         />
                     </Col>
                     <Col sx={12} md={2} className="d-flex">
@@ -158,10 +213,13 @@ const FindTicket = () => {
                             dispatch={dispatch}
                             datafiltering={{
                                 seatType: seatType,
-                                departure: departure,
-                                arrival: arrival,
+                                departure: flights[0]?.StartAirport?.city,
+                                arrival: flights[0]?.EndAirport?.city,
                                 departureDate: departureDate,
+                                returnDate: returnDate,
+                                flightType: flightType,
                             }}
+                            flightIdDeparture={flightIdDeparture}
                         />
                     </Col>
                 </Row>
@@ -178,10 +236,17 @@ const FindTicket = () => {
                                 dispatch={dispatch}
                                 datafiltering={{
                                     seatType: seatType,
-                                    departure: departure,
-                                    arrival: arrival,
+                                    departure: flights[0]?.StartAirport?.city,
+                                    arrival: flights[0]?.EndAirport?.city,
                                     departureDate: flights[0]?.departureAt,
+                                    flightType: flightType,
+                                    returnDate: flights[0]?.arrivalAt,
                                 }}
+                                flightIdDeparture={flightIdDeparture}
+                                flightIdReturn={flightIdReturn}
+                                setflightIdDeparture={setflightIdDeparture}
+                                setflightIdReturn={setflightIdReturn}
+                                handleSubmit={handleSubmit}
                             />
                         )}
                     </Col>
@@ -191,7 +256,7 @@ const FindTicket = () => {
     );
 };
 
-const DateSelector = ({ dispatch, datafiltering }) => {
+const DateSelector = ({ dispatch, datafiltering, flightIdDeparture }) => {
     const baseDate = new Date(datafiltering.departureDate);
     const [selectedDate, setSelectedDate] = useState(baseDate);
     const [visibleButtons, setVisibleButtons] = useState(7);
@@ -242,6 +307,13 @@ const DateSelector = ({ dispatch, datafiltering }) => {
             )
         );
     };
+
+    useEffect(() => {
+        if (datafiltering.flightType == "Return" && flightIdDeparture != "") {
+            const baseDate = new Date(datafiltering.returnDate);
+            setSelectedDate(baseDate);
+        }
+    }, [flightIdDeparture]);
 
     useEffect(() => {
         const baseDate = new Date(datafiltering.departureDate);
@@ -391,30 +463,20 @@ const Filter = ({ dispatch, datafiltering }) => {
     );
 };
 
-const FlightList = ({ flights, dispatch, datafiltering }) => {
+const FlightList = ({
+    flights,
+    dispatch,
+    datafiltering,
+    flightIdDeparture,
+    flightIdReturn,
+    setflightIdDeparture,
+    setflightIdReturn,
+    handleSubmit,
+}) => {
     const [expanded, setExpanded] = useState(null);
-    const navigate = useNavigate();
-
-    const location = useLocation();
-
-    const {
-        flightType,
-        departure,
-        iataCodeDeparture,
-        arrival,
-        iataCodeArrival,
-        departureDate,
-        returnDate,
-        seatType,
-        capacity,
-        adult,
-        child,
-        baby,
-    } = location.state || {};
-
     const [rotated, setRotated] = useState({});
-    const [flightIdDeparture, setFlightIdDeparture] = useState(null);
-    const [flightIdReturn, setFlightIdReturn] = useState(null);
+    const [status, setStatus] = useState();
+    const [isFirstRender, setIsFirstRender] = useState(true);
 
     // accordion body expand trigger
     const handleHeaderClick = (flightId, e) => {
@@ -434,24 +496,36 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
             };
         });
     };
-    const handlePilihButton = (flightId) => (e) => {
-        e.stopPropagation();
-        console.log(flightId, capacity, adult, child, baby, seatType);
-
-        navigate("/booking", {
-            state: {
-                flightIdDeparture: flightId,
-                flightIdReturn: "08f28faa-cfe6-47d9-9697-01c91bc1c411",
-                capacity,
-                adult,
-                child,
-                baby,
-                seatType,
-            },
-        });
-    };
 
     // pilih button disable button
+    const handlePilihButton = (flightid, e) => {
+        e.stopPropagation();
+        if (datafiltering.flightType == "Return") {
+            if (flightIdDeparture == "") {
+                setflightIdDeparture(flightid);
+                console.log("a");
+            } else {
+                setflightIdReturn(flightid);
+                console.log("b");
+                setStatus(true);
+            }
+        }
+        if (datafiltering.flightType == "One Way") {
+            setflightIdDeparture(flightid);
+            console.log("c");
+            setStatus(true);
+        }
+    };
+
+    useEffect(() => {
+        if (!isFirstRender) {
+            handleSubmit();
+        }
+    }, [status]);
+
+    useEffect(() => {
+        setIsFirstRender(false);
+    }, []);
 
     return (
         <>
@@ -577,7 +651,7 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
                                             <Col
                                                 md={3}
                                                 sm={12}
-                                                className="d-flex flex-column align-items-md-end align-items-center justify-content-center "
+                                                className="d-flex flex-column align-items-md-end align-items-center justify-content-center"
                                                 style={{ padding: 0 }}
                                             >
                                                 <h3
@@ -595,9 +669,12 @@ const FlightList = ({ flights, dispatch, datafiltering }) => {
                                                     }
                                                 </h3>
                                                 <Button
-                                                    onClick={handlePilihButton(
-                                                        flight.id
-                                                    )}
+                                                    onClick={(e) =>
+                                                        handlePilihButton(
+                                                            flight.id,
+                                                            e
+                                                        )
+                                                    }
                                                     style={{
                                                         borderRadius: 14,
                                                         width: "50%",

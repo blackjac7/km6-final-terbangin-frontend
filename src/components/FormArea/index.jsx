@@ -14,10 +14,10 @@ import {
     Modal,
     Image,
 } from "react-bootstrap";
-import plane from "../../assets/SearchBar/material-symbols_flight-takeoff-sharp.png";
+import plane from "../../assets/SearchBar/material-symbols_flight-takeoff-sharp.svg";
 import swapButton from "../../assets/SearchBar/return.png";
-import calendar from "../../assets/SearchBar/Vector.png";
-import seat from "../../assets/SearchBar/material-symbols_airline-seat-recline-normal.png";
+import calendar from "../../assets/SearchBar/calendar.svg";
+import seat from "../../assets/SearchBar/class.svg";
 import dewasa from "../../assets/Passengers Modal/Dewasa.png";
 import anak from "../../assets/Passengers Modal/Anak.png";
 import bayi from "../../assets/Passengers Modal/Bayi.png";
@@ -255,19 +255,22 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
 
                     <Container className="px-3">
                         {/* Flight Destination */}
-                        <Row className="mb-4 justify-content-md-center">
+                        <Row className="mb-4 ">
                             {/* Departure */}
                             <Col md={5} sm={12}>
-                                <Row className="d-flex justify-content-md-center">
+                                <Row className="d-flex">
                                     <Col
-                                        md={2}
-                                        xs={4}
-                                        className="d-flex justify-content-md-start ps-2"
+                                        md={{ span: 3, offset: 1 }}
+                                        xs={3}
+                                        className="d-flex"
                                     >
-                                        <Image src={plane} />{" "}
-                                        <span className="ms-1">From</span>
+                                        <Image
+                                            src={plane}
+                                            style={{ width: 25 }}
+                                        />
+                                        <span className="ms-1"> From</span>
                                     </Col>
-                                    <Col md={7} xs={8} className="ps-5">
+                                    <Col md={7} xs={8} className="">
                                         <TextField
                                             style={{
                                                 caretColor: "transparent",
@@ -357,12 +360,15 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
                             <Col md={5} sm={12}>
                                 <Row>
                                     <Col
-                                        md={2}
-                                        xs={4}
+                                        md={3}
+                                        xs={3}
                                         className="d-flex justify-content-md-start"
                                     >
                                         {" "}
-                                        <Image src={plane} />{" "}
+                                        <Image
+                                            src={plane}
+                                            style={{ width: 25 }}
+                                        />{" "}
                                         <span className="ms-1">To</span>
                                     </Col>
                                     <Col
@@ -437,38 +443,31 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
                             </Col>
                         </Row>
                         {/* Flight Information */}
-                        <Row className="d-flex justify-content-md-center">
+                        <Row className="d-flex">
                             {/* Date */}
                             <Col md={5}>
-                                <Row className="justify-content-md-end ms-2">
+                                <Row className="">
                                     <Col
-                                        md={2}
-                                        xs={2}
-                                        className="d-flex align-items-center justify-content-end"
+                                        md={{ span: 3, offset: 1 }}
+                                        xs={3}
+                                        className="d-flex align-items-center"
                                     >
-                                        <Image
-                                            src={calendar}
-                                            className="me-1"
-                                        />{" "}
-                                        {isMobile ? "" : "Date"}
+                                        <Image src={calendar} className="" />{" "}
+                                        <span className="ms-1">Date</span>
                                     </Col>
-                                    <Col
-                                        md={4}
-                                        xs={4}
-                                        className="justify-content-end"
-                                    >
+                                    <Col md={4} xs={4} className="">
                                         <p style={{ marginBottom: 0 }}>
                                             Departure
-                                        </p>{" "}
+                                        </p>
                                         <LocalizationProvider
                                             dateAdapter={AdapterDayjs}
                                         >
                                             {" "}
                                             <MobileDatePicker
-                                                format="DD/MM/YYYY"
                                                 value={date1}
                                                 minDate={dayjs()}
                                                 onChange={handleDateChange1}
+                                                format="DD/MM/YYYY"
                                                 slots={{
                                                     textField: (props) => (
                                                         <TextField
@@ -489,10 +488,10 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
                                         >
                                             {" "}
                                             <MobileDatePicker
-                                                format="DD/MM/YYYY"
                                                 disabled={!showInput2}
                                                 value={date2}
                                                 minDate={date1}
+                                                format="DD/MM/YYYY"
                                                 onChange={handleDateChange2}
                                                 slots={{
                                                     textField: (props) => (
@@ -509,8 +508,8 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
                             </Col>
                             <Col
                                 md={2}
-                                xs={2}
-                                className="d-flex justify-content-center"
+                                xs={12}
+                                className="d-flex justify-content-md-center justify-content-end "
                             >
                                 <Switch
                                     checked={switchChecked}
@@ -523,15 +522,15 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
                                 <Row>
                                     {/* Icon */}
                                     <Col
-                                        md={2}
-                                        xs={2}
+                                        md={3}
+                                        xs={3}
                                         className="d-flex align-items-center"
                                     >
                                         <Image src={seat} />{" "}
-                                        {isMobile ? "" : "To"}
+                                        <span className="ms-1">To</span>
                                     </Col>
                                     {/* Passanger Info */}
-                                    <Col md={5} xs={5}>
+                                    <Col md={4} xs={4}>
                                         <p style={{ margin: 0 }}>Passangers</p>
                                         <TextField
                                             autoComplete="off"
@@ -545,7 +544,7 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
                                                     ? capacity + " Penumpang"
                                                     : ""
                                             }
-                                            placeholder="Input Passanger"
+                                            placeholder="Passanger"
                                             onClick={() =>
                                                 setSmShowCapacity(true)
                                             }
@@ -807,8 +806,8 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
                                         </Modal>
                                     </Col>
                                     {/* Seat Class */}
-                                    <Col md={5} xs={5}>
-                                        <p style={{ margin: 0 }}> Seat Class</p>
+                                    <Col md={4} xs={4}>
+                                        <p style={{ margin: 0 }}>Class</p>
                                         <TextField
                                             autoComplete="off"
                                             autoCorrect="off"
@@ -821,7 +820,7 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
                                                     ? "Business"
                                                     : seatType
                                             }
-                                            placeholder="Input Seat Class"
+                                            placeholder="Seat Class"
                                             onClick={() =>
                                                 setSmShowSeatClass(true)
                                             }
