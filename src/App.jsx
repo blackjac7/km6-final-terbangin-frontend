@@ -13,12 +13,12 @@ import "./App.css";
 
 import Navbar from "./components/Navbar";
 import Home from "./pages/home";
-import Search from "./pages/search/search";
 import LoginPage from "./pages/login/login";
 import RegisterPage from "./pages/register/register";
 import ForgetPassword from "./pages/forgetPassword/forgetPassword";
 import Profile from "./pages/profile/profile";
 import OtpVerification from "./pages/otp/otpVerification";
+import OtpVerificationProfile from "./pages/otp/otpUpdateProfile";
 import RequestResetPassword from "./pages/requestResetPassword/requestResetPassword";
 import VerificationLink from "./pages/verificationLink/verificationLink";
 import FindTicket from "./pages/findTicket";
@@ -28,11 +28,12 @@ import Payment from "./pages/payment";
 import NotificationPage from "./pages/notification";
 
 import ProtectedVerification from "./components/ProtectedVerification/ProtectedVerification";
+import ProtectedVerificationProfile from "./components/ProtectedVerification/ProtectedVerificationProfile";
 import ProtectedForgetPassword from "./components/ProtectedForgetPassword/ProtectedForgetPassword";
 import ProtectedFilterTicket from "./components/ProtectedFilterTicket/ProtectedVerification";
+import ProtectedBooking from "./components/ProtectedBooking";
 import Protected from "./components/Protected";
 import NonProtected from "./components/NonProtected";
-
 
 const router = createBrowserRouter([
     {
@@ -41,14 +42,6 @@ const router = createBrowserRouter([
             <NonProtected>
                 <Navbar />
                 <Home />
-            </NonProtected>
-        ),
-    },
-    {
-        path: "/search",
-        element: (
-            <NonProtected>
-                <Search />
             </NonProtected>
         ),
     },
@@ -84,6 +77,14 @@ const router = createBrowserRouter([
             <ProtectedVerification>
                 <OtpVerification />
             </ProtectedVerification>
+        ),
+    },
+    {
+        path: "/verification-profile",
+        element: (
+            <ProtectedVerificationProfile>
+                <OtpVerificationProfile />
+            </ProtectedVerificationProfile>
         ),
     },
     {
@@ -133,10 +134,10 @@ const router = createBrowserRouter([
     {
         path: "/booking",
         element: (
-            <NonProtected>
-              <Navbar />
+            <ProtectedBooking>
+                <Navbar />
                 <BookingForm />
-            </NonProtected>
+            </ProtectedBooking>
         ),
     },
     {
@@ -150,17 +151,17 @@ const router = createBrowserRouter([
             </>
         ),
     },
-  {
-    path: "/notification",
-    element: (
-      <>
-        {/* <ProtectedForgetPassword> */}
-        <Navbar />
-        <NotificationPage />
-        {/* </ProtectedForgetPassword> */}
-      </>
-    ),
-  },
+    {
+        path: "/notification",
+        element: (
+            <>
+                {/* <ProtectedForgetPassword> */}
+                <Navbar />
+                <NotificationPage />
+                {/* </ProtectedForgetPassword> */}
+            </>
+        ),
+    },
 ]);
 
 function App() {
