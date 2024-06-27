@@ -1,109 +1,364 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Row, Col, Container, Card, Button } from 'react-bootstrap';
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Form, Row, Col, Container, Card, Button } from "react-bootstrap";
 import { Breadcrumbs, Link } from "@mui/material";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getFlightById } from "../../redux/actions/flight";
+import { getSeatByFlightId } from "../../redux/actions/seat";
+import moment from "moment-timezone";
 
-import 'react-toastify/dist/ReactToastify.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import DetailFlight from "../../components/FlightDetail";
+import HeaderShadow from "../../components/HeaderShadow";
+import PassangerForm from "../../components/Passanger/PassangerForm";
+import TotalPrice from "../../components/PriceDetail/TotalPrice";
+import Price from "../../components/PriceDetail/Price";
+import SeatSelectionComponent from "../../components/Passanger/Seat";
 
-import DetailFlight from '../../components/FlightDetail';
-import HeaderShadow from '../../components/HeaderShadow';
-
-
+import { createPassanger } from "../../redux/actions/passanger";
+import { createPayment } from "../../redux/actions/payment";
+import { createBooking } from "../../redux/actions/booking";
+import { updateSeat } from "../../redux/actions/seat";
+import { createHelperBooking } from "../../redux/actions/helperBooking";
+import { set } from "lodash";
 
 const BookingForm = () => {
-    const [showFamilyDataOrders, setShowFamilyDataOrders] = useState(false);
-    const [showFamilyDataPassengers, setShowFamilyDataPassengers] = useState(false);
-    const [showDataPassengers, setShowDataPassengers] = useState(false);
-    const [totalSeats] = useState(90);
-    const [seatCols] = useState(6);
-    const [seatRows, setSeatRows] = useState(Math.ceil(totalSeats / seatCols));
-    const [seats, setSeats] = useState(
-        Array(seatRows).fill(null).map((_, rowIndex) => (
-            Array(seatCols).fill(null).map((_, colIndex) => ({
-                isSelected: false,
-                color: 'white',
-                number: `${rowIndex + 1}${String.fromCharCode(97 + colIndex)}`,
-            }))
-        ))
-    );
+    const { user } = useSelector((state) => state.auth);
+    const location = useLocation();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const {
+        flightIdDeparture,
+        flightIdReturn,
+        capacity,
+        adult,
+        child,
+        baby,
+        seatType,
+    } = location.state || {};
+    const [capacityUser, setCapacityUser] = useState(0);
+    const [userFullName, setUserFullName] = useState("");
+    const [userPhoneNumber, setUserPhoneNumber] = useState("");
+    const [userEmail, setUserEmail] = useState("");
     const [loading, setLoading] = useState(false);
     const [showFlightDetails, setShowFlightDetails] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
     const [seatsConfirmed, setSeatsConfirmed] = useState(false);
-    const [showNotif, setShowNotif] = useState(false);
 
-    const handleSwitchChange = () => {
-        setShowFamilyDataOrders(!showFamilyDataOrders);
+    const [flightDeparture, setFlightDeparture] = useState({});
+    const [flightReturn, setFlightReturn] = useState({});
+    const [seatDeparture, setSeatDeparture] = useState([]);
+    const [seatDepartureAvailable, setSeatDepartureAvailable] = useState([]);
+    const [seatSelectedDeparture, setSeatSelectedDeparture] = useState([]);
+    const [seatReturn, setSeatReturn] = useState([]);
+    const [seatReturnAvailable, setSeatReturnAvailable] = useState([]);
+    const [seatSelectedReturn, setSeatSelectedReturn] = useState([]);
+    const [airlineClass, setAirlineClass] = useState("");
+    const [saveDisabled, setSaveDisabled] = useState(false);
+    const [totalPrice, setTotalPrice] = useState(0);
+    const [departureTotalPrice, setDepartureTotalPrice] = useState(0);
+    const [returnTotalPrice, setReturnTotalPrice] = useState(0);
+    const [bookingIdResult, setBookingIdResult] = useState("");
+
+    const initialPassangerState = {
+        title: "",
+        fullName: "",
+        familyName: "",
+        dateOfBirth: "",
+        nationality: "",
+        idNumber: "",
+        issuingCountry: "",
+        expiryDate: "",
+        showFamilyDataPassanger: false,
+    };
+    const [passangerData, setPassangerData] = useState({
+        adult: Array.from({ length: adult }, () => ({
+            ...initialPassangerState,
+        })),
+        child: Array.from({ length: child }, () => ({
+            ...initialPassangerState,
+        })),
+        baby: Array.from({ length: baby }, () => ({
+            ...initialPassangerState,
+        })),
+    });
+    const [errors, setErrors] = useState({});
+    const [errorStatus, setErrorStatus] = useState(false);
+
+    const validateForm = () => {
+        let formErrors = {};
+        const combinedPassangers = [
+            ...passangerData.adult.map((passanger, index) => ({
+                ...passanger,
+                type: "adult",
+                index,
+            })),
+            ...passangerData.child.map((passanger, index) => ({
+                ...passanger,
+                type: "child",
+                index,
+            })),
+        ];
+
+        combinedPassangers.forEach((passanger) => {
+            if (!passanger.title)
+                formErrors[`${passanger.type}-${passanger.index}-title`] =
+                    "Title is required";
+            if (!passanger.fullName)
+                formErrors[`${passanger.type}-${passanger.index}-fullName`] =
+                    "Full name is required";
+            if (passanger.showFamilyDataPassanger && !passanger.familyName)
+                formErrors[`${passanger.type}-${passanger.index}-familyName`] =
+                    "Family name is required";
+            if (!passanger.dateOfBirth)
+                formErrors[`${passanger.type}-${passanger.index}-dateOfBirth`] =
+                    "Date of birth is required";
+            if (!passanger.nationality)
+                formErrors[`${passanger.type}-${passanger.index}-nationality`] =
+                    "Nationality is required";
+            if (!passanger.idNumber)
+                formErrors[`${passanger.type}-${passanger.index}-idNumber`] =
+                    "ID number is required";
+            if (!passanger.issuingCountry)
+                formErrors[
+                    `${passanger.type}-${passanger.index}-issuingCountry`
+                ] = "Issuing country is required";
+        });
+        setErrors(formErrors);
+        return Object.keys(formErrors).length === 0;
     };
 
-    const handleSwitchChanges = () => {
-        setShowFamilyDataPassengers(!showFamilyDataPassengers);
+    const handleInputChange = (type, index, field, value) => {
+        const updatedPassangers = passangerData[type].map((passanger, i) =>
+            i === index ? { ...passanger, [field]: value } : passanger
+        );
+        setPassangerData({ ...passangerData, [type]: updatedPassangers });
     };
 
-    const handleSwitch = () => {
-        setShowDataPassengers(!showDataPassengers);
+    const handleSwitchChanges = (type, index) => {
+        setPassangerData((prevData) => ({
+            ...prevData,
+            [type]: prevData[type].map((passanger, idx) =>
+                idx === index
+                    ? {
+                          ...passanger,
+                          showFamilyDataPassanger:
+                              !passanger.showFamilyDataPassanger,
+                      }
+                    : passanger
+            ),
+        }));
     };
-
 
     useEffect(() => {
-        const timer = setInterval(() => {
+        if (user) {
+            setUserFullName(user?.fullName || "");
+            setUserPhoneNumber(user?.phoneNumber || "");
+            setUserEmail(user?.email || "");
+        }
+    }, [user]);
 
-        }, 1000);
+    useEffect(() => {
+        if (errorStatus) {
+            validateForm();
+        }
+    }, [passangerData]);
 
-        return () => clearInterval(timer);
-    }, []);
-
-    const handleSeatClick = (rowIndex, colIndex) => {
-        if (seatsConfirmed) return;
-
-        setSeats(prevSeats => {
-            return prevSeats.map((row, rIdx) => {
-                return row.map((seat, cIdx) => {
-                    if (rIdx === rowIndex && cIdx === colIndex) {
-                        const newColor = seat.isSelected ? 'white' : determineSeatColor(rowIndex, colIndex);
-                        return {
-                            ...seat,
-                            isSelected: !seat.isSelected,
-                            color: newColor,
-                        };
-                    }
-                    return seat;
-                });
-            });
+    useEffect(() => {
+        dispatch(getFlightById(flightIdDeparture)).then((data) => {
+            setFlightDeparture(data[0]);
         });
-    };
-
-
-
-    const determineSeatColor = (rowIndex, colIndex) => {
-        const seatIndex = rowIndex * seatCols + colIndex;
-        if (seatIndex < 6) {
-            return 'purple';
-        } else if (seatIndex < 24) {
-            return 'blue';
-        } else {
-            return 'green';
+        if (flightIdReturn) {
+            dispatch(getFlightById(flightIdReturn)).then((data) => {
+                setFlightReturn(data[0]);
+            });
         }
-    };
+        setCapacityUser(capacity - baby);
+    }, [dispatch, flightIdDeparture]);
 
-    const handleSubmit = (e) => {
+    useEffect(() => {
+        const fetchData = async () => {
+            if (flightDeparture?.id || flightReturn?.id) {
+                let selectedAirlineClass = "";
+
+                if (seatType === "Economy") {
+                    selectedAirlineClass = "ECONOMY";
+                } else if (seatType === "Bussines") {
+                    selectedAirlineClass = "BUSINESS";
+                } else if (seatType === "FirstClass") {
+                    selectedAirlineClass = "FIRST_CLASS";
+                }
+
+                setAirlineClass(selectedAirlineClass);
+
+                try {
+                    console.log(
+                        "Data Penerbangan Berangkat: ",
+                        flightDeparture
+                    );
+                    const dataDeparture = await dispatch(
+                        getSeatByFlightId(flightDeparture?.id)
+                    );
+                    const filteredDataDeparture = dataDeparture?.filter(
+                        (seat) => seat.airlineClass === selectedAirlineClass
+                    );
+                    const availableSeatsDeparture =
+                        filteredDataDeparture?.filter(
+                            (seat) => seat.isAvailable === true
+                        );
+                    setSeatDeparture(filteredDataDeparture);
+                    setSeatDepartureAvailable(availableSeatsDeparture);
+
+                    // console.log("Data Kursi Berangkat: ", filteredDataDeparture);
+                    console.log(
+                        "Data Kursi Tersedia Berangkat: ",
+                        availableSeatsDeparture
+                    );
+
+                    if (flightIdReturn) {
+                        console.log("Data Penerbangan Pulang: ", flightReturn);
+                        const dataReturn = await dispatch(
+                            getSeatByFlightId(flightReturn?.id)
+                        );
+                        const filteredDataReturn = dataReturn?.filter(
+                            (seat) => seat.airlineClass === selectedAirlineClass
+                        );
+                        const availableSeatsReturn = filteredDataReturn?.filter(
+                            (seat) => seat.isAvailable === true
+                        );
+                        setSeatReturn(filteredDataReturn);
+                        setSeatReturnAvailable(availableSeatsReturn);
+
+                        // console.log("Data Kursi Pulang: ", filteredDataReturn);
+                        console.log(
+                            "Data Kursi Tersedia Pulang: ",
+                            availableSeatsReturn
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error fetching seat data:", error);
+                }
+            }
+        };
+
+        fetchData();
+    }, [dispatch, flightDeparture, flightReturn, seatType]);
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!seats.some(row => row.some(seat => seat.isSelected))) {
-            toast.error('Silahkan pilih kursi terlebih dahulu.');
-            return;
-        }
 
+        if (!validateForm()) {
+            setErrorStatus(true);
+            document.querySelector("#data-penumpang").scrollIntoView(true, {
+                behavior: "smooth",
+            });
+            toast.error("Silahkan lengkapi data penumpang.");
+            return;
+        } else if (
+            seatSelectedDeparture.length < capacityUser
+            // seatSelectedReturn.length < capacityUser
+        ) {
+            toast.error("Silahkan pilih kursi terlebih dahulu.");
+            return;
+        } else {
+            setErrorStatus(false);
+            console.log("Data yang disimpan: ", passangerData);
+            console.log("Kursi yang dipesan: ", seatSelectedDeparture);
+            console.log(
+                "Total Harga: ",
+                totalPrice ? totalPrice : departureTotalPrice
+            );
+
+            try {
+                // setSaveDisabled(true);
+
+                const passangerResult = await dispatch(
+                    createPassanger(passangerData)
+                );
+                // console.log("Data Penumpang: ", passangerResult);
+                const price = totalPrice ? totalPrice : departureTotalPrice;
+
+                const paymentResult = await dispatch(createPayment(price));
+                console.log("Data Pembayaran: ", paymentResult);
+
+                let bookingData = {
+                    userId: user?.id,
+                    paymentId: paymentResult?.id,
+                    status: flightIdReturn ? "Return" : "One Way",
+                    roundtripFlightId: flightIdReturn ? flightIdReturn : null,
+                };
+                const bookingResult = await dispatch(
+                    createBooking(bookingData)
+                );
+                console.log("Data Booking: ", bookingResult);
+
+                setBookingIdResult(bookingResult?.id);
+
+                const helperBookingData = [];
+
+                seatSelectedDeparture?.forEach((seat, key) => {
+                    helperBookingData.push({
+                        bookingId: bookingResult?.id,
+                        seatId: seat.seatId,
+                        passangerId: passangerResult[key]?.id,
+                    });
+                });
+                seatSelectedReturn?.forEach((seat, key) => {
+                    helperBookingData.push({
+                        bookingId: bookingResult?.id,
+                        seatId: seat.seatId,
+                        passangerId: passangerResult[key]?.id,
+                    });
+                });
+                console.log(helperBookingData);
+
+                const helperBookingResult = await dispatch(
+                    createHelperBooking(helperBookingData)
+                );
+                console.log("Data Helper Booking: ", helperBookingResult);
+
+                if (
+                    passangerResult &&
+                    paymentResult &&
+                    bookingResult &&
+                    helperBookingResult
+                ) {
+                    setShowFlightDetails(true);
+                    setIsSaved(true);
+                    setSeatsConfirmed(true);
+                    toast.success(
+                        "Anda berhasil booking kursi. Silahkan lanjutkan ke pembayaran."
+                    );
+                    window.scrollTo(0, 0);
+                }
+            } catch (error) {
+                toast.error("Gagal membuat data booking.");
+            }
+        }
+    };
+
+    const handleSubmitPayment = (e) => {
+        e.preventDefault();
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-            setShowFlightDetails(true);
-            setShowNotif(true);
-            setIsSaved(true);
-            setSeatsConfirmed(true);
-            toast.success('Data berhasil disimpan.');
-            window.scrollTo(0, 0);
+            navigate("/payment", {
+                state: {
+                    totalPrice,
+                    seatSelectedDeparture,
+                    seatSelectedReturn,
+                    bookingIdResult,
+                },
+            });
+            console.log("To Payment Page: ", {
+                totalPrice,
+                seatSelectedDeparture,
+                seatSelectedReturn,
+                bookingIdResult,
+            });
+            toast.success("Silahkan Bayar.");
         }, 1000);
     };
 
@@ -114,13 +369,22 @@ const BookingForm = () => {
                     separator={<NavigateNextIcon fontSize="small" />}
                     className="pt-4 pb-4"
                     aria-label="breadcrumb"
-                    style={{ fontWeight: "700", fontSize: "23px", color: "black" }}
+                    style={{
+                        fontWeight: "700",
+                        fontSize: "23px",
+                        color: "black",
+                    }}
                 >
-                    <Link underline="hover" key="1" color="inherit" href="">
+                    <Link underline="hover" key="1" color="inherit">
                         Isi Data Diri
                     </Link>
                     ,
-                    <Link underline="hover" key="2" color="inherit" href="/payment" style={{ fontWeight: 300 }}>
+                    <Link
+                        underline="hover"
+                        key="2"
+                        color="inherit"
+                        style={{ fontWeight: 300 }}
+                    >
                         Bayar
                     </Link>
                     ,
@@ -139,329 +403,403 @@ const BookingForm = () => {
                 <Row>
                     <Col md={8}>
                         <Card className="mb-4 mt-5">
-                            <h4 className="mb-0" style={{ marginLeft: '18px', marginTop: '15px' }}>Isi Data Pemesan</h4>
+                            <h4
+                                className="mb-0"
+                                style={{
+                                    marginLeft: "18px",
+                                    marginTop: "15px",
+                                }}
+                            >
+                                Isi Data Pemesan
+                            </h4>
                             <Card.Body>
                                 <Form>
-                                    <div style={{ backgroundColor: '#343a40', padding: '10px', color: 'white', borderTopLeftRadius: '10px', borderTopRightRadius: '10px' }}>
-                                        <h6 className="mb-0" style={{ marginLeft: '4px' }}>Data Diri Pemesan</h6>
+                                    <div
+                                        style={{
+                                            backgroundColor: "#343a40",
+                                            padding: "10px",
+                                            color: "white",
+                                            borderTopLeftRadius: "10px",
+                                            borderTopRightRadius: "10px",
+                                        }}
+                                    >
+                                        <h6
+                                            className="mb-0"
+                                            style={{ marginLeft: "4px" }}
+                                        >
+                                            Data Diri Pemesan
+                                        </h6>
                                     </div>
-                                    <div style={{ padding: '10px' }}>
-                                        <Form.Group controlId="formFullName" className="mt-3">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Nama Lengkap</Form.Label>
-                                            <Form.Control type="text" placeholder="Harry" readOnly={isSaved} />
-                                        </Form.Group>
-
-                                        <Form.Group className="mt-2 d-flex align-items-center">
-                                            <Form.Label className="mb-0 me-auto">Punya Nama Keluarga?</Form.Label>
-                                            <Form.Check
-                                                type="switch"
-                                                checked={showFamilyDataOrders}
-                                                onChange={handleSwitchChange}
+                                    <div style={{ padding: "10px" }}>
+                                        <Form.Group
+                                            controlId="formFullName"
+                                            className="mt-3"
+                                        >
+                                            <Form.Label
+                                                style={{
+                                                    color: "#7126B5",
+                                                    fontWeight: "bold",
+                                                }}
+                                            >
+                                                Nama Lengkap
+                                            </Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={userFullName}
+                                                readOnly={isSaved}
+                                                disabled={true}
                                             />
                                         </Form.Group>
 
-                                        {showFamilyDataOrders && (
-                                            <>
-                                                <Form.Group controlId="formLastName" className="mt-3">
-                                                    <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Nama Keluarga</Form.Label>
-                                                    <Form.Control type="text" placeholder="Potter" readOnly={isSaved} />
-                                                </Form.Group>
-                                            </>
-                                        )}
-
-                                        <Form.Group controlId="formPhone" className="mt-3">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Nomor Telepon</Form.Label>
-                                            <Form.Control type="text" placeholder="+62" readOnly={isSaved} />
+                                        <Form.Group
+                                            controlId="formPhone"
+                                            className="mt-3"
+                                        >
+                                            <Form.Label
+                                                style={{
+                                                    color: "#7126B5",
+                                                    fontWeight: "bold",
+                                                }}
+                                            >
+                                                Nomor Telepon
+                                            </Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={userPhoneNumber}
+                                                readOnly={isSaved}
+                                                disabled={true}
+                                            />
                                         </Form.Group>
 
-                                        <Form.Group controlId="formEmail" className="mt-3">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Email</Form.Label>
-                                            <Form.Control type="email" placeholder="Contoh: johndoe@gmail.com" readOnly={isSaved} />
+                                        <Form.Group
+                                            controlId="formEmail"
+                                            className="mt-3"
+                                        >
+                                            <Form.Label
+                                                style={{
+                                                    color: "#7126B5",
+                                                    fontWeight: "bold",
+                                                }}
+                                            >
+                                                Email
+                                            </Form.Label>
+                                            <Form.Control
+                                                type="email"
+                                                value={userEmail}
+                                                readOnly={isSaved}
+                                                disabled={true}
+                                            />
                                         </Form.Group>
                                     </div>
                                 </Form>
                             </Card.Body>
                         </Card>
-                        <Card className="mb-3">
-                            <h4 className="mb-0" style={{ marginLeft: '18px', marginTop: '15px' }}>Isi Data Penumpang</h4>
+                        <Card className="mb-3" id="data-penumpang">
+                            <h4
+                                className="mb-0"
+                                style={{
+                                    marginLeft: "18px",
+                                    marginTop: "15px",
+                                }}
+                            >
+                                Isi Data Penumpang
+                            </h4>
                             <Card.Body>
-                                <Form>
-                                    <div style={{ backgroundColor: '#343a40', padding: '10px', color: 'white', borderTopLeftRadius: '10px', borderTopRightRadius: '10px' }}>
-                                        <h6 className="mb-0" style={{ marginLeft: '4px' }}>Data Diri Penumpang 1 - Adult</h6>
-                                    </div>
-                                    <div style={{ padding: '10px' }}>
-                                        <Form.Group>
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold', paddingTop: '8px' }}>Title</Form.Label>
-                                            <Form.Control as="select" readOnly={isSaved}>
-                                                <option>Mr.</option>
-                                                <option>Mrs.</option>
-                                                <option>Miss</option>
-                                            </Form.Control>
-                                        </Form.Group>
-
-                                        <Form.Group className="mt-3">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Nama Lengkap</Form.Label>
-                                            <Form.Control type="text" placeholder="Harry" readOnly={isSaved} />
-                                        </Form.Group>
-
-                                        <Form.Group className="mt-2 d-flex align-items-center">
-                                            <Form.Label className="mb-0 me-auto">Punya Nama Keluarga?</Form.Label>
-                                            <Form.Check
-                                                type="switch"
-                                                checked={showFamilyDataPassengers}
-                                                onChange={handleSwitchChanges}
-                                            />
-                                        </Form.Group>
-
-                                        {showFamilyDataPassengers && (
-                                            <>
-                                                <Form.Group className="mt-3">
-                                                    <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Nama Keluarga</Form.Label>
-                                                    <Form.Control type="text" placeholder="Potter" readOnly={isSaved} />
-                                                </Form.Group>
-                                            </>
-                                        )}
-                                        <Form.Group className="mt-3 position-relative">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Tanggal Lahir</Form.Label>
-                                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                                                <Form.Control
-                                                    id="dateOfBirth1"
-                                                    type="date"
-                                                    style={{ paddingRight: '2.5rem', flex: 1 }}
-                                                    readOnly={isSaved}
-                                                />
-                                            </div>
-                                        </Form.Group>
-
-                                        <Form.Group className="mt-3">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Kewarganegaraan</Form.Label>
-                                            <Form.Control type="text" placeholder="Indonesia" readOnly={isSaved} />
-                                        </Form.Group>
-
-                                        <Form.Group className="mt-3">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>KTP/Passport</Form.Label>
-                                            <Form.Control type="text" readOnly={isSaved} />
-                                        </Form.Group>
-
-                                        <Form.Group className="mt-3">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Negara Penerbit</Form.Label>
-                                            <Form.Control type="text" readOnly={isSaved} />
-                                        </Form.Group>
-
-                                        <Form.Group className="mt-3 position-relative">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Berlaku Sampai</Form.Label>
-                                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                                                <Form.Control
-                                                    id="dateOfExpiry1"
-                                                    type="date"
-                                                    style={{ paddingRight: '2.5rem', flex: 1 }}
-                                                    readOnly={isSaved}
-                                                />
-                                            </div>
-                                        </Form.Group>
-                                    </div>
-                                </Form>
-                                <Form style={{ paddingTop: '30px' }}>
-                                    <div style={{ backgroundColor: '#343a40', padding: '10px', color: 'white', borderTopLeftRadius: '10px', borderTopRightRadius: '10px' }}>
-                                        <h6 className="mb-0" style={{ marginLeft: '4px' }}>Data Diri Penumpang 2 - Adult</h6>
-                                    </div>
-                                    <div style={{ padding: '10px' }}>
-                                        <Form.Group>
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold', paddingTop: '8px' }}>Title</Form.Label>
-                                            <Form.Control as="select" readOnly={isSaved}>
-                                                <option>Mr.</option>
-                                                <option>Mrs.</option>
-                                                <option>Miss</option>
-                                            </Form.Control>
-                                        </Form.Group>
-
-                                        <Form.Group className="mt-3">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Nama Lengkap</Form.Label>
-                                            <Form.Control type="text" placeholder="Harry" readOnly={isSaved} />
-                                        </Form.Group>
-
-                                        <Form.Group className="mt-2 d-flex align-items-center">
-                                            <Form.Label className="mb-0 me-auto">Punya Nama Keluarga?</Form.Label>
-                                            <Form.Check
-                                                type="switch"
-                                                checked={showDataPassengers}
-                                                onChange={handleSwitch}
-                                            />
-                                        </Form.Group>
-
-                                        {showDataPassengers && (
-                                            <>
-                                                <Form.Group className="mt-3">
-                                                    <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Nama Keluarga</Form.Label>
-                                                    <Form.Control type="text" placeholder="Potter" readOnly={isSaved} />
-                                                </Form.Group>
-                                            </>
-                                        )}
-                                        <Form.Group className="mt-3 position-relative">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Tanggal Lahir</Form.Label>
-                                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                                                <Form.Control
-                                                    id="dateOfBirth2"
-                                                    type="date"
-                                                    style={{ paddingRight: '2.5rem', flex: 1 }}
-                                                    readOnly={isSaved}
-                                                />
-                                            </div>
-                                        </Form.Group>
-
-                                        <Form.Group className="mt-3">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Kewarganegaraan</Form.Label>
-                                            <Form.Control type="text" placeholder="Indonesia" readOnly={isSaved} />
-                                        </Form.Group>
-
-                                        <Form.Group className="mt-3">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>KTP/Passport</Form.Label>
-                                            <Form.Control type="text" readOnly={isSaved} />
-                                        </Form.Group>
-
-                                        <Form.Group className="mt-3">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Negara Penerbit</Form.Label>
-                                            <Form.Control type="text" readOnly={isSaved} />
-                                        </Form.Group>
-
-                                        <Form.Group className="mt-3 position-relative">
-                                            <Form.Label style={{ color: '#7126B5', fontWeight: 'bold' }}>Berlaku Sampai</Form.Label>
-                                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                                                <Form.Control
-                                                    id="dateOfExpiry2"
-                                                    type="date"
-                                                    style={{ paddingRight: '2.5rem', flex: 1 }}
-                                                    readOnly={isSaved}
-                                                />
-                                            </div>
-                                        </Form.Group>
-                                    </div>
-                                </Form>
+                                {passangerData.adult.map((passanger, index) => (
+                                    <PassangerForm
+                                        key={`adult-${index}`}
+                                        isSaved={isSaved}
+                                        handleSwitchChanges={
+                                            handleSwitchChanges
+                                        }
+                                        handleInputChange={handleInputChange}
+                                        passanger={{
+                                            ...passanger,
+                                            type: "adult",
+                                            index,
+                                            order: index + 1,
+                                        }}
+                                        errors={errors}
+                                    />
+                                ))}
+                                {passangerData.child.map((passanger, index) => (
+                                    <PassangerForm
+                                        key={`child-${index}`}
+                                        isSaved={isSaved}
+                                        handleSwitchChanges={
+                                            handleSwitchChanges
+                                        }
+                                        handleInputChange={handleInputChange}
+                                        passanger={{
+                                            ...passanger,
+                                            type: "child",
+                                            index,
+                                            order: adult + index + 1,
+                                        }}
+                                        errors={errors}
+                                    />
+                                ))}
+                                {/* {passangerData.baby.map((passanger, index) => (
+                                    <PassangerForm
+                                        key={`baby-${index}`}
+                                        isSaved={isSaved}
+                                        handleSwitchChanges={
+                                            handleSwitchChanges
+                                        }
+                                        handleInputChange={handleInputChange}
+                                        passanger={{
+                                            ...passanger,
+                                            type: "baby",
+                                            index,
+                                            order: adult + child + index + 1,
+                                        }}
+                                        errors={errors}
+                                    />
+                                ))} */}
                             </Card.Body>
                         </Card>
-                        <Card className="mb-3">
-                            <h4 className="mb-0" style={{ marginLeft: '18px', marginTop: '15px' }}>Pilih Kursi</h4>
-                            <Card.Body>
-                                <Form onSubmit={handleSubmit}>
-                                    <div style={{ backgroundColor: '#343a40', padding: '10px', color: 'white', borderTopLeftRadius: '10px', borderTopRightRadius: '10px' }}>
-                                        <h6 className="mb-0" style={{ marginLeft: '4px' }}>Economy - 90 Seat Available</h6>
-                                    </div>
-                                    <div style={{ padding: '50px' }}>
-                                        {seats.map((row, rowIndex) => (
-                                            <div key={rowIndex} className="d-flex justify-content-center">
-                                                {row.map((seat, colIndex) => (
-                                                    <React.Fragment key={colIndex}>
-                                                        <Button
-                                                            className={`seat ${seat.isSelected ? "selected" : ""}`}
-                                                            onClick={() => handleSeatClick(rowIndex, colIndex)}
-                                                            style={{
-                                                                width: "40px",
-                                                                top: "5px",
-                                                                height: "40px",
-                                                                margin: "3px",
-                                                                textAlign: "center",
-                                                                fontSize: "16px",
-                                                                borderRadius: "8px",
-                                                                border: "1px solid #ccc",
-                                                                backgroundColor: seat.isSelected ? seat.color : "white",
-                                                                color: seat.isSelected ? "white" : "black",
-                                                                display: "flex",
-                                                                alignItems: "center",
-                                                                justifyContent: "center",
-                                                                cursor: seatsConfirmed ? "not-allowed" : "pointer",
-                                                                position: "relative",
-                                                            }}
-                                                            disabled={seatsConfirmed}
-                                                        >
-                                                            {seat.isSelected ? "" : ""}
-                                                            <span style={{ fontSize: "10px", marginTop: "3px" }}>
-                                                                {`${(rowIndex + 1).toString().padStart(2, '0')}${String.fromCharCode(65 + colIndex)}`}
-                                                            </span>
-                                                            {rowIndex === 0 && (
-                                                                <div
-                                                                    style={{
-                                                                        position: "absolute",
-                                                                        top: "-40px",
-                                                                        width: "100%",
-                                                                        textAlign: "center",
-                                                                        fontSize: "18px",
-                                                                        color: "gray",
-                                                                    }}
-                                                                >
-                                                                    {String.fromCharCode(65 + colIndex)}
-                                                                </div>
-                                                            )}
-                                                        </Button>
-                                                        {(colIndex === 2) && (
-                                                            <Button
-                                                                className="seat-number-button"
-                                                                style={{
-                                                                    width: "40px",
-                                                                    height: "40px",
-                                                                    margin: "7px",
-                                                                    textAlign: "center",
-                                                                    fontSize: "16px",
-                                                                    borderRadius: "8px",
-                                                                    border: "none",
-                                                                    backgroundColor: "transparent",
-                                                                    color: "black",
-                                                                    display: "flex",
-                                                                    alignItems: "center",
-                                                                    justifyContent: "center",
-                                                                    cursor: "not-allowed",
-                                                                    position: "relative",
-                                                                }}
-                                                                disabled
-                                                            >
-                                                                {`${(rowIndex + 1).toString().padStart(2, '0')}`}
-                                                            </Button>
-                                                        )}
-                                                    </React.Fragment>
-                                                ))}
-                                            </div>
-                                        ))}
-                                    </div>
+                        <SeatSelectionComponent
+                            title={"Pilih Kursi Penerbangan Berangkat"}
+                            seatType={seatType}
+                            seatsConfirmed={seatsConfirmed}
+                            seatArrayAll={seatDeparture}
+                            seatAvailable={seatDepartureAvailable}
+                            onSeatsSelected={setSeatSelectedDeparture}
+                            adult={adult}
+                            child={child}
+                            // baby={baby}
+                            capacity={capacityUser}
+                        />
+                        {flightIdReturn && (
+                            <SeatSelectionComponent
+                                title={"Pilih Kursi Penerbangan Pulang"}
+                                seatType={seatType}
+                                seatsConfirmed={seatsConfirmed}
+                                seatArrayAll={seatReturn}
+                                seatAvailable={seatReturnAvailable}
+                                onSeatsSelected={setSeatSelectedReturn}
+                                adult={adult}
+                                child={child}
+                                // baby={baby}
+                                capacity={capacityUser}
+                            />
+                        )}
 
-                                </Form>
-                            </Card.Body>
-                        </Card>
                         <div style={{ paddingBottom: "40px" }}>
                             <Button
                                 type="submit"
                                 className="btn-primary"
-                                disabled={loading || seatsConfirmed}
+                                disabled={saveDisabled || seatsConfirmed}
                                 onClick={handleSubmit}
-                                style={{ marginTop: "20px", width: "100%", paddingTop: "20px", paddingBottom: "20px", borderRadius: "17px", backgroundColor: "#7126B5" }}
+                                style={{
+                                    marginTop: "20px",
+                                    width: "100%",
+                                    paddingTop: "20px",
+                                    paddingBottom: "20px",
+                                    borderRadius: "17px",
+                                    backgroundColor: "#7126B5",
+                                }}
                             >
-                                {loading ? "Loading..." : "Simpan"}
+                                {seatsConfirmed
+                                    ? "Booking berhasil dibuat"
+                                    : "Simpan"}
                             </Button>
                         </div>
                     </Col>
 
                     <Col md={4}>
                         <Card className="mb-4 mt-5">
-                            <h4 className="mb-0" style={{ marginLeft: '18px', marginTop: '15px' }}>Detail Penerbangan</h4>
+                            <h4
+                                className="mb-0"
+                                style={{
+                                    marginLeft: "18px",
+                                    marginTop: "15px",
+                                }}
+                            >
+                                Detail Penerbangan
+                            </h4>
                             <Card.Body>
                                 <DetailFlight
-                                    departTime="08:00"
-                                    arrivalTime="10:00"
-                                    from="CGK"
-                                    to="PKU"
-                                    flightCode="GA 123"
-                                    classType="Ekonomi"
-                                    price="1300000"
-                                    duration="2 Jam"
-                                    selectedDate="22 Oktober 2022"
+                                    TitleDetail={"Jadwal Berangkat"}
+                                    // BookingCode
+                                    // BookingStatus
+                                    departureTime={moment
+                                        .tz(
+                                            flightDeparture?.departureAt,
+                                            flightDeparture?.StartAirport
+                                                ?.timezone
+                                        )
+                                        .format("HH:mm")}
+                                    departureDate={moment
+                                        .tz(
+                                            flightDeparture?.departureAt,
+                                            flightDeparture?.StartAirport
+                                                ?.timezone
+                                        )
+                                        .format("DD MMMM YYYY")}
+                                    departureAirport={
+                                        flightDeparture?.StartAirport?.name
+                                    }
+                                    departureTerminal={
+                                        flightDeparture?.StartAirport?.terminal
+                                    }
+                                    arrivalTime={moment
+                                        .tz(
+                                            flightDeparture?.arrivalAt,
+                                            flightDeparture?.EndAirport
+                                                ?.timezone
+                                        )
+                                        .format("HH:mm")}
+                                    arrivalDate={moment
+                                        .tz(
+                                            flightDeparture?.arrivalAt,
+                                            flightDeparture?.EndAirport
+                                                ?.timezone
+                                        )
+                                        .format("DD MMMM YYYY")}
+                                    arrivalAirport={
+                                        flightDeparture?.EndAirport?.name
+                                    }
+                                    arrivalTerminal={
+                                        flightDeparture?.EndAirport?.terminal
+                                    }
+                                    airlineName={flightDeparture?.Airline?.name}
+                                    airlineLogo={
+                                        flightDeparture?.Airline?.picture
+                                    }
+                                    flightCode={flightDeparture?.flightCode}
+                                    seatClass={seatType}
+                                    baggage={flightDeparture?.Airline?.baggage}
+                                    cabinBaggage={
+                                        flightDeparture?.Airline?.cabinBaggage
+                                    }
+                                    additionals={
+                                        flightDeparture?.Airline?.additionals
+                                    }
                                 />
+                                <Price
+                                    adult={adult}
+                                    child={child}
+                                    baby={baby}
+                                    flightPrice={
+                                        flightDeparture[`price${seatType}`]
+                                    }
+                                    setTotalPrice={setDepartureTotalPrice}
+                                />
+                                {flightIdReturn && (
+                                    <>
+                                        <br />
+                                        <hr
+                                            style={{
+                                                color: "black",
+                                                borderWidth: "5px",
+                                                borderStyle: "dashed",
+                                            }}
+                                        />
+                                        <DetailFlight
+                                            TitleDetail={"Jadwal Pulang"}
+                                            // BookingCode
+                                            // BookingStatus
+                                            departureTime={moment
+                                                .tz(
+                                                    flightReturn?.departureAt,
+                                                    flightReturn?.StartAirport
+                                                        ?.timezone
+                                                )
+                                                .format("HH:mm")}
+                                            departureDate={moment
+                                                .tz(
+                                                    flightReturn?.departureAt,
+                                                    flightReturn?.StartAirport
+                                                        ?.timezone
+                                                )
+                                                .format("DD MMMM YYYY")}
+                                            departureAirport={
+                                                flightReturn?.StartAirport?.name
+                                            }
+                                            departureTerminal={
+                                                flightReturn?.StartAirport
+                                                    ?.terminal
+                                            }
+                                            arrivalTime={moment
+                                                .tz(
+                                                    flightReturn?.arrivalAt,
+                                                    flightReturn?.EndAirport
+                                                        ?.timezone
+                                                )
+                                                .format("HH:mm")}
+                                            arrivalDate={moment
+                                                .tz(
+                                                    flightReturn?.arrivalAt,
+                                                    flightReturn?.EndAirport
+                                                        ?.timezone
+                                                )
+                                                .format("DD MMMM YYYY")}
+                                            arrivalAirport={
+                                                flightReturn?.EndAirport?.name
+                                            }
+                                            arrivalTerminal={
+                                                flightReturn?.EndAirport
+                                                    ?.terminal
+                                            }
+                                            airlineName={
+                                                flightReturn?.Airline?.name
+                                            }
+                                            airlineLogo={
+                                                flightReturn?.Airline?.picture
+                                            }
+                                            flightCode={
+                                                flightReturn?.flightCode
+                                            }
+                                            seatClass={seatType}
+                                            baggage={
+                                                flightReturn?.Airline?.baggage
+                                            }
+                                            cabinBaggage={
+                                                flightReturn?.Airline
+                                                    ?.cabinBaggage
+                                            }
+                                            additionals={
+                                                flightReturn?.Airline
+                                                    ?.additionals
+                                            }
+                                        />
+                                        <Price
+                                            adult={adult}
+                                            child={child}
+                                            baby={baby}
+                                            flightPrice={
+                                                flightReturn[`price${seatType}`]
+                                            }
+                                            setTotalPrice={setReturnTotalPrice}
+                                        />
+                                        <TotalPrice
+                                            departureTotalPrice={
+                                                departureTotalPrice
+                                            }
+                                            returnTotalPrice={returnTotalPrice}
+                                            setTotalPrice={setTotalPrice}
+                                        />
+                                    </>
+                                )}
                             </Card.Body>
                         </Card>
                         {showFlightDetails && (
                             <div>
                                 <Button
+                                    onClick={handleSubmitPayment}
+                                    variant="danger"
                                     type="submit"
                                     className="btn-primary"
-                                    disabled={loading || seatsConfirmed}
-                                    style={{ marginTop: "20px", width: "100%", paddingTop: "20px", paddingBottom: "20px", borderRadius: "17px", backgroundColor: "#7126B5" }}
+                                    disabled={loading}
+                                    style={{
+                                        marginTop: "20px",
+                                        width: "100%",
+                                        paddingTop: "20px",
+                                        paddingBottom: "20px",
+                                        borderRadius: "17px",
+                                        backgroundColor: "#7126B5",
+                                    }}
                                 >
                                     {loading ? "Loading..." : "Lanjut Bayar"}
                                 </Button>
@@ -470,7 +808,6 @@ const BookingForm = () => {
                     </Col>
                 </Row>
             </Container>
-            <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
         </>
     );
 };
