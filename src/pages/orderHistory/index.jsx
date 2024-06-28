@@ -245,7 +245,12 @@ const HistoryDestination = ({
                                     <p style={{ margin: 0, fontWeight: "700" }}>
                                         Class:
                                     </p>
-                                    <p>{booking?.Seat?.airlineClass}</p>
+                                    {booking?.Seat?.airlineClass ===
+                                    "FIRST_CLASS" ? (
+                                        <p>FirstClass</p>
+                                    ) : (
+                                        booking?.Seat?.airlineClass
+                                    )}
                                 </Col>
                                 <Col md={4} className="">
                                     <p style={{ margin: 0, fontWeight: "700" }}>
