@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
 import {
-    Container,
-    Row,
-    Col,
-    Button,
-    Image,
-    Accordion,
-    Card,
-    OverlayTrigger,
-    Tooltip,
+  Container,
+  Row,
+  Col,
+  Button,
+  Image,
+  Accordion,
+  Card,
+  OverlayTrigger,
+  Tooltip,
 } from "react-bootstrap";
 import {
-    MenuItem,
-    FormControl,
-    Select,
-    Typography,
-    Modal,
+  MenuItem,
+  FormControl,
+  Select,
+  Typography,
+  Modal,
 } from "@mui/material";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
@@ -38,7 +38,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getFilterFlights } from "../../redux/actions/flight";
 import moment from "moment-timezone";
 
-
 const FindTicket = () => {
   const [isChangeFlight, setChangeFlight] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -48,7 +47,7 @@ const FindTicket = () => {
 
   const navigate = useNavigate();
 
-    const location = useLocation();
+  const location = useLocation();
 
   let {
     flightType,
@@ -65,6 +64,20 @@ const FindTicket = () => {
     baby,
   } = location.state || {};
 
+  console.log(
+    flightType,
+    departure,
+    iataCodeDeparture,
+    arrival,
+    iataCodeArrival,
+    departureDate,
+    returnDate,
+    seatType,
+    capacity,
+    adult,
+    child,
+    baby
+  );
   console.log(departure);
 
   const handleSubmit = (e) => {
@@ -93,29 +106,29 @@ const FindTicket = () => {
     });
   };
 
-    const dispatch = useDispatch();
-    const { flights } = useSelector((state) => state.flight);
-    const handleOpenChangeFlight = () => {
-        setChangeFlight(true);
+  const dispatch = useDispatch();
+  const { flights } = useSelector((state) => state.flight);
+  const handleOpenChangeFlight = () => {
+    setChangeFlight(true);
+  };
+
+  const handleCloseChangeFlight = () => {
+    setChangeFlight(false);
+    setflightIdDeparture("");
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsFullScreen(window.innerWidth > 1160);
+      setIsMobile(window.innerWidth < 768);
     };
 
-    const handleCloseChangeFlight = () => {
-        setChangeFlight(false);
-        setflightIdDeparture("");
-    };
+    // Set initial value based on the current window size
+    handleResize();
 
-    useEffect(() => {
-        const handleResize = () => {
-            setIsFullScreen(window.innerWidth > 1160);
-            setIsMobile(window.innerWidth < 768);
-        };
-
-        // Set initial value based on the current window size
-        handleResize();
-
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     let temp;
@@ -164,13 +177,13 @@ const FindTicket = () => {
     flightIdDeparture,
   ]);
 
-    return (
-        <>
-            {/* Header */}
-            <HeaderShadow>
-                <h4 className="pt-4" style={{ fontWeight: 700 }}>
-                    Pilih Penerbangan
-                </h4>
+  return (
+    <>
+      {/* Header */}
+      <HeaderShadow>
+        <h4 className="pt-4" style={{ fontWeight: 700 }}>
+          Pilih Penerbangan
+        </h4>
 
         <Row className="mt-4 g-2">
           <Col sx={12} md={10} className="d-flex">
@@ -188,26 +201,24 @@ const FindTicket = () => {
               Ubah Penerbangan
             </Button>
 
-                        <Modal
-                            open={isChangeFlight}
-                            onClose={handleCloseChangeFlight}
-                            style={{ top: "15%", zIndex: 300 }}
-                        >
-                            <FormArea
-                                title={
-                                    <>
-                                        <h4 style={{ fontWeight: 700 }}>
-                                            Ubah Penerbangan
-                                        </h4>
-                                    </>
-                                }
-                                isFullScreen={isFullScreen}
-                                isMobile={isMobile}
-                                onClick={handleCloseChangeFlight}
-                            />
-                        </Modal>
-                    </Col>
-                </Row>
+            <Modal
+              open={isChangeFlight}
+              onClose={handleCloseChangeFlight}
+              style={{ top: "15%", zIndex: 300 }}
+            >
+              <FormArea
+                title={
+                  <>
+                    <h4 style={{ fontWeight: 700 }}>Ubah Penerbangan</h4>
+                  </>
+                }
+                isFullScreen={isFullScreen}
+                isMobile={isMobile}
+                onClick={handleCloseChangeFlight}
+              />
+            </Modal>
+          </Col>
+        </Row>
 
         <Row className="mt-4 ">
           <Col>
@@ -273,26 +284,26 @@ const DateSelector = ({ dispatch, datafiltering, flightIdDeparture }) => {
     "Sabtu",
   ];
 
-    const formatDate = (date) => {
-        const day = date.getDate().toString().padStart(2, "0");
-        const month = (date.getMonth() + 1).toString().padStart(2, "0");
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    };
+  const formatDate = (date) => {
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
-    const formatDateyearfirst = (date) => {
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, "0");
-        const day = date.getDate().toString().padStart(2, "0");
-        return `${year}-${month}-${day}`;
-    };
+  const formatDateyearfirst = (date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
-    const createButtonData = (baseDate, offset) => {
-        const newDate = new Date(baseDate);
-        newDate.setDate(baseDate.getDate() + offset);
-        const dayName = daysOfWeek[newDate.getDay()];
-        return { hari: dayName, tanggal: formatDate(newDate), date: newDate };
-    };
+  const createButtonData = (baseDate, offset) => {
+    const newDate = new Date(baseDate);
+    newDate.setDate(baseDate.getDate() + offset);
+    const dayName = daysOfWeek[newDate.getDay()];
+    return { hari: dayName, tanggal: formatDate(newDate), date: newDate };
+  };
 
   const handleButtonClick = (newDate) => {
     let newdate = formatDateyearfirst(newDate);
@@ -317,152 +328,131 @@ const DateSelector = ({ dispatch, datafiltering, flightIdDeparture }) => {
     }
   }, [flightIdDeparture]);
 
-    useEffect(() => {
-        const baseDate = new Date(datafiltering.departureDate);
-        setSelectedDate(baseDate);
-    }, [datafiltering.departureDate]);
+  useEffect(() => {
+    const baseDate = new Date(datafiltering.departureDate);
+    setSelectedDate(baseDate);
+  }, [datafiltering.departureDate]);
 
-    return (
-        <Container
-            className="d-flex justify-content-center"
-            style={{ overflowX: "hidden" }}
-        >
+  return (
+    <Container
+      className="d-flex justify-content-center"
+      style={{ overflowX: "hidden" }}
+    >
+      <Image src={VerticalLine} />
+      {Array.from({ length: visibleButtons }, (_, i) => {
+        const buttonData = createButtonData(selectedDate, i - 3);
+        const isActive = selectedDate.getTime() === buttonData.date.getTime();
+
+        return (
+          <React.Fragment key={i}>
+            <Button
+              className="px-md-4 px-sm-4 px-3 mx-md-3 mx-sm-3 mx-2"
+              variant="custom"
+              onClick={() => handleButtonClick(buttonData.date)}
+              onMouseEnter={() => setIsHovered(i)}
+              onMouseLeave={() => setIsHovered(null)}
+              style={{
+                backgroundColor: isActive
+                  ? "#7126b5"
+                  : isHovered === i
+                  ? "#bf8cf2"
+                  : "",
+                color: isActive || isHovered === i ? "white" : "black",
+                border: "none",
+              }}
+              disabled={
+                moment().startOf("day") < buttonData.date ? false : true
+              }
+            >
+              <p style={{ margin: 0 }}>{buttonData.hari}</p>
+              <p style={{ margin: 0 }}>{buttonData.tanggal}</p>
+            </Button>
             <Image src={VerticalLine} />
-            {Array.from({ length: visibleButtons }, (_, i) => {
-                const buttonData = createButtonData(selectedDate, i - 3);
-                const isActive =
-                    selectedDate.getTime() === buttonData.date.getTime();
-
-                return (
-                    <React.Fragment key={i}>
-                        <Button
-                            className="px-md-4 px-sm-4 px-3 mx-md-3 mx-sm-3 mx-2"
-                            variant="custom"
-                            onClick={() => handleButtonClick(buttonData.date)}
-                            onMouseEnter={() => setIsHovered(i)}
-                            onMouseLeave={() => setIsHovered(null)}
-                            style={{
-                                backgroundColor: isActive
-                                    ? "blue"
-                                    : isHovered === i
-                                    ? "grey"
-                                    : "",
-                                color:
-                                    isActive || isHovered === i
-                                        ? "white"
-                                        : "black",
-                            }}
-                            disabled={
-                                moment().startOf("day") < buttonData.date
-                                    ? false
-                                    : true
-                            }
-                        >
-                            <p style={{ margin: 0 }}>{buttonData.hari}</p>
-                            <p style={{ margin: 0 }}>{buttonData.tanggal}</p>
-                        </Button>
-                        <Image src={VerticalLine} />
-                    </React.Fragment>
-                );
-            })}
-        </Container>
-    );
+          </React.Fragment>
+        );
+      })}
+    </Container>
+  );
 };
 
 const Filter = ({ dispatch, datafiltering }) => {
-    const [sortOption, setSortOption] = useState("price-asc"); // Changed
+  const [sortOption, setSortOption] = useState("price-asc"); // Changed
 
-    const handleChange = (event) => {
+  const handleChange = (event) => {
+    // Changed
+    const selectedOption = event.target.value; // Changed
+    setSortOption(selectedOption); // Changed
+    const [sortField, sortOrder] = selectedOption.split("-"); // Changed
+    dispatch(
+      // Changed
+      getFilterFlights(
         // Changed
-        const selectedOption = event.target.value; // Changed
-        setSortOption(selectedOption); // Changed
-        const [sortField, sortOrder] = selectedOption.split("-"); // Changed
-        dispatch(
-            // Changed
-            getFilterFlights(
-                // Changed
-                datafiltering.departure, // Changed
-                datafiltering.arrival, // Changed
-                "departureAt", // Changed
-                datafiltering.departureDate, // Changed
-                sortField === "price"
-                    ? sortField + datafiltering.seatType
-                    : sortField, // Changed
-                sortOrder, // Changed
-                datafiltering.seatType // Changed
-            ) // Changed
-        ); // Changed
-    }; // Changed
-    return (
-        <Row className="mb-4">
-            <Col offset-md={9}></Col>
-            <Col md={3}>
-                <FormControl fullWidth>
-                    <Select
-                        displayEmpty
-                        defaultValue="price-asc"
-                        size="small"
-                        sx={{ borderRadius: 2 }}
-                        value={sortOption} // Changed
-                        onChange={handleChange} // Changed
-                    >
-                        <MenuItem value="price-asc">
-                            <Typography>
-                                <span style={{ fontWeight: "bold" }}>
-                                    Harga
-                                </span>{" "}
-                                - Termurah
-                            </Typography>
-                        </MenuItem>
-                        <MenuItem value="duration-asc">
-                            <Typography>
-                                <span style={{ fontWeight: "bold" }}>
-                                    Durasi
-                                </span>{" "}
-                                - Terpendek
-                            </Typography>
-                        </MenuItem>
-                        <MenuItem value="departureAt-asc">
-                            <Typography>
-                                {" "}
-                                <span style={{ fontWeight: "bold" }}>
-                                    Keberangkatan
-                                </span>{" "}
-                                - Paling Awal
-                            </Typography>
-                        </MenuItem>
-                        <MenuItem value="departureAt-desc">
-                            <Typography>
-                                {" "}
-                                <span style={{ fontWeight: "bold" }}>
-                                    Keberangkatan
-                                </span>{" "}
-                                - Paling Akhir
-                            </Typography>
-                        </MenuItem>
-                        <MenuItem value="arrivalAt-asc">
-                            <Typography>
-                                {" "}
-                                <span style={{ fontWeight: "bold" }}>
-                                    Kedatangan
-                                </span>{" "}
-                                - Paling Awal
-                            </Typography>
-                        </MenuItem>
-                        <MenuItem value="arrivalAt-desc">
-                            <Typography>
-                                {" "}
-                                <span style={{ fontWeight: "bold" }}>
-                                    Kedatangan
-                                </span>{" "}
-                                - Paling Akhir
-                            </Typography>
-                        </MenuItem>
-                    </Select>
-                </FormControl>
-            </Col>
-        </Row>
-    );
+        datafiltering.departure, // Changed
+        datafiltering.arrival, // Changed
+        "departureAt", // Changed
+        datafiltering.departureDate, // Changed
+        sortField === "price" ? sortField + datafiltering.seatType : sortField, // Changed
+        sortOrder, // Changed
+        datafiltering.seatType // Changed
+      ) // Changed
+    ); // Changed
+  }; // Changed
+  return (
+    <Row className="mb-4">
+      <Col offset-md={9}></Col>
+      <Col md={3}>
+        <FormControl fullWidth>
+          <Select
+            displayEmpty
+            defaultValue="price-asc"
+            size="small"
+            sx={{ borderRadius: 2 }}
+            value={sortOption} // Changed
+            onChange={handleChange} // Changed
+          >
+            <MenuItem value="price-asc">
+              <Typography>
+                <span style={{ fontWeight: "bold" }}>Harga</span> - Termurah
+              </Typography>
+            </MenuItem>
+            <MenuItem value="duration-asc">
+              <Typography>
+                <span style={{ fontWeight: "bold" }}>Durasi</span> - Terpendek
+              </Typography>
+            </MenuItem>
+            <MenuItem value="departureAt-asc">
+              <Typography>
+                {" "}
+                <span style={{ fontWeight: "bold" }}>Keberangkatan</span> -
+                Paling Awal
+              </Typography>
+            </MenuItem>
+            <MenuItem value="departureAt-desc">
+              <Typography>
+                {" "}
+                <span style={{ fontWeight: "bold" }}>Keberangkatan</span> -
+                Paling Akhir
+              </Typography>
+            </MenuItem>
+            <MenuItem value="arrivalAt-asc">
+              <Typography>
+                {" "}
+                <span style={{ fontWeight: "bold" }}>Kedatangan</span> - Paling
+                Awal
+              </Typography>
+            </MenuItem>
+            <MenuItem value="arrivalAt-desc">
+              <Typography>
+                {" "}
+                <span style={{ fontWeight: "bold" }}>Kedatangan</span> - Paling
+                Akhir
+              </Typography>
+            </MenuItem>
+          </Select>
+        </FormControl>
+      </Col>
+    </Row>
+  );
 };
 
 const FlightList = ({
@@ -480,25 +470,34 @@ const FlightList = ({
   const [status, setStatus] = useState();
   const [isFirstRender, setIsFirstRender] = useState(true);
 
-    // accordion body expand trigger
-    const handleHeaderClick = (flightId, e) => {
-        setExpanded((prevExpanded) =>
-            prevExpanded === flightId ? null : flightId
-        );
+  // accordion body expand trigger
+  const handleHeaderClick = (flightId, e) => {
+    setExpanded((prevExpanded) =>
+      prevExpanded === flightId ? null : flightId
+    );
 
-        setRotated((prevRotated) => {
-            const newRotated = Object.keys(prevRotated).reduce((acc, key) => {
-                acc[key] =
-                    key === flightId.toString() ? !prevRotated[key] : false;
-                return acc;
-            }, {});
-            return {
-                ...newRotated,
-                [flightId]: !prevRotated[flightId],
-            };
-        });
-    };
+    setRotated((prevRotated) => {
+      const newRotated = Object.keys(prevRotated).reduce((acc, key) => {
+        acc[key] = key === flightId.toString() ? !prevRotated[key] : false;
+        return acc;
+      }, {});
+      return {
+        ...newRotated,
+        [flightId]: !prevRotated[flightId],
+      };
+    });
+  };
 
+  const formatCurrency = (amount) => {
+    return amount
+      .toLocaleString("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      })
+      .replace("Rp", "");
+  };
   // pilih button disable button
   const handlePilihButton = (flightid, e) => {
     e.stopPropagation();
@@ -617,7 +616,10 @@ const FlightList = ({
                         style={{ padding: 0 }}
                       >
                         <h3 style={{ fontSize: 20, fontWeight: 650 }}>
-                          IDR {flight["price" + datafiltering.seatType]}
+                          IDR{" "}
+                          {formatCurrency(
+                            flight["price" + datafiltering.seatType]
+                          )}
                         </h3>
                         <Button
                           onClick={(e) => handlePilihButton(flight.id, e)}
@@ -698,48 +700,46 @@ const FlightList = ({
 };
 // page status section
 const TicketNotFound = () => {
-    return (
-        <Row
-            className="justify-content-center pt-5"
-            style={{ textAlign: "center" }}
-        >
-            <Image src={findTicketNotFound} style={{ width: 250 }} />
-            <Row className="pt-3">
-                <p style={{ marginBottom: 0 }}>
-                    Maaf, pencarian Anda tidak ditemukan
-                </p>
-                <p style={{ color: "purple" }}>Coba cari perjalanan lainnya!</p>
-            </Row>
-        </Row>
-    );
+  return (
+    <Row
+      className="justify-content-center pt-5"
+      style={{ textAlign: "center" }}
+    >
+      <Image src={findTicketNotFound} style={{ width: 250 }} />
+      <Row className="pt-3">
+        <p style={{ marginBottom: 0 }}>Maaf, pencarian Anda tidak ditemukan</p>
+        <p style={{ color: "purple" }}>Coba cari perjalanan lainnya!</p>
+      </Row>
+    </Row>
+  );
 };
 
 const TicketLoading = () => {
-    return (
-        <Row
-            className="justify-content-center pt-5"
-            style={{ textAlign: "center" }}
-        >
-            <p>Mencari penerbangan terbaik...</p>
-            <Image src={findTicketLoading} style={{ width: 250 }} />
-        </Row>
-    );
+  return (
+    <Row
+      className="justify-content-center pt-5"
+      style={{ textAlign: "center" }}
+    >
+      <p>Mencari penerbangan terbaik...</p>
+      <Image src={findTicketLoading} style={{ width: 250 }} />
+    </Row>
+  );
 };
 
 const TicketEmpty = () => {
-    return (
-        <Row
-            className="justify-content-center pt-5"
-            style={{ textAlign: "center" }}
-        >
-            <Image src={findTicketEmpty} style={{ width: 200 }} />
-            <Row className="pt-5">
-                {" "}
-                <p style={{ marginBottom: 0 }}>Maaf, Tiket terjual habis!</p>
-                <p>Coba cari perjalanan lainnya!</p>
-            </Row>
-        </Row>
-    );
+  return (
+    <Row
+      className="justify-content-center pt-5"
+      style={{ textAlign: "center" }}
+    >
+      <Image src={findTicketEmpty} style={{ width: 200 }} />
+      <Row className="pt-5">
+        {" "}
+        <p style={{ marginBottom: 0 }}>Maaf, Tiket terjual habis!</p>
+        <p>Coba cari perjalanan lainnya!</p>
+      </Row>
+    </Row>
+  );
 };
 
 export default FindTicket;
