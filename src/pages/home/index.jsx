@@ -166,8 +166,8 @@ const DestinationFavorit = ({ isFullScreen }) => {
               style={{ cursor: "pointer" }}
             >
               <Card.Img
-                src="src/assets/Cards/Frame 152.png"
-                style={{ height: "auto", width: "auto" }}
+                src={flight.EndAirport.picture}
+                style={{ width: "100%", height: "200px", objectFit: "cover" }}
               />
               <Card.Body>
                 <p style={{ margin: 0 }}>
