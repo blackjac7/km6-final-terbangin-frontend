@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { Button, Card, Row, Col, Container } from "react-bootstrap";
 import FormArea from "../../components/FormArea";
-
+import { useNavigate } from "react-router-dom";
 import Banner from "../../components/Banner";
 import "bootstrap/dist/css/bootstrap.min.css";
 import initialSearchImage from "../../assets/Cards/b_search.png";
 import clickedSearchImage from "../../assets/Cards/w_search.png";
 import PropTypes from "prop-types";
-import { getDestinations } from "../../redux/actions/home";
-import { useDispatch } from "react-redux";
+import { getFlightByContinent } from "../../redux/actions/flight";
+import { useDispatch, useSelector } from "react-redux";
+import moment from "moment-timezone";
 
 const Home = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -50,7 +51,10 @@ const Home = () => {
 
 const DestinationFavorit = ({ isFullScreen }) => {
   const dispatch = useDispatch();
-  const [activeButton, setActiveButton] = useState(null);
+  const [activeButton, setActiveButton] = useState(1);
+  const [sortContinent, setSortContinent] = useState("Asia");
+  const { flights } = useSelector((state) => state.flight);
+  const navigate = useNavigate();
 
   const getButtonStyle = (buttonId) => {
     return {
@@ -59,18 +63,69 @@ const DestinationFavorit = ({ isFullScreen }) => {
       borderColor: activeButton === buttonId ? "#7126b5" : "#e2d4f0",
     };
   };
-
+  const formatCurrency = (amount) => {
+    return amount
+      .toLocaleString("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      })
+      .replace("Rp", "");
+  };
   const getSourceImages = (buttonId) => {
     return activeButton === buttonId ? clickedSearchImage : initialSearchImage;
   };
 
-  const handleClick = (buttonId) => {
+  const handleClick = (buttonId, value) => {
     setActiveButton(buttonId);
+    setSortContinent(value);
+  };
+
+  const getDatePlus30Days = () => {
+    const today = new Date();
+    const resultDate = new Date(today);
+    resultDate.setDate(today.getDate() + 10);
+    return resultDate.toISOString().split("T")[0]; // Format YYYY-MM-DD
+  };
+
+  const navigateToFindTicket = (flight) => {
+    navigate("/find-ticket", {
+      state: {
+        flightType: "One Way", // Assuming one-way flight type
+        departure: flight.StartAirport.city,
+        iataCodeDeparture: flight.StartAirport.iataCode,
+        arrival: flight.EndAirport.city,
+        iataCodeArrival: flight.EndAirport.iataCode,
+        departureDate: moment
+          .tz(flight.departureAt, flight.StartAirport.timezone)
+          .format("YYYY-MM-DD"), // Format as needed
+        returnDate: null,
+        seatType: "Economy",
+        capacity: 1,
+        adult: 1,
+        child: 0,
+        baby: 0,
+      },
+    });
   };
 
   useEffect(() => {
-    dispatch(getDestinations());
-  }, [dispatch]);
+    if (sortContinent !== null) {
+      const datePlus30Days = getDatePlus30Days();
+      console.log(
+        "Dispatching getFlightByContinent with date:",
+        datePlus30Days,
+        "and continent:",
+        sortContinent
+      );
+      dispatch(getFlightByContinent(datePlus30Days, sortContinent)).catch(
+        (error) => {
+          console.error("Error fetching flights:", error);
+        }
+      );
+    }
+  }, [dispatch, sortContinent]);
 
   return (
     <Container>
@@ -78,20 +133,19 @@ const DestinationFavorit = ({ isFullScreen }) => {
         className="my-3"
         style={{ margin: isFullScreen ? "0px 120px" : "0px 0px" }}
       >
-        <h4>Destinasi Favorit</h4>
+        <h4> Rekomendasi Penerbangan</h4>
         <Col md={12}>
           {[
-            { id: 1, label: "Semua" },
-            { id: 2, label: "Asia" },
-            { id: 3, label: "Amerika" },
-            { id: 4, label: "Australia" },
-            { id: 5, label: "Eropa" },
-            { id: 6, label: "Afrika" },
+            { id: 1, label: "Asia", value: "Asia" },
+            { id: 2, label: "Amerika", value: "America" },
+            { id: 3, label: "Australia", value: "Australia" },
+            { id: 4, label: "Eropa", value: "Europe" },
+            { id: 5, label: "Afrika", value: "Africa" },
           ].map((button) => (
             <Button
               key={button.id}
               style={getButtonStyle(button.id)}
-              onClick={() => handleClick(button.id)}
+              onClick={() => handleClick(button.id, button.value)}
               variant="secondary"
               className="me-2 mt-2"
             >
@@ -105,15 +159,20 @@ const DestinationFavorit = ({ isFullScreen }) => {
         </Col>
       </Row>
       <Row style={{ margin: isFullScreen ? "0px 120px" : "0px 0px" }}>
-        {Array.from({ length: 10 }).map((_, index) => (
-          <Col key={index} md={3} sm={6} xs={6} className="mb-3">
-            <Card>
+        {flights.map((flight) => (
+          <Col key={flight.id} md={3} sm={6} xs={6} className="mb-3">
+            <Card
+              onClick={() => navigateToFindTicket(flight)}
+              style={{ cursor: "pointer" }}
+            >
               <Card.Img
                 src="src/assets/Cards/Frame 152.png"
                 style={{ height: "auto", width: "auto" }}
               />
               <Card.Body>
-                <p style={{ margin: 0 }}>Jakarta &rarr; Bangkok</p>
+                <p style={{ margin: 0 }}>
+                  {flight.StartAirport.city} &rarr; {flight.EndAirport.city}
+                </p>
                 <p
                   style={{
                     color: "#7126b5",
@@ -121,11 +180,15 @@ const DestinationFavorit = ({ isFullScreen }) => {
                     margin: 0,
                   }}
                 >
-                  AirAsia
+                  {flight.Airline.name}
                 </p>
-                <p style={{ margin: 0 }}>20 - 30 Maret 2023</p>
+                <p style={{ margin: 0 }}>
+                  {moment
+                    .tz(flight.departureAt, flight.StartAirport.timezone)
+                    .format("DD MMMM yyyy")}
+                </p>
                 <p>
-                  Mulai dari IDR&nbsp;
+                  Mulai dari
                   <span
                     style={{
                       color: "red",
@@ -133,7 +196,7 @@ const DestinationFavorit = ({ isFullScreen }) => {
                       fontWeight: 700,
                     }}
                   >
-                    950.000
+                    {formatCurrency(flight.priceEconomy)}
                   </span>
                 </p>
               </Card.Body>
@@ -144,7 +207,6 @@ const DestinationFavorit = ({ isFullScreen }) => {
     </Container>
   );
 };
-
 DestinationFavorit.propTypes = {
   isFullScreen: PropTypes.bool.isRequired,
 };

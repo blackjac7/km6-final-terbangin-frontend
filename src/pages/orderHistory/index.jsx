@@ -9,7 +9,7 @@ import BackButton from "../../components/BackButton";
 import DetailFlight from "../../components/FlightDetail";
 import FlightDestination from "../../components/FlightDestination";
 import PassangerDetail from "../../components/PassangerDetail";
-import PriceDetail from "../../components/PriceDetail";
+import PriceDetail from "../../components/PriceDetail/Price";
 
 import {
   getHistoryCardDetails,
