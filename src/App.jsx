@@ -13,6 +13,7 @@ import "./App.css";
 
 import Navbar from "./components/Navbar";
 import Home from "./pages/home";
+import Search from "./pages/search/search";
 import LoginPage from "./pages/login/login";
 import RegisterPage from "./pages/register/register";
 import ForgetPassword from "./pages/forgetPassword/forgetPassword";
@@ -24,15 +25,13 @@ import VerificationLink from "./pages/verificationLink/verificationLink";
 import FindTicket from "./pages/findTicket";
 import OrderHistoryPages from "./pages/orderHistory";
 import BookingForm from "./pages/checkout/index";
-import Payment from "./pages/payment/index";
-import PaymentSuccess from "./pages/paymentSuccess/index";
+import Payment from "./pages/payment";
 import NotificationPage from "./pages/notification";
 
 import ProtectedVerification from "./components/ProtectedVerification/ProtectedVerification";
 import ProtectedVerificationProfile from "./components/ProtectedVerification/ProtectedVerificationProfile";
 import ProtectedForgetPassword from "./components/ProtectedForgetPassword/ProtectedForgetPassword";
 import ProtectedFilterTicket from "./components/ProtectedFilterTicket/ProtectedVerification";
-import ProtectedBooking from "./components/ProtectedBooking";
 import Protected from "./components/Protected";
 import NonProtected from "./components/NonProtected";
 
@@ -43,6 +42,14 @@ const router = createBrowserRouter([
             <NonProtected>
                 <Navbar />
                 <Home />
+            </NonProtected>
+        ),
+    },
+    {
+        path: "/search",
+        element: (
+            <NonProtected>
+                <Search />
             </NonProtected>
         ),
     },
@@ -135,10 +142,10 @@ const router = createBrowserRouter([
     {
         path: "/booking",
         element: (
-            <ProtectedBooking>
-                <Navbar />
+            <NonProtected>
+              <Navbar />
                 <BookingForm />
-            </ProtectedBooking>
+            </NonProtected>
         ),
     },
     {
@@ -159,17 +166,6 @@ const router = createBrowserRouter([
                 {/* <ProtectedForgetPassword> */}
                 <Navbar />
                 <NotificationPage />
-                {/* </ProtectedForgetPassword> */}
-            </>
-        ),
-    },
-    {
-        path: "/payment-success",
-        element: (
-            <>
-                {/* <ProtectedForgetPassword> */}
-                <Navbar />
-                <PaymentSuccess />
                 {/* </ProtectedForgetPassword> */}
             </>
         ),

@@ -17,7 +17,7 @@ import Price from "../../components/PriceDetail/Price";
 import SeatSelectionComponent from "../../components/Passanger/Seat";
 
 import { createPassanger } from "../../redux/actions/passanger";
-import { generateSnapPayment } from "../../redux/actions/payment";
+import { createPayment } from "../../redux/actions/payment";
 import { createBooking } from "../../redux/actions/booking";
 import { createHelperBooking } from "../../redux/actions/helperBooking";
 
@@ -279,7 +279,7 @@ const BookingForm = () => {
                 // console.log("Data Penumpang: ", passangerResult);
                 const price = totalPrice ? totalPrice : departureTotalPrice;
 
-                const paymentResult = await dispatch(generateSnapPayment({totalPrice: price}));
+                const paymentResult = await dispatch(createPayment(price));
                 // console.log("Data Pembayaran: ", paymentResult);
 
                 let bookingData = {
