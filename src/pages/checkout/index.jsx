@@ -19,9 +19,7 @@ import SeatSelectionComponent from "../../components/Passanger/Seat";
 import { createPassanger } from "../../redux/actions/passanger";
 import { createPayment } from "../../redux/actions/payment";
 import { createBooking } from "../../redux/actions/booking";
-import { updateSeat } from "../../redux/actions/seat";
 import { createHelperBooking } from "../../redux/actions/helperBooking";
-import { set } from "lodash";
 
 const BookingForm = () => {
     const { user } = useSelector((state) => state.auth);
@@ -194,10 +192,10 @@ const BookingForm = () => {
                 setAirlineClass(selectedAirlineClass);
 
                 try {
-                    console.log(
-                        "Data Penerbangan Berangkat: ",
-                        flightDeparture
-                    );
+                    // console.log(
+                    //     "Data Penerbangan Berangkat: ",
+                    //     flightDeparture
+                    // );
                     const dataDeparture = await dispatch(
                         getSeatByFlightId(flightDeparture?.id)
                     );
@@ -217,8 +215,9 @@ const BookingForm = () => {
                         availableSeatsDeparture
                     );
 
-                    if (flightIdReturn) {
-                        console.log("Data Penerbangan Pulang: ", flightReturn);
+                    if (flightIdReturn && flightReturn?.id) {
+                        // console.log(flightIdReturn);
+                        // console.log("Data Penerbangan Pulang: ", flightReturn);
                         const dataReturn = await dispatch(
                             getSeatByFlightId(flightReturn?.id)
                         );
@@ -264,7 +263,7 @@ const BookingForm = () => {
             return;
         } else {
             setErrorStatus(false);
-            console.log("Data yang disimpan: ", passangerData);
+            // console.log("Data yang disimpan: ", passangerData);
             console.log("Kursi yang dipesan: ", seatSelectedDeparture);
             console.log(
                 "Total Harga: ",
@@ -272,7 +271,7 @@ const BookingForm = () => {
             );
 
             try {
-                // setSaveDisabled(true);
+                setSaveDisabled(true);
 
                 const passangerResult = await dispatch(
                     createPassanger(passangerData)
@@ -281,7 +280,7 @@ const BookingForm = () => {
                 const price = totalPrice ? totalPrice : departureTotalPrice;
 
                 const paymentResult = await dispatch(createPayment(price));
-                console.log("Data Pembayaran: ", paymentResult);
+                // console.log("Data Pembayaran: ", paymentResult);
 
                 let bookingData = {
                     userId: user?.id,
@@ -292,7 +291,7 @@ const BookingForm = () => {
                 const bookingResult = await dispatch(
                     createBooking(bookingData)
                 );
-                console.log("Data Booking: ", bookingResult);
+                // console.log("Data Booking: ", bookingResult);
 
                 setBookingIdResult(bookingResult?.id);
 
@@ -312,12 +311,12 @@ const BookingForm = () => {
                         passangerId: passangerResult[key]?.id,
                     });
                 });
-                console.log(helperBookingData);
+                // console.log(helperBookingData);
 
                 const helperBookingResult = await dispatch(
                     createHelperBooking(helperBookingData)
                 );
-                console.log("Data Helper Booking: ", helperBookingResult);
+                // console.log("Data Helper Booking: ", helperBookingResult);
 
                 if (
                     passangerResult &&
@@ -341,24 +340,25 @@ const BookingForm = () => {
 
     const handleSubmitPayment = (e) => {
         e.preventDefault();
+        const price = totalPrice ? totalPrice : departureTotalPrice;
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
             navigate("/payment", {
                 state: {
-                    totalPrice,
+                    price,
                     seatSelectedDeparture,
                     seatSelectedReturn,
                     bookingIdResult,
                 },
             });
             console.log("To Payment Page: ", {
-                totalPrice,
+                price,
                 seatSelectedDeparture,
                 seatSelectedReturn,
                 bookingIdResult,
             });
-            toast.success("Silahkan Bayar.");
+            toast.info("Silahkan Bayar.");
         }, 1000);
     };
 
@@ -790,7 +790,6 @@ const BookingForm = () => {
                                     onClick={handleSubmitPayment}
                                     variant="danger"
                                     type="submit"
-                                    className="btn-primary"
                                     disabled={loading}
                                     style={{
                                         marginTop: "20px",
