@@ -155,10 +155,10 @@ const router = createBrowserRouter([
         path: "/notification",
         element: (
             <>
-                {/* <ProtectedForgetPassword> */}
+                <Protected>
                 <Navbar />
                 <NotificationPage />
-                {/* </ProtectedForgetPassword> */}
+                </Protected>
             </>
         ),
     },
