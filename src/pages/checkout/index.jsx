@@ -272,7 +272,7 @@ const BookingForm = () => {
             );
 
             try {
-                // setSaveDisabled(true);
+                setSaveDisabled(true);
 
                 const passangerResult = await dispatch(
                     createPassanger(passangerData)
@@ -341,24 +341,25 @@ const BookingForm = () => {
 
     const handleSubmitPayment = (e) => {
         e.preventDefault();
+        const price = totalPrice ? totalPrice : departureTotalPrice;
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
             navigate("/payment", {
                 state: {
-                    totalPrice,
+                    price,
                     seatSelectedDeparture,
                     seatSelectedReturn,
                     bookingIdResult,
                 },
             });
             console.log("To Payment Page: ", {
-                totalPrice,
+                price,
                 seatSelectedDeparture,
                 seatSelectedReturn,
                 bookingIdResult,
             });
-            toast.success("Silahkan Bayar.");
+            toast.info("Silahkan Bayar.");
         }, 1000);
     };
 
@@ -790,7 +791,6 @@ const BookingForm = () => {
                                     onClick={handleSubmitPayment}
                                     variant="danger"
                                     type="submit"
-                                    className="btn-primary"
                                     disabled={loading}
                                     style={{
                                         marginTop: "20px",

@@ -34,6 +34,7 @@ export const login =
 
             if (bookingData) {
                 navigate("/booking", { state: bookingData }, { replace: true });
+                localStorage.removeItem("bookingData");
             } else {
                 navigate("/");
             }
@@ -71,7 +72,15 @@ export const loginWithGoogle = (navigate, accessToken) => async (dispatch) => {
         // get and save the token to local storage
         const { data } = response.data;
         const { token, user } = data;
+        console.log(user);
 
+        if (
+            user &&
+            user.phoneNumber &&
+            user.phoneNumber.includes("NOT_PROVIDED")
+        ) {
+            user.phoneNumber = "-";
+        }
         // Change the token value in the reducer
         dispatch(setToken(token));
         dispatch(setUser(user));
@@ -80,6 +89,7 @@ export const loginWithGoogle = (navigate, accessToken) => async (dispatch) => {
 
         if (bookingData) {
             navigate("/booking", { state: bookingData }, { replace: true });
+            localStorage.removeItem("bookingData");
         } else {
             navigate("/");
         }
@@ -129,6 +139,7 @@ export const register =
 
             if (bookingData) {
                 navigate("/booking", { state: bookingData }, { replace: true });
+                localStorage.removeItem("bookingData");
             } else {
                 navigate("/");
             }
@@ -174,6 +185,14 @@ export const getProfile =
         try {
             const response = await axios.request(config);
             const { data } = response.data;
+
+            if (
+                data &&
+                data.phoneNumber &&
+                data.phoneNumber.includes("NOT_PROVIDED")
+            ) {
+                data.phoneNumber = "-";
+            }
 
             dispatch(setUser(data));
 
