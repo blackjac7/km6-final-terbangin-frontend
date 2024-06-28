@@ -130,9 +130,8 @@ const BookingDetail = () => {
     const dispatch = useDispatch();
     const [snapToken, setSnapToken] = useState("");
     const location = useLocation();
-    const {
-        bookingIdResult,
-    } = location.state || {};
+    const navigate = useNavigate();
+    const { bookingIdResult } = location.state || {};
 
     useEffect(() => {
         const fetchBooking = async () => {
@@ -142,6 +141,8 @@ const BookingDetail = () => {
         };
         fetchBooking();
     }, [bookingIdResult, dispatch]);
+
+    
 
     return (
         <Container className="pb-5">
@@ -197,7 +198,9 @@ const BookingDetail = () => {
                             console.log("masuk sini");
                             console.log(result);
                             // navigate("/payment-success");
-                            window.location.href = "/payment-success";
+                            // window.location.href = "/payment-success";
+                            const queryParam = new URLSearchParams({snapToken}).toString();
+                            window.location.href = `/payment-success?${queryParam}`;
                         },
                         onPending: (result) => {
                             console.log("pending");
