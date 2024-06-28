@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Row, Col, Button, Container, Modal } from "react-bootstrap";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
 import HeaderShadow from "../../components/HeaderShadow";
 import BackButton from "../../components/BackButton";
@@ -385,9 +387,9 @@ const StatusPayment = ({ bookingStatus }) => {
             style={{
                 backgroundColor: (() => {
                     switch (bookingStatus) {
-                        case "Issued":
+                        case "ISSUED":
                             return "green";
-                        case "Canceled":
+                        case "CANCELLED":
                             return "grey";
                         default:
                             return "red";
@@ -503,6 +505,88 @@ const HistoryDetail = ({ booking }) => {
         ).length;
         setBaby(babies);
     }, [booking]);
+
+    const handlePrintTicket = () => {
+        const doc = new jsPDF();
+
+        // Add title
+        doc.setFontSize(22);
+        doc.setFont("helvetica", "bold");
+        doc.text("Ticket Information", 105, 20, null, null, "center");
+
+        // Draw a line below the title
+        doc.setLineWidth(0.5);
+        doc.line(20, 25, 190, 25);
+
+        // Booking Code
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Booking Code:", 20, 35);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${booking[0]?.Booking?.bookingCode}`, 60, 35);
+
+        // Flight details
+        doc.setFont("helvetica", "bold");
+        doc.text("Flight Details", 20, 45);
+        doc.setFont("helvetica", "normal");
+        doc.text(
+            `From: ${booking[1]?.Seat?.Flight?.StartAirport?.name}`,
+            20,
+            55
+        );
+        doc.text(`To: ${booking[1]?.Seat?.Flight?.EndAirport?.name}`, 20, 65);
+        doc.text(`Flight: ${booking[1]?.Seat?.Flight?.flightCode}`, 20, 75);
+
+        // Departure and arrival times
+        doc.text(
+            `Departure Time: ${moment
+                .tz(
+                    booking[1]?.Seat?.Flight?.departureAt,
+                    booking[1]?.Seat?.Flight?.StartAirport?.timezone
+                )
+                .format("HH:mm DD MMMM yyyy")}`,
+            20,
+            85
+        );
+        doc.text(
+            `Arrival Time: ${moment
+                .tz(
+                    booking[1]?.Seat?.Flight?.arrivalAt,
+                    booking[1]?.Seat?.Flight?.EndAirport?.timezone
+                )
+                .format("HH:mm DD MMMM yyyy")}`,
+            20,
+            95
+        );
+
+        // Seat class
+        doc.setFont("helvetica", "bold");
+        doc.text("Seat Class:", 20, 105);
+        doc.setFont("helvetica", "normal");
+        doc.text(seatType, 60, 105);
+
+        // Passenger info
+        doc.setFont("helvetica", "bold");
+        doc.text("Passenger Info", 20, 115);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Adults: ${adult}`, 20, 125);
+        doc.text(`Children: ${child}`, 20, 135);
+        doc.text(`Babies: ${baby}`, 20, 145);
+
+        // Total price
+        doc.setFont("helvetica", "bold");
+        doc.text("Total Price:", 20, 155);
+        doc.setFont("helvetica", "normal");
+        doc.text(`IDR ${totalPrice}`, 60, 155);
+
+        // Draw a box around the details
+        doc.setDrawColor(0);
+        doc.setLineWidth(0.5);
+        doc.rect(10, 30, 190, 130);
+
+        // Save the PDF
+        doc.save(`ticket_${booking[0]?.Booking?.bookingCode}.pdf`);
+    };
 
     return (
         <Container className="pb-5">
@@ -681,6 +765,7 @@ const HistoryDetail = ({ booking }) => {
                     <Row className="pt-3 d-flex justify-content-between">
                         <Col xs={12} className="d-flex">
                             <Button
+                                onClick={handlePrintTicket}
                                 className="flex-fill"
                                 type="button"
                                 variant="primary"
