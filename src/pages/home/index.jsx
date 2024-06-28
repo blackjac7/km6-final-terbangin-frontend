@@ -167,7 +167,7 @@ const DestinationFavorit = ({ isFullScreen }) => {
             >
               <Card.Img
                 src={flight.EndAirport.picture}
-                style={{ height: "auto", width: "auto" }}
+                style={{ width: "100%", height: "200px", objectFit: "cover" }}
               />
               <Card.Body>
                 <p style={{ margin: 0 }}>
