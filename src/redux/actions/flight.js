@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import { setFlights } from "../reducers/flight";
+import { setFlights, setLenData } from "../reducers/flight";
 
 export const getFilterFlights =
   (start, end, key, value, filter, order, seatType) => async (dispatch) => {
@@ -34,8 +34,9 @@ export const getFilterFlights =
       const { data } = response.data;
 
       dispatch(setFlights(data));
+      dispatch(setLenData(true))
     } catch (error) {
-      dispatch(setFlights([]));
+      dispatch(setLenData(false))
       console.error("Error fetching flights:", error);
     }
   };

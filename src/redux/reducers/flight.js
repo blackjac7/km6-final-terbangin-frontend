@@ -5,6 +5,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   flights: [],
   flight: null,
+  lendata : true
 };
 
 // define the slice
@@ -18,11 +19,14 @@ const flightSlice = createSlice({
     setFlight: (state, action) => {
       state.flight = action.payload;
     },
+    setLenData: (state, action) => {
+      state.lendata = action.payload
+    }
   },
 });
 
 // exoirt the setter function
-export const { setFlights, setFlight } = flightSlice.actions;
+export const { setFlights, setFlight, setLenData } = flightSlice.actions;
 
 // export the reducer
 export default flightSlice.reducer;
