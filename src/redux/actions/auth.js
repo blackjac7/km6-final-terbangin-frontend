@@ -30,7 +30,13 @@ export const login =
             dispatch(setUser(user));
             console.log(data);
 
-            navigate("/");
+            const bookingData = JSON.parse(localStorage.getItem("bookingData"));
+
+            if (bookingData) {
+                navigate("/booking", { state: bookingData }, { replace: true });
+            } else {
+                navigate("/");
+            }
 
             toast.success("Login success");
         } catch (error) {
@@ -70,8 +76,13 @@ export const loginWithGoogle = (navigate, accessToken) => async (dispatch) => {
         dispatch(setToken(token));
         dispatch(setUser(user));
 
-        // redirect to home
-        navigate("/");
+        const bookingData = JSON.parse(localStorage.getItem("bookingData"));
+
+        if (bookingData) {
+            navigate("/booking", { state: bookingData }, { replace: true });
+        } else {
+            navigate("/");
+        }
     } catch (error) {
         console.error("running error in dispatch try catch loginWithGoogle...");
         toast.error(error?.response?.data?.message);
@@ -114,7 +125,13 @@ export const register =
             dispatch(setToken(token));
 
             console.log(data);
-            navigate("/");
+            const bookingData = JSON.parse(localStorage.getItem("bookingData"));
+
+            if (bookingData) {
+                navigate("/booking", { state: bookingData }, { replace: true });
+            } else {
+                navigate("/");
+            }
             toast.success("Register success", {
                 position: "top-center",
             });

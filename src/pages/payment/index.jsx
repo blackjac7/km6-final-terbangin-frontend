@@ -5,11 +5,10 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 // hard data
 import PaymentData from "../../dumpData/payment.json";
 
-import BookingCode from "../../components/BookingWithCode";
 import HeaderShadow from "../../components/HeaderShadow";
 import DetailFlight from "../../components/FlightDetail";
 import PassangerDetail from "../../components/PassangerDetail";
-import PriceDetail from "../../components/PriceDetail";
+import Price from "../../components/PriceDetail/Price";
 
 import { useState, useEffect } from "react";
 import "./index.css";
@@ -164,7 +163,7 @@ const BookingDetail = () => {
                 ))}
             </div>
             {/* Price Information, confused for implement hard data xD  */}
-            <PriceDetail />
+            <Price />
             <Button
                 id={"showPaymentBtn"}
                 className={"w-100 mt-4"}
@@ -205,7 +204,6 @@ const BookingDetail = () => {
 
 const DetailBookingMobile = () => {
     const [show, setShow] = useState(false);
-
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 

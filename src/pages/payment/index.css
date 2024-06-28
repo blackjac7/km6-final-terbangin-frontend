@@ -2,6 +2,7 @@
     background-color: #8a2be2;
     outline: none;
     border: none;
+    border-radius: 11px;
 }
 
 #showPaymentBtn:hover {

@@ -5,7 +5,7 @@ import HeaderShadow from "../../components/HeaderShadow";
 
 import { useState, useEffect } from "react";
 import { Button, Container, Image } from "react-bootstrap";
-import "./success.css";
+import "./index.css";
 
 const PaymentSuccess = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
