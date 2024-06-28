@@ -17,6 +17,8 @@ import moment from "moment-timezone";
 import TotalPrice from "../../components/PriceDetail/TotalPrice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { getFlightById } from "../../redux/actions/flight";
+import FlightDestinationReturn from "../../components/FlightDestination/return";
 const OrderHistory = () => {
     const [showModal, setShowModal] = useState(false);
     const [showDetail, setShowDetail] = useState(false);
@@ -88,9 +90,7 @@ const OrderHistory = () => {
             </HeaderShadow>
             {/* Month for make section history per-month */}
             <Container className="my-3">
-                <Row className="mx-sm-4">
-                    <h5>Maret 2024</h5>
-                </Row>
+                <Row className="mx-sm-4">{/* <h5>Maret 2024</h5> */}</Row>
             </Container>
 
             {/* Main Content */}
@@ -132,13 +132,36 @@ const HistoryDestination = ({
     setIsActive,
     historycards,
 }) => {
+    const dispatch = useDispatch();
+    const [returnFlights, setReturnFlights] = useState({});
+
     const formattedPrice = (price) => {
         return price?.toLocaleString("id-ID");
     };
 
+    useEffect(() => {
+        const loadReturnFlights = async () => {
+            const flights = {};
+            for (const booking of historycards) {
+                if (booking?.Booking?.roundtripFlightId) {
+                    const dataFlightReturn = await dispatch(
+                        getFlightById(booking?.Booking?.roundtripFlightId)
+                    );
+                    flights[booking?.bookingId] = dataFlightReturn[0];
+                }
+            }
+            setReturnFlights(flights);
+            console.log("Return Flights: ", flights);
+        };
+
+        loadReturnFlights();
+    }, [dispatch, historycards]);
     return (
         <>
             {historycards.map((booking) => {
+                const hasRoundtrip =
+                    booking?.Booking?.roundtripFlightId !== null;
+
                 return (
                     <Button
                         key={booking?.bookingId}
@@ -232,6 +255,85 @@ const HistoryDestination = ({
                                             .format("DD MMMM yyyy")}
                                     />
                                 )}
+                                {hasRoundtrip &&
+                                    returnFlights[booking.bookingId] && (
+                                        <>
+                                            <hr className="solid" />
+                                            <FlightDestinationReturn
+                                                departureTime={moment
+                                                    .tz(
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.departureAt,
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.StartAirport
+                                                            ?.timezone
+                                                    )
+                                                    .format("HH:mm")}
+                                                departureDate={moment
+                                                    .tz(
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.departureAt,
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.StartAirport
+                                                            ?.timezone
+                                                    )
+                                                    .format("DD MMMM yyyy")}
+                                                departureCity={
+                                                    returnFlights[
+                                                        booking.bookingId
+                                                    ]?.StartAirport?.city
+                                                }
+                                                flightDuration={
+                                                    returnFlights[
+                                                        booking.bookingId
+                                                    ]?.duration
+                                                }
+                                                arrivalCity={
+                                                    returnFlights[
+                                                        booking.bookingId
+                                                    ]?.EndAirport?.city
+                                                }
+                                                arrivalTime={moment
+                                                    .tz(
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.arrivalAt,
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.StartAirport
+                                                            ?.timezone
+                                                    )
+                                                    .clone()
+                                                    .tz(
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.EndAirport?.timezone
+                                                    )
+                                                    .format("HH:mm")}
+                                                arrivalDate={moment
+                                                    .tz(
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.arrivalAt,
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.StartAirport
+                                                            ?.timezone
+                                                    )
+                                                    .clone()
+                                                    .tz(
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.EndAirport?.timezone
+                                                    )
+                                                    .format("DD MMMM yyyy")}
+                                            />
+                                        </>
+                                    )}
                                 <hr className="solid" />
                             </Col>
                             <Row style={{ textAlign: "left" }}>
