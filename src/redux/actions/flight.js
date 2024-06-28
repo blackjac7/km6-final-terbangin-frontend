@@ -59,3 +59,31 @@ export const getFlightById = (id) => async () => {
         toast.error(error?.response?.data?.message);
     }
 };
+
+export const getFlightByContinent = (value, continent) => async (dispatch) => {
+  value = value ?? "";
+  continent = continent ?? "";
+
+  try {
+    const url = new URL(
+      `${import.meta.env.VITE_BACKEND_API}/api/v1/flight/continent`
+    );
+    url.searchParams.append("value", value);
+    url.searchParams.append("continent", continent);
+
+    const config = {
+      method: "get",
+      maxBodyLength: Infinity,
+      url: url.toString(),
+      headers: {},
+    };
+
+    const response = await axios.request(config);
+    const { data } = response.data;
+
+    dispatch(setFlights(data));
+  } catch (error) {
+    dispatch(setFlights([]));
+    console.error("Error fetching flights:", error);
+  }
+};

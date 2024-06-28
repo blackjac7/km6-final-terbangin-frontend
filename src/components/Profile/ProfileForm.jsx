@@ -30,7 +30,7 @@ const ProfileForm = () => {
             return;
         }
 
-        if (user?.fullName === fullName) {
+        if (user?.fullName === fullName && !picture) {
             toast.error("Name is the same as before");
             return;
         }

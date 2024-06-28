@@ -1,5 +1,6 @@
 import { Row, Col, Image } from "react-bootstrap";
 import PropTypes from "prop-types";
+import PassangerDetail from "../PassangerDetail";
 
 const DetailFlight = ({
     TitleDetail,
@@ -20,20 +21,36 @@ const DetailFlight = ({
     baggage,
     cabinBaggage,
     additionals,
+    booking,
 }) => {
+    let passangersId = new Set();
+    let uniqueBookings = [];
+
+    if (booking) {
+        uniqueBookings = booking.filter((item) => {
+            const passangerId = item.Passanger?.id;
+            if (!passangersId.has(passangerId)) {
+                passangersId.add(passangerId);
+                return true;
+            }
+            return false;
+        });
+    }
+
     return (
         <>
-            <Row>
+            <Row className="d-flex align-items-center">
                 <Col
                     md={6}
                     xs={6}
-                    className="d-flex align-items-center w-100"
+                    className="d-flex align-items-center justify-content-center justify-content-md-start"
                     style={{ textAlign: "center" }}
                 >
                     <h6
                         style={{
                             fontWeight: "bold",
                             color: "#7126b5",
+                            textAlign: "center",
                         }}
                     >
                         {TitleDetail}
@@ -42,7 +59,7 @@ const DetailFlight = ({
                 <Col
                     md={6}
                     xs={6}
-                    className="d-flex justify-content-end align-self-center"
+                    className="d-flex justify-content-center justify-content-md-end"
                 >
                     {BookingStatus}
                 </Col>
@@ -101,20 +118,46 @@ const DetailFlight = ({
                         {flightCode}
                     </p>
                     <br />
-                    <p className="my-0" style={{ fontWeight: "bold" }}>
-                        <Image
-                            src={airlineLogo}
-                            className="me-1"
-                            style={{ maxWidth: "50px" }}
-                        />
-                        Informasi Penerbangan
-                    </p>
-                    <p className="my-0 mx-1 ps-5">Baggage {baggage} kg</p>
-                    <p className="my-0 mx-1 ps-5">
-                        Cabin baggage {cabinBaggage} kg
-                    </p>
-                    <p className="my-0 mx-1 ps-5">{additionals}</p>
-                    <hr className="solid" />
+                    {BookingStatus ? (
+                        <div>
+                            <p className="my-0" style={{ fontWeight: "bold" }}>
+                                <Image
+                                    src={airlineLogo}
+                                    className="me-1"
+                                    style={{ maxWidth: "50px" }}
+                                />
+                                Informasi Penumpang
+                            </p>
+                            {uniqueBookings.map((item, index) => (
+                                <PassangerDetail
+                                    key={index}
+                                    index={index}
+                                    passangerName={item.Passanger?.fullName}
+                                    passangerId={item.Passanger?.id}
+                                />
+                            ))}
+                            <hr className="solid" />
+                        </div>
+                    ) : (
+                        <>
+                            <p className="my-0" style={{ fontWeight: "bold" }}>
+                                <Image
+                                    src={airlineLogo}
+                                    className="me-1"
+                                    style={{ maxWidth: "50px" }}
+                                />
+                                Informasi Penerbangan
+                            </p>
+                            <p className="my-0 mx-1 ps-5">
+                                Baggage {baggage} kg
+                            </p>
+                            <p className="my-0 mx-1 ps-5">
+                                Cabin baggage {cabinBaggage} kg
+                            </p>
+                            <p className="my-0 mx-1 ps-5">{additionals}</p>
+                            <hr className="solid" />
+                        </>
+                    )}
                 </Col>
             </Row>
             <Row>

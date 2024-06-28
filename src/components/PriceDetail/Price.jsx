@@ -2,8 +2,7 @@ import { useEffect } from "react";
 import { Row, Col } from "react-bootstrap";
 
 const Price = ({ adult, child, baby, flightPrice, setTotalPrice }) => {
-    let totalPrice = 0;
-    totalPrice = flightPrice * adult + flightPrice * child;
+    const totalPrice = flightPrice * adult + flightPrice * child;
     const tax = totalPrice * 0.01;
     const formattedPrice = (price) => {
         return price.toLocaleString("id-ID");
@@ -50,13 +49,15 @@ const Price = ({ adult, child, baby, flightPrice, setTotalPrice }) => {
                     Tax
                 </Col>
                 <Col xs={6} md={6} className="d-flex justify-content-end">
-                    IDR {formattedPrice(tax * (adult + child))}
+                    IDR {formattedPrice(tax)}
                 </Col>
             </Row>
 
             <hr />
             <Row>
-                <Col>Total</Col>
+                <Col>
+                    <strong style={{ fontSize: "1.2rem" }}>Total</strong>
+                </Col>
                 <Col
                     className="d-flex justify-content-end"
                     xs={6}
