@@ -9,11 +9,13 @@ import BookingCode from "../../components/BookingWithCode";
 import HeaderShadow from "../../components/HeaderShadow";
 import DetailFlight from "../../components/FlightDetail";
 import PassangerDetail from "../../components/PassangerDetail";
-import PriceDetail from "../../components/PriceDetail";
+// import PriceDetail from "../../components/PriceDetail";
 
 import { useState, useEffect } from "react";
 import "./index.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { getBookingById } from "../../redux/actions/booking";
 
 const Payment = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -125,7 +127,21 @@ const Payment = () => {
 // average fetching data here
 const BookingDetail = () => {
     const [showPayment, setShowPayment] = useState(false);
-    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const [snapToken, setSnapToken] = useState("");
+    const location = useLocation();
+    const {
+        bookingIdResult,
+    } = location.state || {};
+
+    useEffect(() => {
+        const fetchBooking = async () => {
+            const booking = await dispatch(getBookingById(bookingIdResult));
+            console.log(booking[0].Payment.snapToken);
+            setSnapToken(booking[0].Payment.snapToken);
+        };
+        fetchBooking();
+    }, [bookingIdResult, dispatch]);
 
     return (
         <Container className="pb-5">
@@ -164,7 +180,7 @@ const BookingDetail = () => {
                 ))}
             </div>
             {/* Price Information, confused for implement hard data xD  */}
-            <PriceDetail />
+            {/* <PriceDetail /> */}
             <Button
                 id={"showPaymentBtn"}
                 className={"w-100 mt-4"}
@@ -174,13 +190,14 @@ const BookingDetail = () => {
 
                     setShowPayment(true);
 
-                    window.snap.embed("de584484-f96f-40be-9333-c67aa36b3002", {
+                    window.snap.embed(snapToken, {
                         embedId: "snapContainer",
                         onSuccess: (result) => {
                             console.log("success");
                             console.log("masuk sini");
                             console.log(result);
-                            navigate("/payment-success");
+                            // navigate("/payment-success");
+                            window.location.href = "/payment-success";
                         },
                         onPending: (result) => {
                             console.log("pending");

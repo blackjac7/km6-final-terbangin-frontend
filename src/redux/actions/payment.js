@@ -1,10 +1,9 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import paymentReducer from "../reducers/payment";
 
 // mendapatkan snap token dan link dari BE
 export const generateSnapPayment =
-    (navigate, payload) => async (dispatch, getState) => {
+    (payload) => async (_, getState) => {
         const { totalPrice } = payload;
 
         if (!totalPrice) {
@@ -24,13 +23,9 @@ export const generateSnapPayment =
                 }
             );
             const { data } = response.data;
-            const { snapToken, snapLink } = data;
             console.log(data);
-
-            dispatch(paymentReducer.setSnapToken(snapToken));
-            dispatch(paymentReducer.setSnapLink(snapLink));
-
-            navigate("/payment");
+            
+            return data;
         } catch (e) {
             removeSnapData();
             toast.error(e?.response?.data?.message);

@@ -3,7 +3,6 @@ import auth from "./auth";
 import flight from "./flight";
 import history from "./history";
 import notification from "./notification";
-import payment from "./payment";
 
 //combining some reducers
-export default combineReducers({ auth, notification, flight, history, payment });
+export default combineReducers({ auth, notification, flight, history });
