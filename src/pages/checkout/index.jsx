@@ -17,7 +17,7 @@ import Price from "../../components/PriceDetail/Price";
 import SeatSelectionComponent from "../../components/Passanger/Seat";
 
 import { createPassanger } from "../../redux/actions/passanger";
-import { createPayment } from "../../redux/actions/payment";
+import { generateSnapPayment } from "../../redux/actions/payment";
 import { createBooking } from "../../redux/actions/booking";
 import { createHelperBooking } from "../../redux/actions/helperBooking";
 
@@ -276,11 +276,11 @@ const BookingForm = () => {
                 const passangerResult = await dispatch(
                     createPassanger(passangerData)
                 );
-                // console.log("Data Penumpang: ", passangerResult);
+                console.log("Data Penumpang: ", passangerResult);
                 const price = totalPrice ? totalPrice : departureTotalPrice;
 
-                const paymentResult = await dispatch(createPayment(price));
-                // console.log("Data Pembayaran: ", paymentResult);
+                const paymentResult = await dispatch(generateSnapPayment({totalPrice: price}));
+                console.log("Data Pembayaran: ", paymentResult);
 
                 let bookingData = {
                     userId: user?.id,
@@ -291,7 +291,7 @@ const BookingForm = () => {
                 const bookingResult = await dispatch(
                     createBooking(bookingData)
                 );
-                // console.log("Data Booking: ", bookingResult);
+                console.log("Data Booking: ", bookingResult);
 
                 setBookingIdResult(bookingResult?.id);
 
@@ -311,12 +311,12 @@ const BookingForm = () => {
                         passangerId: passangerResult[key]?.id,
                     });
                 });
-                // console.log(helperBookingData);
+                console.log(helperBookingData);
 
                 const helperBookingResult = await dispatch(
                     createHelperBooking(helperBookingData)
                 );
-                // console.log("Data Helper Booking: ", helperBookingResult);
+                console.log("Data Helper Booking: ", helperBookingResult);
 
                 if (
                     passangerResult &&
