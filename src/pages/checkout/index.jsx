@@ -34,17 +34,6 @@ const BookingForm = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    handleResize();
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const {
     flightIdDeparture,
@@ -78,6 +67,17 @@ const BookingForm = () => {
   const [departureTotalPrice, setDepartureTotalPrice] = useState(0);
   const [returnTotalPrice, setReturnTotalPrice] = useState(0);
   const [bookingIdResult, setBookingIdResult] = useState("");
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  const handleResize = () => {
+    setIsMobile(window.innerWidth < 768);
+  };
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const initialPassangerState = {
     title: "",
@@ -251,71 +251,6 @@ const BookingForm = () => {
           }
         } catch (error) {
           console.error("Error fetching seat data:", error);
-          try {
-            setSaveDisabled(true);
-
-            const passangerResult = await dispatch(
-              createPassanger(passangerData)
-            );
-            console.log("Data Penumpang: ", passangerResult);
-            const price = totalPrice ? totalPrice : departureTotalPrice;
-
-            const paymentResult = await dispatch(
-              generateSnapPayment({ totalPrice: price })
-            );
-            console.log("Data Pembayaran: ", paymentResult);
-
-            let bookingData = {
-              userId: user?.id,
-              paymentId: paymentResult?.id,
-              status: flightIdReturn ? "Return" : "One Way",
-              roundtripFlightId: flightIdReturn ? flightIdReturn : null,
-            };
-            const bookingResult = await dispatch(createBooking(bookingData));
-            console.log("Data Booking: ", bookingResult);
-
-            setBookingIdResult(bookingResult?.id);
-
-            const helperBookingData = [];
-
-            seatSelectedDeparture?.forEach((seat, key) => {
-              helperBookingData.push({
-                bookingId: bookingResult?.id,
-                seatId: seat.seatId,
-                passangerId: passangerResult[key]?.id,
-              });
-            });
-            seatSelectedReturn?.forEach((seat, key) => {
-              helperBookingData.push({
-                bookingId: bookingResult?.id,
-                seatId: seat.seatId,
-                passangerId: passangerResult[key]?.id,
-              });
-            });
-            console.log(helperBookingData);
-
-            const helperBookingResult = await dispatch(
-              createHelperBooking(helperBookingData)
-            );
-            console.log("Data Helper Booking: ", helperBookingResult);
-
-            if (
-              passangerResult &&
-              paymentResult &&
-              bookingResult &&
-              helperBookingResult
-            ) {
-              setShowFlightDetails(true);
-              setIsSaved(true);
-              setSeatsConfirmed(true);
-              toast.success(
-                "Anda berhasil booking kursi. Silahkan lanjutkan ke pembayaran."
-              );
-              window.scrollTo(0, 0);
-            }
-          } catch (error) {
-            toast.error("Gagal membuat data booking.");
-          }
         }
       }
     };
@@ -352,11 +287,13 @@ const BookingForm = () => {
         setSaveDisabled(true);
 
         const passangerResult = await dispatch(createPassanger(passangerData));
-        // console.log("Data Penumpang: ", passangerResult);
+        console.log("Data Penumpang: ", passangerResult);
         const price = totalPrice ? totalPrice : departureTotalPrice;
 
-        const paymentResult = await dispatch(createPayment(price));
-        // console.log("Data Pembayaran: ", paymentResult);
+        const paymentResult = await dispatch(
+          generateSnapPayment({ totalPrice: price })
+        );
+        console.log("Data Pembayaran: ", paymentResult);
 
         let bookingData = {
           userId: user?.id,
@@ -365,7 +302,7 @@ const BookingForm = () => {
           roundtripFlightId: flightIdReturn ? flightIdReturn : null,
         };
         const bookingResult = await dispatch(createBooking(bookingData));
-        // console.log("Data Booking: ", bookingResult);
+        console.log("Data Booking: ", bookingResult);
 
         setBookingIdResult(bookingResult?.id);
 
@@ -385,12 +322,12 @@ const BookingForm = () => {
             passangerId: passangerResult[key]?.id,
           });
         });
-        // console.log(helperBookingData);
+        console.log(helperBookingData);
 
         const helperBookingResult = await dispatch(
           createHelperBooking(helperBookingData)
         );
-        // console.log("Data Helper Booking: ", helperBookingResult);
+        console.log("Data Helper Booking: ", helperBookingResult);
 
         if (
           passangerResult &&
@@ -473,10 +410,57 @@ const BookingForm = () => {
           ,
         </Breadcrumbs>
       </HeaderShadow>
-      <Container>
+      <Container className="mt-4">
         <Row>
+          <Col md={5} className="order-md-1">
+            {isMobile ? (
+              <DetailBookingMobile>
+                <DetailBooking
+                  flightDeparture={flightDeparture}
+                  seatType={seatType}
+                  adult={adult}
+                  child={child}
+                  baby={baby}
+                  setDepartureTotalPrice={setDepartureTotalPrice}
+                  flightIdReturn={flightIdReturn}
+                  flightReturn={flightReturn}
+                  setReturnTotalPrice={setReturnTotalPrice}
+                  departureTotalPrice={departureTotalPrice}
+                  returnTotalPrice={returnTotalPrice}
+                  setTotalPrice={setTotalPrice}
+                  showFlightDetails={showFlightDetails}
+                  handleSubmitPayment={handleSubmitPayment}
+                  loading={loading}
+                />
+              </DetailBookingMobile>
+            ) : (
+              <DetailBooking
+                flightDeparture={flightDeparture}
+                seatType={seatType}
+                adult={adult}
+                child={child}
+                baby={baby}
+                setDepartureTotalPrice={setDepartureTotalPrice}
+                flightIdReturn={flightIdReturn}
+                flightReturn={flightReturn}
+                setReturnTotalPrice={setReturnTotalPrice}
+                departureTotalPrice={departureTotalPrice}
+                returnTotalPrice={returnTotalPrice}
+                setTotalPrice={setTotalPrice}
+                showFlightDetails={showFlightDetails}
+                handleSubmitPayment={handleSubmitPayment}
+                loading={loading}
+              />
+            )}
+          </Col>
           <Col md={7}>
-            <Card className="mb-4 mt-5">
+            <Card
+              className="mb-4 mt-1"
+              style={{
+                boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
+                borderRadius: "0.50rem",
+              }}
+            >
               <h4
                 className="mb-0"
                 style={{
@@ -556,7 +540,14 @@ const BookingForm = () => {
                 </Form>
               </Card.Body>
             </Card>
-            <Card className="mb-3" id="data-penumpang">
+            <Card
+              className="mb-3"
+              id="data-penumpang"
+              style={{
+                boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
+                borderRadius: "0.50rem",
+              }}
+            >
               <h4
                 className="mb-0"
                 style={{
@@ -661,35 +652,13 @@ const BookingForm = () => {
               </Button>
             </div>
           </Col>
-
-          <Col md={5}>
-            {isMobile ? (
-              <DetailFlightMobile />
-            ) : (
-              <FlightDetail2
-                flightDeparture={flightDeparture}
-                seatType={seatType}
-                adult={adult}
-                child={child}
-                baby={baby}
-                setDepartureTotalPrice={setDepartureTotalPrice}
-                flightIdReturn={flightIdReturn}
-                showFlightDetails={showFlightDetails}
-                flightReturn={flightReturn}
-                setReturnTotalPrice={setReturnTotalPrice}
-                departureTotalPrice={departureTotalPrice}
-                returnTotalPrice={returnTotalPrice}
-                setTotalPrice={setTotalPrice}
-              />
-            )}
-          </Col>
         </Row>
       </Container>
     </>
   );
 };
 
-const FlightDetail2 = ({
+const DetailBooking = ({
   flightDeparture,
   seatType,
   adult,
@@ -697,16 +666,25 @@ const FlightDetail2 = ({
   baby,
   setDepartureTotalPrice,
   flightIdReturn,
-  showFlightDetails,
   flightReturn,
   setReturnTotalPrice,
   departureTotalPrice,
   returnTotalPrice,
   setTotalPrice,
+  showFlightDetails,
+  handleSubmitPayment,
+  loading,
 }) => {
   return (
     <>
-      <Card className="mb-4 mt-5">
+      {" "}
+      <Card
+        className="mt-1"
+        style={{
+          boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
+          borderRadius: "0.50rem",
+        }}
+      >
         <h4
           className="mb-0"
           style={{
@@ -718,7 +696,7 @@ const FlightDetail2 = ({
         </h4>
         <Card.Body>
           <DetailFlight
-            TitleDetail={"Jadwal Berangkat"}
+            TitleDetail={"Jadwal Keberangkatan"}
             // BookingCode
             // BookingStatus
             departureTime={moment
@@ -775,7 +753,7 @@ const FlightDetail2 = ({
                 }}
               />
               <DetailFlight
-                TitleDetail={"Jadwal Pulang"}
+                TitleDetail={"Jadwal Kepulangan"}
                 // BookingCode
                 // BookingStatus
                 departureTime={moment
@@ -853,8 +831,9 @@ const FlightDetail2 = ({
     </>
   );
 };
+export default BookingForm;
 
-const DetailFlightMobile = () => {
+const DetailBookingMobile = ({ children }) => {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -862,28 +841,27 @@ const DetailFlightMobile = () => {
 
   return (
     <>
-      <Button className="flex-fill" variant="primary" onClick={handleShow}>
-        Detail Flight
-      </Button>
+      <Container>
+        <Row className="pb-3">
+          <Button className="flex-fill" variant="primary" onClick={handleShow}>
+            Detail Flight
+          </Button>
+        </Row>
+      </Container>
+
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton></Modal.Header>
-        <FlightDetail2 />
-        <Container>
-          <hr />
-          <Row className="pb-3 d-flex justify-content-between">
-            <Col xs={12} className="d-flex">
-              <Button
-                className="flex-fill"
-                variant="secondary"
-                onClick={() => handleClose(false)}
-              >
-                Close
-              </Button>
-            </Col>
-          </Row>
-        </Container>
+        {children}
+        <Modal.Footer className="mt-1">
+          <Button
+            className="flex-fill"
+            variant="secondary"
+            onClick={() => handleClose(false)}
+          >
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
     </>
   );
 };
-export default BookingForm;

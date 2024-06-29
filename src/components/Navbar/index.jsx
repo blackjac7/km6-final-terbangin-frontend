@@ -59,7 +59,7 @@ function NavScrollExample() {
         >
             <Container>
                 <Navbar.Brand as={Link} to="/">
-                    <Image src={logo} height={55} alt="Logo" />
+                    <Image src={logo} height={40} alt="Logo" />
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="navbarScroll" />
                 <Navbar.Collapse id="navbarScroll">

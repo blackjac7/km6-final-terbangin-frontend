@@ -108,7 +108,7 @@ const Payment = () => {
                         xs={12}
                         // its just for aesthetically purpose
                         className={
-                            isMobile ? "pb-3 d-flex" : "px-4 order-md-1 "
+                            isMobile ? "pb-3 d-flex" : "px-4 order-1"
                         }
                     >
                         {/* If mobile breakout is true, booking detail can be show by click the button, else show on the right side page */}
