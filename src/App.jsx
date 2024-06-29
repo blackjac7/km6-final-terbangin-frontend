@@ -27,6 +27,7 @@ import BookingForm from "./pages/checkout/index";
 import Payment from "./pages/payment";
 import NotificationPage from "./pages/notification";
 import PaymentSuccess from "./pages/payment/success";
+import PaymentNotification from "./components/Payment/PaymentNotification";
 
 import ProtectedVerification from "./components/ProtectedVerification/ProtectedVerification";
 import ProtectedVerificationProfile from "./components/ProtectedVerification/ProtectedVerificationProfile";
@@ -185,6 +186,7 @@ function App() {
                 clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
             >
                 <RouterProvider router={router} />
+                <PaymentNotification />
                 <ToastContainer theme="colored" />
             </GoogleOAuthProvider>
         </Provider>

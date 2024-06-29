@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getFlightById } from "../../redux/actions/flight";
 import { getSeatByFlightId } from "../../redux/actions/seat";
 import moment from "moment-timezone";
+import io from "socket.io-client";
 
 import DetailFlight from "../../components/FlightDetail";
 import HeaderShadow from "../../components/HeaderShadow";
@@ -15,6 +16,7 @@ import PassangerForm from "../../components/Passanger/PassangerForm";
 import TotalPrice from "../../components/PriceDetail/TotalPrice";
 import Price from "../../components/PriceDetail/Price";
 import SeatSelectionComponent from "../../components/Passanger/Seat";
+import CustomToastMessage from "../../components/ToastMessage";
 
 import { createPassanger } from "../../redux/actions/passanger";
 import { generateSnapPayment } from "../../redux/actions/payment";
@@ -84,6 +86,35 @@ const BookingForm = () => {
     });
     const [errors, setErrors] = useState({});
     const [errorStatus, setErrorStatus] = useState(false);
+
+    const socket = io(import.meta.env.VITE_BACKEND_API);
+    useEffect(() => {
+        socket.on("connect", () => {
+            console.log("Connected to server");
+        });
+
+        socket.on("disconnect", () => {
+            console.log("Disconnected from server");
+        });
+
+        socket.on("bookingNotification", (data) => {
+            console.log("Received booking notification:", data);
+            toast.info(
+                <CustomToastMessage
+                    message={data?.message || "Received booking notification"}
+                    highlight={data?.bookingCode}
+                />,
+                {
+                    containerId: "navbarToast",
+                    closeOnClick: true,
+                }
+            );
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
 
     const validateForm = () => {
         let formErrors = {};
@@ -329,9 +360,6 @@ const BookingForm = () => {
                     setShowFlightDetails(true);
                     setIsSaved(true);
                     setSeatsConfirmed(true);
-                    toast.success(
-                        "Anda berhasil booking kursi. Silahkan lanjutkan ke pembayaran."
-                    );
                     window.scrollTo(0, 0);
                 }
             } catch (error) {

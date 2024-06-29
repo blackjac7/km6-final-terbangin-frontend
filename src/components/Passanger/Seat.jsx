@@ -1,6 +1,8 @@
 import { useState, useEffect, Fragment } from "react";
 import { Card, Button } from "react-bootstrap";
 import { toast } from "react-toastify";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
 
 const SeatSelectionComponent = ({
     title,
@@ -27,6 +29,9 @@ const SeatSelectionComponent = ({
     }, [seatSelected]);
 
     useEffect(() => {
+        const sortedSeatArray = [...seatArrayAll].sort(
+            (a, b) => a.seatNumber - b.seatNumber
+        );
         const seatRows = Math.ceil(totalSeats / seatCols);
 
         const newSeats = Array(seatRows)
@@ -36,7 +41,7 @@ const SeatSelectionComponent = ({
                     .fill(null)
                     .map((_, colIndex) => {
                         const seatIndex = rowIndex * seatCols + colIndex;
-                        const seatData = seatArrayAll[seatIndex];
+                        const seatData = sortedSeatArray[seatIndex];
                         return {
                             isSelected: false,
                             isAvailable: seatData
@@ -57,6 +62,11 @@ const SeatSelectionComponent = ({
     }, [seatArrayAll, adult, child]);
 
     const handleSeatClick = (rowIndex, colIndex) => {
+        if (!seats[rowIndex][colIndex].isAvailable) {
+            toast.error("Kursi tidak tersedia");
+            return;
+        }
+
         if (
             capacity === adultSeats + childSeats &&
             !seats[rowIndex][colIndex].isSelected
@@ -168,6 +178,37 @@ const SeatSelectionComponent = ({
                     </h6>
                 </div>
                 <div style={{ padding: "40px" }}>
+                    <div className="d-flex justify-content-center mb-2">
+                        {Array.from({ length: seatCols + 1 }).map(
+                            (_, colIndex) => (
+                                <div
+                                    key={colIndex}
+                                    style={{
+                                        width: "40px",
+                                        height: "40px",
+                                        margin: "7px",
+                                        top: "10px",
+                                        textAlign: "center",
+                                        fontSize: "18px",
+                                        color: "gray",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        position: "relative",
+                                    }}
+                                >
+                                    {colIndex === 3
+                                        ? ""
+                                        : String.fromCharCode(
+                                              65 +
+                                                  (colIndex < 3
+                                                      ? colIndex
+                                                      : colIndex - 1)
+                                          )}
+                                </div>
+                            )
+                        )}
+                    </div>
                     {seats.map((row, rowIndex) => (
                         <div
                             key={rowIndex}
@@ -175,68 +216,74 @@ const SeatSelectionComponent = ({
                         >
                             {row.map((seat, colIndex) => (
                                 <Fragment key={colIndex}>
-                                    <Button
-                                        className={`seat ${
-                                            seat.isSelected ? "selected" : ""
-                                        }`}
-                                        onClick={() =>
-                                            handleSeatClick(rowIndex, colIndex)
+                                    <Tippy
+                                        content={
+                                            !seat.isAvailable
+                                                ? "Tidak Tersedia"
+                                                : ""
                                         }
-                                        style={{
-                                            width: "40px",
-                                            height: "40px",
-                                            margin: "7px",
-                                            top: "10px",
-                                            textAlign: "center",
-                                            fontSize: "16px",
-                                            borderRadius: "8px",
-                                            border: "1px solid #ccc",
-                                            backgroundColor: seat.isSelected
-                                                ? seat.color
-                                                : "white",
-                                            color: seat.isSelected
-                                                ? "white"
-                                                : "black",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            cursor: seatsConfirmed
-                                                ? "not-allowed"
-                                                : "pointer",
-                                            position: "relative",
-                                        }}
-                                        disabled={
-                                            seatsConfirmed && !seat.isSelected
-                                        }
+                                        disabled={seat.isAvailable}
                                     >
-                                        <span
+                                        <Button
+                                            className={`seat ${
+                                                seat.isSelected
+                                                    ? "selected"
+                                                    : ""
+                                            }`}
+                                            onClick={() =>
+                                                handleSeatClick(
+                                                    rowIndex,
+                                                    colIndex
+                                                )
+                                            }
                                             style={{
-                                                fontSize: "10px",
-                                                marginTop: "3px",
-                                                display: "block",
+                                                width: "40px",
+                                                height: "40px",
+                                                margin: "7px",
+                                                top: "10px",
+                                                textAlign: "center",
+                                                fontSize: "16px",
+                                                borderRadius: "8px",
+                                                border: "1px solid #ccc",
+                                                backgroundColor: seat.isSelected
+                                                    ? seat.color
+                                                    : seat.isAvailable
+                                                    ? "white"
+                                                    : "grey",
+                                                color: seat.isSelected
+                                                    ? "white"
+                                                    : "black",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                cursor:
+                                                    seat.isAvailable &&
+                                                    !seatsConfirmed
+                                                        ? "pointer"
+                                                        : "not-allowed",
+                                                position: "relative",
                                             }}
+                                            disabled={
+                                                seatsConfirmed &&
+                                                !seat.isSelected
+                                            }
                                         >
-                                            {seat?.code
-                                                ? seat?.code
-                                                : seat?.number}
-                                        </span>
-                                        {rowIndex === 0 && (
-                                            <div
+                                            <span
                                                 style={{
-                                                    position: "absolute",
-                                                    top: "-40px",
-                                                    width: "100%",
-                                                    textAlign: "center",
-                                                    fontSize: "18px",
-                                                    color: "gray",
+                                                    fontSize: "10px",
+                                                    marginTop: "3px",
+                                                    display: "block",
                                                 }}
                                             >
-                                                {String.fromCharCode(
-                                                    65 + colIndex
-                                                )}
-                                            </div>
-                                        )}
-                                    </Button>
+                                                {seat?.code
+                                                    ? seat?.code
+                                                    : seat?.number +
+                                                      String.fromCharCode(
+                                                          65 + colIndex
+                                                      )}
+                                            </span>
+                                        </Button>
+                                    </Tippy>
                                     {colIndex === 2 && (
                                         <Button
                                             className="seat-number-button"

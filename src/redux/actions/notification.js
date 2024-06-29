@@ -17,8 +17,8 @@ export const getNotifications = () => async (dispatch, getState) => {
     try {
         const response = await axios.request(config);
         const { data } = response.data;
-
         dispatch(setNotifications(data));
+        return data;
     } catch (error) {
         toast.error(error?.response?.data?.message);
     }
@@ -43,6 +43,7 @@ export const getNotificationByUserId =
             const { data } = response.data;
 
             dispatch(setNotifications(data));
+            return data;
         } catch (error) {
             toast.info("Tidak ada notifikasi");
         }
