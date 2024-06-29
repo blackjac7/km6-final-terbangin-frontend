@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Row, Col } from "react-bootstrap";
 
 const Price = ({ adult, child, baby, flightPrice, setTotalPrice }) => {
+    console.log(adult, child, baby, flightPrice);
     const totalPrice = flightPrice * adult + flightPrice * child;
     const tax = totalPrice * 0.01;
     const formattedPrice = (price) => {

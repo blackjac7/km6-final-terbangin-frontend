@@ -279,7 +279,9 @@ const BookingForm = () => {
                 console.log("Data Penumpang: ", passangerResult);
                 const price = totalPrice ? totalPrice : departureTotalPrice;
 
-                const paymentResult = await dispatch(generateSnapPayment({totalPrice: price}));
+                const paymentResult = await dispatch(
+                    generateSnapPayment({ totalPrice: price })
+                );
                 console.log("Data Pembayaran: ", paymentResult);
 
                 let bookingData = {
@@ -346,17 +348,21 @@ const BookingForm = () => {
             setLoading(false);
             navigate("/payment", {
                 state: {
-                    price,
                     seatSelectedDeparture,
                     seatSelectedReturn,
                     bookingIdResult,
+                    adultCount: adult,
+                    childCount: child,
+                    babyCount: baby,
                 },
             });
             console.log("To Payment Page: ", {
-                price,
                 seatSelectedDeparture,
                 seatSelectedReturn,
                 bookingIdResult,
+                adultCount: adult,
+                childCount: child,
+                babyCount: baby,
             });
             toast.info("Silahkan Bayar.");
         }, 1000);
