@@ -5,9 +5,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import profilePicture from "../../assets/undraw_male_avatar_g98d.svg";
 import { logout } from "../../redux/actions/auth";
+
 import ProfileForm from "../../components/Profile/ProfileForm";
 import AccountSettingsForm from "../../components/Profile/AccountSettingsForm";
 import BackButton from "../../components/BackButton";
+import HeaderShadow from "../../components/HeaderShadow";
 import "./profile.css";
 
 const Profile = () => {

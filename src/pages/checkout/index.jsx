@@ -1,14 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  Form,
-  Row,
-  Col,
-  Container,
-  Card,
-  Button,
-  Modal,
-} from "react-bootstrap";
+import { Form, Row, Col, Container, Card, Button } from "react-bootstrap";
 import { Breadcrumbs, Link } from "@mui/material";
 import { toast } from "react-toastify";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -67,17 +59,6 @@ const BookingForm = () => {
   const [departureTotalPrice, setDepartureTotalPrice] = useState(0);
   const [returnTotalPrice, setReturnTotalPrice] = useState(0);
   const [bookingIdResult, setBookingIdResult] = useState("");
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  const handleResize = () => {
-    setIsMobile(window.innerWidth < 768);
-  };
-  useEffect(() => {
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
 
   const initialPassangerState = {
     title: "",
@@ -251,71 +232,6 @@ const BookingForm = () => {
           }
         } catch (error) {
           console.error("Error fetching seat data:", error);
-          try {
-            setSaveDisabled(true);
-
-            const passangerResult = await dispatch(
-              createPassanger(passangerData)
-            );
-            console.log("Data Penumpang: ", passangerResult);
-            const price = totalPrice ? totalPrice : departureTotalPrice;
-
-            const paymentResult = await dispatch(
-              generateSnapPayment({ totalPrice: price })
-            );
-            console.log("Data Pembayaran: ", paymentResult);
-
-            let bookingData = {
-              userId: user?.id,
-              paymentId: paymentResult?.id,
-              status: flightIdReturn ? "Return" : "One Way",
-              roundtripFlightId: flightIdReturn ? flightIdReturn : null,
-            };
-            const bookingResult = await dispatch(createBooking(bookingData));
-            console.log("Data Booking: ", bookingResult);
-
-            setBookingIdResult(bookingResult?.id);
-
-            const helperBookingData = [];
-
-            seatSelectedDeparture?.forEach((seat, key) => {
-              helperBookingData.push({
-                bookingId: bookingResult?.id,
-                seatId: seat.seatId,
-                passangerId: passangerResult[key]?.id,
-              });
-            });
-            seatSelectedReturn?.forEach((seat, key) => {
-              helperBookingData.push({
-                bookingId: bookingResult?.id,
-                seatId: seat.seatId,
-                passangerId: passangerResult[key]?.id,
-              });
-            });
-            console.log(helperBookingData);
-
-            const helperBookingResult = await dispatch(
-              createHelperBooking(helperBookingData)
-            );
-            console.log("Data Helper Booking: ", helperBookingResult);
-
-            if (
-              passangerResult &&
-              paymentResult &&
-              bookingResult &&
-              helperBookingResult
-            ) {
-              setShowFlightDetails(true);
-              setIsSaved(true);
-              setSeatsConfirmed(true);
-              toast.success(
-                "Anda berhasil booking kursi. Silahkan lanjutkan ke pembayaran."
-              );
-              window.scrollTo(0, 0);
-            }
-          } catch (error) {
-            toast.error("Gagal membuat data booking.");
-          }
         }
       }
     };
@@ -422,17 +338,21 @@ const BookingForm = () => {
       setLoading(false);
       navigate("/payment", {
         state: {
-          price,
           seatSelectedDeparture,
           seatSelectedReturn,
           bookingIdResult,
+          adultCount: adult,
+          childCount: child,
+          babyCount: baby,
         },
       });
       console.log("To Payment Page: ", {
-        price,
         seatSelectedDeparture,
         seatSelectedReturn,
         bookingIdResult,
+        adultCount: adult,
+        childCount: child,
+        babyCount: baby,
       });
       toast.info("Silahkan Bayar.");
     }, 1000);
@@ -443,7 +363,7 @@ const BookingForm = () => {
       <HeaderShadow>
         <Breadcrumbs
           separator={<NavigateNextIcon fontSize="small" />}
-          className="pt-4 pb-4"
+          className="pt-4"
           aria-label="breadcrumb"
           style={{
             fontWeight: "700",
@@ -475,52 +395,11 @@ const BookingForm = () => {
           ,
         </Breadcrumbs>
       </HeaderShadow>
-      <Container className="mt-4">
+      <Container>
         <Row>
-          <Col md={5} className="order-md-1">
-            {isMobile ? (
-              <DetailBookingMobile>
-                <DetailBooking
-                  flightDeparture={flightDeparture}
-                  seatType={seatType}
-                  adult={adult}
-                  child={child}
-                  baby={baby}
-                  setDepartureTotalPrice={setDepartureTotalPrice}
-                  flightIdReturn={flightIdReturn}
-                  flightReturn={flightReturn}
-                  setReturnTotalPrice={setReturnTotalPrice}
-                  departureTotalPrice={departureTotalPrice}
-                  returnTotalPrice={returnTotalPrice}
-                  setTotalPrice={setTotalPrice}
-                  showFlightDetails={showFlightDetails}
-                  handleSubmitPayment={handleSubmitPayment}
-                  loading={loading}
-                />
-              </DetailBookingMobile>
-            ) : (
-              <DetailBooking
-                flightDeparture={flightDeparture}
-                seatType={seatType}
-                adult={adult}
-                child={child}
-                baby={baby}
-                setDepartureTotalPrice={setDepartureTotalPrice}
-                flightIdReturn={flightIdReturn}
-                flightReturn={flightReturn}
-                setReturnTotalPrice={setReturnTotalPrice}
-                departureTotalPrice={departureTotalPrice}
-                returnTotalPrice={returnTotalPrice}
-                setTotalPrice={setTotalPrice}
-                showFlightDetails={showFlightDetails}
-                handleSubmitPayment={handleSubmitPayment}
-                loading={loading}
-              />
-            )}
-          </Col>
           <Col md={7}>
             <Card
-              className="mb-4 mt-1"
+              className="mb-4 mt-3"
               style={{
                 boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
                 borderRadius: "0.50rem",
@@ -717,216 +596,162 @@ const BookingForm = () => {
               </Button>
             </div>
           </Col>
-        </Row>
-      </Container>
-    </>
-  );
-};
 
-const DetailBooking = ({
-  flightDeparture,
-  seatType,
-  adult,
-  child,
-  baby,
-  setDepartureTotalPrice,
-  flightIdReturn,
-  flightReturn,
-  setReturnTotalPrice,
-  departureTotalPrice,
-  returnTotalPrice,
-  setTotalPrice,
-  showFlightDetails,
-  handleSubmitPayment,
-  loading,
-}) => {
-  return (
-    <>
-      {" "}
-      <Card
-        className="mt-1"
-        style={{
-          boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
-          borderRadius: "0.50rem",
-        }}
-      >
-        <h4
-          className="mb-0"
-          style={{
-            marginLeft: "18px",
-            marginTop: "15px",
-          }}
-        >
-          Detail Penerbangan
-        </h4>
-        <Card.Body>
-          <DetailFlight
-            TitleDetail={"Jadwal Keberangkatan"}
-            // BookingCode
-            // BookingStatus
-            departureTime={moment
-              .tz(
-                flightDeparture?.departureAt,
-                flightDeparture?.StartAirport?.timezone
-              )
-              .format("HH:mm")}
-            departureDate={moment
-              .tz(
-                flightDeparture?.departureAt,
-                flightDeparture?.StartAirport?.timezone
-              )
-              .format("DD MMMM YYYY")}
-            departureAirport={flightDeparture?.StartAirport?.name}
-            departureTerminal={flightDeparture?.StartAirport?.terminal}
-            arrivalTime={moment
-              .tz(
-                flightDeparture?.arrivalAt,
-                flightDeparture?.EndAirport?.timezone
-              )
-              .format("HH:mm")}
-            arrivalDate={moment
-              .tz(
-                flightDeparture?.arrivalAt,
-                flightDeparture?.EndAirport?.timezone
-              )
-              .format("DD MMMM YYYY")}
-            arrivalAirport={flightDeparture?.EndAirport?.name}
-            arrivalTerminal={flightDeparture?.EndAirport?.terminal}
-            airlineName={flightDeparture?.Airline?.name}
-            airlineLogo={flightDeparture?.Airline?.picture}
-            flightCode={flightDeparture?.flightCode}
-            seatClass={seatType}
-            baggage={flightDeparture?.Airline?.baggage}
-            cabinBaggage={flightDeparture?.Airline?.cabinBaggage}
-            additionals={flightDeparture?.Airline?.additionals}
-          />
-          <Price
-            adult={adult}
-            child={child}
-            baby={baby}
-            flightPrice={flightDeparture[`price${seatType}`]}
-            setTotalPrice={setDepartureTotalPrice}
-          />
-          {flightIdReturn && (
-            <>
-              <br />
-              <hr
+          <Col md={5}>
+            <Card
+              className="mb-3 mt-3"
+              style={{
+                boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
+                borderRadius: "0.50rem",
+              }}
+            >
+              <h4
+                className="mb-0"
                 style={{
-                  color: "black",
-                  borderWidth: "5px",
-                  borderStyle: "dashed",
+                  marginLeft: "18px",
+                  marginTop: "15px",
                 }}
-              />
-              <DetailFlight
-                TitleDetail={"Jadwal Kepulangan"}
-                // BookingCode
-                // BookingStatus
-                departureTime={moment
-                  .tz(
-                    flightReturn?.departureAt,
-                    flightReturn?.StartAirport?.timezone
-                  )
-                  .format("HH:mm")}
-                departureDate={moment
-                  .tz(
-                    flightReturn?.departureAt,
-                    flightReturn?.StartAirport?.timezone
-                  )
-                  .format("DD MMMM YYYY")}
-                departureAirport={flightReturn?.StartAirport?.name}
-                departureTerminal={flightReturn?.StartAirport?.terminal}
-                arrivalTime={moment
-                  .tz(
-                    flightReturn?.arrivalAt,
-                    flightReturn?.EndAirport?.timezone
-                  )
-                  .format("HH:mm")}
-                arrivalDate={moment
-                  .tz(
-                    flightReturn?.arrivalAt,
-                    flightReturn?.EndAirport?.timezone
-                  )
-                  .format("DD MMMM YYYY")}
-                arrivalAirport={flightReturn?.EndAirport?.name}
-                arrivalTerminal={flightReturn?.EndAirport?.terminal}
-                airlineName={flightReturn?.Airline?.name}
-                airlineLogo={flightReturn?.Airline?.picture}
-                flightCode={flightReturn?.flightCode}
-                seatClass={seatType}
-                baggage={flightReturn?.Airline?.baggage}
-                cabinBaggage={flightReturn?.Airline?.cabinBaggage}
-                additionals={flightReturn?.Airline?.additionals}
-              />
-              <Price
-                adult={adult}
-                child={child}
-                baby={baby}
-                flightPrice={flightReturn[`price${seatType}`]}
-                setTotalPrice={setReturnTotalPrice}
-              />
-              <TotalPrice
-                departureTotalPrice={departureTotalPrice}
-                returnTotalPrice={returnTotalPrice}
-                setTotalPrice={setTotalPrice}
-              />
-            </>
-          )}
-        </Card.Body>
-      </Card>
-      {showFlightDetails && (
-        <div>
-          <Button
-            onClick={handleSubmitPayment}
-            variant="danger"
-            type="submit"
-            disabled={loading}
-            style={{
-              marginTop: "20px",
-              width: "100%",
-              paddingTop: "20px",
-              paddingBottom: "20px",
-              borderRadius: "17px",
-              backgroundColor: "#7126B5",
-            }}
-          >
-            {loading ? "Loading..." : "Lanjut Bayar"}
-          </Button>
-        </div>
-      )}
-    </>
-  );
-};
-export default BookingForm;
-
-const DetailBookingMobile = ({ children }) => {
-  const [show, setShow] = useState(false);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-
-  return (
-    <>
-      <Container>
-        <Row className="pb-3">
-          <Button className="flex-fill" variant="primary" onClick={handleShow}>
-            Detail Flight
-          </Button>
+              >
+                Detail Penerbangan
+              </h4>
+              <Card.Body>
+                <DetailFlight
+                  TitleDetail={"Jadwal Berangkat"}
+                  // BookingCode
+                  // BookingStatus
+                  departureTime={moment
+                    .tz(
+                      flightDeparture?.departureAt,
+                      flightDeparture?.StartAirport?.timezone
+                    )
+                    .format("HH:mm")}
+                  departureDate={moment
+                    .tz(
+                      flightDeparture?.departureAt,
+                      flightDeparture?.StartAirport?.timezone
+                    )
+                    .format("DD MMMM YYYY")}
+                  departureAirport={flightDeparture?.StartAirport?.name}
+                  departureTerminal={flightDeparture?.StartAirport?.terminal}
+                  arrivalTime={moment
+                    .tz(
+                      flightDeparture?.arrivalAt,
+                      flightDeparture?.EndAirport?.timezone
+                    )
+                    .format("HH:mm")}
+                  arrivalDate={moment
+                    .tz(
+                      flightDeparture?.arrivalAt,
+                      flightDeparture?.EndAirport?.timezone
+                    )
+                    .format("DD MMMM YYYY")}
+                  arrivalAirport={flightDeparture?.EndAirport?.name}
+                  arrivalTerminal={flightDeparture?.EndAirport?.terminal}
+                  airlineName={flightDeparture?.Airline?.name}
+                  airlineLogo={flightDeparture?.Airline?.picture}
+                  flightCode={flightDeparture?.flightCode}
+                  seatClass={seatType}
+                  baggage={flightDeparture?.Airline?.baggage}
+                  cabinBaggage={flightDeparture?.Airline?.cabinBaggage}
+                  additionals={flightDeparture?.Airline?.additionals}
+                />
+                <Price
+                  adult={adult}
+                  child={child}
+                  baby={baby}
+                  flightPrice={flightDeparture[`price${seatType}`]}
+                  setTotalPrice={setDepartureTotalPrice}
+                />
+                {flightIdReturn && (
+                  <>
+                    <br />
+                    <hr
+                      style={{
+                        color: "black",
+                        borderWidth: "5px",
+                        borderStyle: "dashed",
+                      }}
+                    />
+                    <DetailFlight
+                      TitleDetail={"Jadwal Pulang"}
+                      // BookingCode
+                      // BookingStatus
+                      departureTime={moment
+                        .tz(
+                          flightReturn?.departureAt,
+                          flightReturn?.StartAirport?.timezone
+                        )
+                        .format("HH:mm")}
+                      departureDate={moment
+                        .tz(
+                          flightReturn?.departureAt,
+                          flightReturn?.StartAirport?.timezone
+                        )
+                        .format("DD MMMM YYYY")}
+                      departureAirport={flightReturn?.StartAirport?.name}
+                      departureTerminal={flightReturn?.StartAirport?.terminal}
+                      arrivalTime={moment
+                        .tz(
+                          flightReturn?.arrivalAt,
+                          flightReturn?.EndAirport?.timezone
+                        )
+                        .format("HH:mm")}
+                      arrivalDate={moment
+                        .tz(
+                          flightReturn?.arrivalAt,
+                          flightReturn?.EndAirport?.timezone
+                        )
+                        .format("DD MMMM YYYY")}
+                      arrivalAirport={flightReturn?.EndAirport?.name}
+                      arrivalTerminal={flightReturn?.EndAirport?.terminal}
+                      airlineName={flightReturn?.Airline?.name}
+                      airlineLogo={flightReturn?.Airline?.picture}
+                      flightCode={flightReturn?.flightCode}
+                      seatClass={seatType}
+                      baggage={flightReturn?.Airline?.baggage}
+                      cabinBaggage={flightReturn?.Airline?.cabinBaggage}
+                      additionals={flightReturn?.Airline?.additionals}
+                    />
+                    <Price
+                      adult={adult}
+                      child={child}
+                      baby={baby}
+                      flightPrice={flightReturn[`price${seatType}`]}
+                      setTotalPrice={setReturnTotalPrice}
+                    />
+                    <TotalPrice
+                      departureTotalPrice={departureTotalPrice}
+                      returnTotalPrice={returnTotalPrice}
+                      setTotalPrice={setTotalPrice}
+                    />
+                  </>
+                )}
+              </Card.Body>
+            </Card>
+            {showFlightDetails && (
+              <div>
+                <Button
+                  onClick={handleSubmitPayment}
+                  variant="danger"
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    width: "100%",
+                    paddingTop: "20px",
+                    paddingBottom: "20px",
+                    borderRadius: "17px",
+                    backgroundColor: "#7126B5",
+                  }}
+                >
+                  {loading ? "Loading..." : "Lanjut Bayar"}
+                </Button>
+              </div>
+            )}
+          </Col>
         </Row>
       </Container>
-
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton></Modal.Header>
-        {children}
-        <Modal.Footer className="mt-1">
-          <Button
-            className="flex-fill"
-            variant="secondary"
-            onClick={() => handleClose(false)}
-          >
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </>
   );
 };
+
+export default BookingForm;

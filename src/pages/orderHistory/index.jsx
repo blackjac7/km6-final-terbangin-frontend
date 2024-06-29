@@ -79,7 +79,7 @@ const OrderHistory = () => {
         <h4 className="pt-4" style={{ fontWeight: 700 }}>
           Riwayat Pemesanan
         </h4>
-        <Row className="my-4 g-2">
+        <Row className="mt-4">
           <Col xs={12} md={10} className="d-flex">
             <BackButton ButtonText={"Beranda"} />
           </Col>
