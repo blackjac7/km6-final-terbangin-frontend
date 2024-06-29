@@ -134,33 +134,36 @@ const OrderHistory = () => {
               )}
             </Row>
           </Container> */}
-        {Object.keys(groupedHistorycards).map((month) => (
-          <Container>
-            <Container className="my-3">
-              <Row className="mx-sm-4">
-                <h5>{month}</h5>
-              </Row>
-            </Container>
-            <Container>
-              <Row className="mx-sm-4">
-                <Col md={7}>
-                  <HistoryDestination
-                    onDetailClick={handleDetailClick}
-                    isActive={isActive}
-                    setIsActive={setIsActive}
-                    selectedBooking={selectedBooking}
-                    historycards={groupedHistorycards[month]} // Kirim data yang dikelompokkan berdasarkan bulan
-                  />
-                </Col>
-                {showDetail && !isMobile && selectedBooking && (
-                  <Col md={5} className="px-4">
-                    <HistoryDetail booking={historycard} />
+
+        <Container>
+          <Row className="mx-sm-4">
+            <Col md={7}>
+              {Object.keys(groupedHistorycards).map((month) => (
+                <Container>
+                  <Container className="my-3">
+                    <Row >
+                      <h5>{month}</h5>
+                    </Row>
+                  </Container>
+                  <Col>
+                    <HistoryDestination
+                      onDetailClick={handleDetailClick}
+                      isActive={isActive}
+                      setIsActive={setIsActive}
+                      selectedBooking={selectedBooking}
+                      historycards={groupedHistorycards[month]} // Kirim data yang dikelompokkan berdasarkan bulan
+                    />
                   </Col>
-                )}
-              </Row>
-            </Container>
-          </Container>
-        ))}
+                </Container>
+              ))}
+            </Col>
+            {showDetail && !isMobile && selectedBooking && (
+              <Col md={5} className="px-4 my-3 mt-5">
+                <HistoryDetail booking={historycard} />
+              </Col>
+            )}
+          </Row>
+        </Container>
 
         {/* If mobile breakpoint is true, the detail history will show by modal */}
         {isMobile && selectedBooking && (
