@@ -15,12 +15,12 @@ import {
     getHistoryCards,
 } from "../../redux/actions/history";
 import { useDispatch, useSelector } from "react-redux";
-import moment from "moment-timezone";
 import TotalPrice from "../../components/PriceDetail/TotalPrice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getFlightById } from "../../redux/actions/flight";
 import FlightDestinationReturn from "../../components/FlightDestination/return";
+import moment from "moment-timezone";
 
 const OrderHistory = () => {
     const [showModal, setShowModal] = useState(false);
@@ -28,6 +28,8 @@ const OrderHistory = () => {
     const [isActive, setIsActive] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [detailHistory, setDetailHistory] = useState([]);
+    
 
     const dispatch = useDispatch();
     const { historycards, historycard } = useSelector((state) => state.history);
@@ -38,18 +40,31 @@ const OrderHistory = () => {
         setIsMobile(window.innerWidth < 768);
     };
 
+    const groupByMonth = (data) => {
+      return data.reduce((acc, item) => {
+        const month = moment(item.Seat?.Flight?.departureAt).format(
+          "MMMM YYYY"
+        );
+        if (!acc[month]) {
+          acc[month] = [];
+        }
+        acc[month].push(item);
+        return acc;
+      }, {});
+    };
+
+    const groupedHistorycards = groupByMonth(historycards);
     // this function is for toggle active status history list, for purple border purpose
     const handleDetailClick = async (booking) => {
         await dispatch(getHistoryCardDetails(booking));
         if (historycard[0]?.bookingId === booking) {
             console.log("masuk a");
-
             setShowDetail(!showDetail);
         } else {
             setSelectedBooking(booking);
             setShowDetail(true);
             console.log("masuk b");
-            dispatch(getHistoryCardDetails(booking));
+            await dispatch(getHistoryCardDetails(booking));
         }
 
         if (isMobile) {
@@ -70,62 +85,95 @@ const OrderHistory = () => {
     }, []);
 
     return (
-        <>
-            {/* Header */}
-            <HeaderShadow>
-                <h4 className="pt-4" style={{ fontWeight: 700 }}>
-                    Riwayat Pemesanan
-                </h4>
-                <Row className="my-4 g-2">
-                    <Col xs={12} md={10} className="d-flex">
-                        <BackButton ButtonText={"Beranda"} />
-                    </Col>
-                    <Col xs={12} md={2} className="d-flex">
-                        <Button
-                            variant="outline-primary"
-                            style={{ borderRadius: 14 }}
-                            className="flex-fill"
-                        >
-                            Filter
-                        </Button>
-                    </Col>
-                </Row>
-            </HeaderShadow>
-            {/* Month for make section history per-month */}
-            <Container className="my-3">
-                <Row className="mx-sm-4">{/* <h5>Maret 2024</h5> */}</Row>
-            </Container>
+      <>
+        {/* Header */}
+        <HeaderShadow>
+          <h4 className="pt-4" style={{ fontWeight: 700 }}>
+            Riwayat Pemesanan
+          </h4>
+          <Row className="my-4 g-2">
+            <Col xs={12} md={10} className="d-flex">
+              <BackButton ButtonText={"Beranda"} />
+            </Col>
+            <Col xs={12} md={2} className="d-flex">
+              <Button
+                variant="outline-primary"
+                style={{ borderRadius: 14 }}
+                className="flex-fill"
+              >
+                Filter
+              </Button>
+            </Col>
+          </Row>
+        </HeaderShadow>
+        {/* Month for make section history per-month */}
 
-            {/* Main Content */}
-            <Container>
-                <Row className="mx-sm-4">
-                    <Col md={7}>
-                        <HistoryDestination
-                            onDetailClick={handleDetailClick}
-                            isActive={isActive}
-                            setIsActive={setIsActive}
-                            selectedBooking={selectedBooking}
-                            historycards={historycards}
-                        />
-                    </Col>
-                    {/* If mobile breakpoint is false, the detail history will show on right side page */}
-                    {showDetail && !isMobile && selectedBooking && (
-                        <Col md={5} className="px-4">
-                            <HistoryDetail booking={historycard} />
-                        </Col>
-                    )}
-                </Row>
-            </Container>
+        {/* <Container className="my-3">
+            <Row className="mx-sm-4">
+              <h5>Maret 2024</h5>
+            </Row>
+          </Container> */}
 
-            {/* If mobile breakpoint is true, the detail history will show by modal */}
-            {isMobile && selectedBooking && (
-                <HistoryDetailMobile
-                    setShowModal={setShowModal}
-                    showModal={showModal}
-                    booking={historycard}
+        {/* Main Content */}
+        {/* <Container>
+            <Row className="mx-sm-4">
+              <Col md={7}>
+                <HistoryDestination
+                  onDetailClick={handleDetailClick}
+                  isActive={isActive}
+                  setIsActive={setIsActive}
+                  selectedBooking={selectedBooking}
+                  historycards={historycards}
                 />
+              </Col> */}
+        {/* If mobile breakpoint is false, the detail history will show on right side page */}
+        {/* {showDetail && !isMobile && selectedBooking && (
+                <Col md={5} className="px-4">
+                  <HistoryDetail booking={historycard} />
+                </Col>
+              )}
+            </Row>
+          </Container> */}
+
+        <Container>
+          <Row className="mx-sm-4">
+            <Col md={7}>
+              {Object.keys(groupedHistorycards).map((month) => (
+                <Container>
+                  <Container className="my-3">
+                    <Row >
+                      <h5>{month}</h5>
+                    </Row>
+                  </Container>
+                  <Col>
+                    <HistoryDestination
+                      onDetailClick={handleDetailClick}
+                      isActive={isActive}
+                      setIsActive={setIsActive}
+                      selectedBooking={selectedBooking}
+                      historycards={groupedHistorycards[month]} // Kirim data yang dikelompokkan berdasarkan bulan
+                    />
+                  </Col>
+                </Container>
+              ))}
+            </Col>
+            {showDetail && !isMobile && selectedBooking && (
+              <Col md={5} className="px-4 my-3 mt-5">
+                <HistoryDetail booking={historycard} />
+              </Col>
             )}
-        </>
+          </Row>
+        </Container>
+
+        {/* If mobile breakpoint is true, the detail history will show by modal */}
+        {isMobile && selectedBooking && (
+          <HistoryDetailMobile
+            setShowModal={setShowModal}
+            showModal={showModal}
+            booking={historycard}
+          />
+        )}
+      </>
     );
 };
 

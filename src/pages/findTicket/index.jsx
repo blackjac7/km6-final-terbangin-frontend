@@ -107,7 +107,7 @@ const FindTicket = () => {
   };
 
   const dispatch = useDispatch();
-  const { flights } = useSelector((state) => state.flight);
+  const { flights, lendata } = useSelector((state) => state.flight);
   const handleOpenChangeFlight = () => {
     setChangeFlight(true);
   };
@@ -241,7 +241,7 @@ const FindTicket = () => {
       <Container>
         <Row className={isFullScreen ? "pt-4 mx-5" : "pt-4"}>
           <Col>
-            {flights === null || flights?.length === 0 ? (
+            { lendata == false ? (
               <TicketNotFound />
             ) : (
               <FlightList
