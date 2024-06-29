@@ -527,20 +527,20 @@ const HistoryDetail = ({ booking }) => {
 
         const fetchFlight = async () => {
             if (booking[0]?.Booking?.roundtripFlightId) {
-                const flightDeparture = await dispatch(
+                const flightDepartureData = await dispatch(
                     getFlightById(booking[0]?.Seat?.flightId)
                 );
-                setFlightDeparture(flightDeparture[0]);
+                setFlightDeparture(flightDepartureData[0]);
 
-                const flightReturn = await dispatch(
+                const flightReturnData = await dispatch(
                     getFlightById(booking[0]?.Booking?.roundtripFlightId)
                 );
-                setFlightReturn(flightReturn[0]);
+                setFlightReturn(flightReturnData[0]);
             } else {
-                const flightDeparture = await dispatch(
+                const flightDepartureData = await dispatch(
                     getFlightById(booking[0]?.Seat?.flightId)
                 );
-                setFlightDeparture(flightDeparture[0]);
+                setFlightDeparture(flightDepartureData[0]);
             }
         };
 
@@ -711,7 +711,7 @@ const HistoryDetail = ({ booking }) => {
                         />
                     </>
                 )}
-                {flightReturn && (
+                {flightReturn && booking[0].Booking.roundtripFlightId && (
                     <>
                         <br />
                         <hr
