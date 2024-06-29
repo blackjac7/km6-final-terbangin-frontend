@@ -10,6 +10,7 @@ import {
 } from "react-bootstrap";
 import { FaCircle, FaArrowLeft, FaFilter } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
+import notifLogo from "../../assets/bell.png";
 import {
   getNotificationByUserId,
   readNotification,
@@ -145,9 +146,23 @@ const NotificationPage = () => {
                 onMouseLeave={() => setHoveredIndex(null)}
                 onClick={() => handleNotificationClick(notif)}
               >
-                <div className="me-md-2 mb-2 mb-md-0">
-                  <div className="fw-regular">{notif.title}</div>
-                  <div className="fw-bold">{renderMessage(notif.message)}</div>
+                <div className="me-md-2 pe-4 mb-2 mb-md-0 d-flex align-items-center">
+                  <img
+                    src={notifLogo}
+                    alt="Notification Bell"
+                    style={{
+                      width: "24px",
+                      height: "24px",
+                      marginRight: "20px",
+                      
+                    }}
+                  />
+                  <div>
+                    <div className="fw-bold">{notif.title}</div>
+                    <div className="fw-regular">
+                      {renderMessage(notif.message)}
+                    </div>
+                  </div>
                 </div>
                 <div className="d-flex align-items-center">
                   <div className="text-md-end me-2">
