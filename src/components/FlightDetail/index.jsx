@@ -50,9 +50,9 @@ const DetailFlight = ({
                         style={{
                             fontWeight: "bold",
                             color: "#7126b5",
-                            textAlign: "center",
+                            textAlign: "left",
                             fontSize: "1.1rem",
-                            fontWeight: "bold",
+                            whiteSpace: "nowrap",
                         }}
                     >
                         {TitleDetail}
@@ -67,10 +67,12 @@ const DetailFlight = ({
                 </Col>
             </Row>
             <Row className="">
-                <p style={{ fontWeight: "bold", fontSize: "1.1rem" }}>
-                    Booking Code:{" "}
-                    <span style={{ color: "#7126b5" }}>{BookingCode}</span>
-                </p>
+                {BookingCode && (
+                    <p style={{ fontWeight: "bold", fontSize: "1.1rem" }}>
+                        Booking Code:{" "}
+                        <span style={{ color: "#7126b5" }}>{BookingCode}</span>
+                    </p>
+                )}
             </Row>
 
             <Row>

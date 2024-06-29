@@ -46,6 +46,7 @@
     "react-toastify": "^10.0.5",
     "sass": "^1.77.2",
     "slick-carousel": "^1.8.1",
+    "socket.io-client": "^4.7.5",
     "styled-components": "^6.1.11",
     "sweetalert2": "^11.11.0",
     "tippy.js": "^6.3.7"
