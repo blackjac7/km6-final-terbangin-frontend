@@ -1,17 +1,21 @@
-import { Breadcrumbs, Link, Typography } from "@mui/material";
-import { Row, Col, Button, Container, Accordion, Modal } from "react-bootstrap";
+import { Breadcrumbs, Link } from "@mui/material";
+import { Row, Col, Button, Container, Modal } from "react-bootstrap";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import moment from "moment-timezone";
 
 // hard data
-import PaymentData from "../../dumpData/payment.json";
-
-import BookingCode from "../../components/BookingWithCode";
 import HeaderShadow from "../../components/HeaderShadow";
 import DetailFlight from "../../components/FlightDetail";
-import PassangerDetail from "../../components/PassangerDetail";
 import Price from "../../components/PriceDetail/Price";
+import TotalPrice from "../../components/PriceDetail/TotalPrice";
 
 import { useState, useEffect } from "react";
+import "./index.css";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { getBookingById } from "../../redux/actions/booking";
+import { getSeatById } from "../../redux/actions/seat";
+import { getFlightById } from "../../redux/actions/flight";
 
 const Payment = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -24,6 +28,23 @@ const Payment = () => {
 
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    // integration with midtrans snap
+    useEffect(() => {
+        const midtransScriptUrl = import.meta.env
+            .VITE_MIDTRANS_SANDBOX_SNAP_URL;
+        const scriptTag = document.createElement("script");
+        scriptTag.src = midtransScriptUrl;
+
+        const myMidtransClientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
+        scriptTag.setAttribute("data-client-key", myMidtransClientKey);
+
+        document.body.appendChild(scriptTag);
+
+        return () => {
+            document.body.removeChild(scriptTag);
+        };
     }, []);
 
     return (
@@ -65,7 +86,7 @@ const Payment = () => {
                 </Breadcrumbs>
 
                 {/* Midtrans or Internal timer */}
-                <Row className="my-4 g-2">
+                {/* <Row className="my-4 g-2">
                     <Col md={12} className="d-flex">
                         <Button
                             variant="danger"
@@ -75,13 +96,16 @@ const Payment = () => {
                             Selesaikan Pembayaran sampai 10 Maret 2023 12:00
                         </Button>
                     </Col>
-                </Row>
+                </Row> */}
             </HeaderShadow>
 
             {/* Main Content */}
             <Container className="my-3">
                 <Row className="mx-sm-4">
                     {/* Detail Booking */}
+                    <Col md={7} xs={12}>
+                        <PaymentEmbedMidtrans />
+                    </Col>
                     <Col
                         md={5}
                         xs={12}
@@ -94,10 +118,6 @@ const Payment = () => {
                         {isMobile ? <DetailBookingMobile /> : <BookingDetail />}
                     </Col>
                     {/* Embed for Midtrans */}
-                    <Col md={7} xs={12}>
-                        <h4>Isi Data Pembayaran </h4>
-                        <PaymentEmbedMidtrans />
-                    </Col>
                 </Row>
             </Container>
         </>
@@ -106,45 +126,355 @@ const Payment = () => {
 
 // average fetching data here
 const BookingDetail = () => {
+    const dispatch = useDispatch();
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const [snapToken, setSnapToken] = useState("");
+    const [showPayment, setShowPayment] = useState(false);
+    const [flightDeparture, setFlightDeparture] = useState(null);
+    const [flightReturn, setFlightReturn] = useState(null);
+    const [booking, setBooking] = useState(null);
+    const [seatType, setSeatType] = useState("");
+    const [departureTotalPrice, setDepartureTotalPrice] = useState(0);
+    const [returnTotalPrice, setReturnTotalPrice] = useState(0);
+    const [totalPrice, setTotalPrice] = useState(0);
+    const [adult, setAdult] = useState(0);
+    const [child, setChild] = useState(0);
+    const [baby, setBaby] = useState(0);
+
+    const {
+        seatSelectedDeparture,
+        seatSelectedReturn,
+        bookingIdResult,
+        adultCount,
+        childCount,
+        babyCount,
+    } = location.state || {};
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                if (bookingIdResult) {
+                    const bookingData = await dispatch(
+                        getBookingById(bookingIdResult)
+                    );
+                    console.log("Booking:", bookingData);
+                    setBooking(bookingData[0]);
+                    setSnapToken(bookingData[0]?.Payment?.snapToken);
+
+                    setAdult(adultCount);
+                    setChild(childCount);
+                    setBaby(babyCount);
+
+                    if (
+                        seatSelectedDeparture &&
+                        seatSelectedDeparture[0]?.seatId
+                    ) {
+                        const seatDeparture = await dispatch(
+                            getSeatById(seatSelectedDeparture[0].seatId)
+                        );
+                        console.log("Seat Departure:", seatDeparture);
+                        if (seatDeparture.length > 0) {
+                            const flightDepartureData = await dispatch(
+                                getFlightById(seatDeparture[0].flightId)
+                            );
+                            console.log(
+                                "Flight Departure:",
+                                flightDepartureData
+                            );
+
+                            if (seatDeparture[0]?.airlineClass === "ECONOMY") {
+                                setSeatType("Economy");
+                            } else if (
+                                seatDeparture[0]?.airlineClass === "BUSINESS"
+                            ) {
+                                setSeatType("Bussines");
+                            } else if (
+                                seatDeparture[0]?.airlineClass === "FIRST_CLASS"
+                            ) {
+                                setSeatType("FirstClass");
+                            }
+
+                            setFlightDeparture(flightDepartureData[0]);
+                        } else {
+                            console.error("Seat Departure data is empty");
+                        }
+                    }
+
+                    if (seatSelectedReturn && seatSelectedReturn[0]?.seatId) {
+                        const seatReturn = await dispatch(
+                            getSeatById(seatSelectedReturn[0].seatId)
+                        );
+                        console.log("Seat Return:", seatReturn);
+                        if (seatReturn.length > 0) {
+                            const flightReturnData = await dispatch(
+                                getFlightById(seatReturn[0].flightId)
+                            );
+                            console.log("Flight Return:", flightReturnData);
+
+                            if (
+                                flightReturnData[0]?.airlineClass === "ECONOMY"
+                            ) {
+                                setSeatType("Economy");
+                            } else if (
+                                flightReturnData[0]?.airlineClass === "BUSINESS"
+                            ) {
+                                setSeatType("Bussines");
+                            } else if (
+                                flightReturnData[0]?.airlineClass ===
+                                "FIRST_CLASS"
+                            ) {
+                                setSeatType("FirstClass");
+                            }
+
+                            setFlightReturn(flightReturnData[0]);
+                        } else {
+                            console.error("Seat Return data is empty");
+                        }
+                    }
+                } else {
+                    console.error("bookingIdResult is undefined");
+                }
+            } catch (error) {
+                console.error("Error in fetchData:", error);
+            }
+        };
+
+        fetchData();
+    }, [dispatch, bookingIdResult, seatSelectedDeparture, seatSelectedReturn]);
+
+    useEffect(() => {
+        if (snapToken) {
+            try {
+                window.snap.embed(snapToken, {
+                    embedId: "snapContainer",
+                    onSuccess: (result) => {
+                        console.log("success");
+                        console.log(result);
+                        const queryParam = new URLSearchParams({
+                            snapToken,
+                        }).toString();
+                        window.location.href = `/payment-success?${queryParam}`;
+                    },
+                    onPending: (result) => {
+                        console.log("pending");
+                        console.log(result);
+                    },
+                    onError: (result) => {
+                        console.log("error");
+                        console.log(result);
+                    },
+                    onClose: () => {
+                        console.log("closed");
+                    },
+                });
+            } catch (error) {
+                console.error("Error during snap embed:", error);
+            }
+        }
+    }, [snapToken]);
+
     return (
         <Container className="pb-5">
             {/* Flight Information */}
-            {/* <DetailFlight
-        TitleDetail={"Detail Pesanan"}
-        BookingCode={`Booking Code: ${PaymentData.bookingCode}`}
-        departureAt={PaymentData.departureAt}
-        departureDate={PaymentData.arrivalDate}
-        departureAirport={PaymentData.departureAirport}
-        departureTerminal={PaymentData.departureTerminal}
-        arrivalAt={PaymentData.arrivalAt}
-        arrivalDate={PaymentData.arrivalDate}
-        arrivalAirport={PaymentData.arrivalAirport}
-        arrivalTerminal={PaymentData.arrivalTerminal}
-        airlineName={PaymentData.airlineName}
-        seatClass={PaymentData.seatClass}
-        airlineSerialNumber={PaymentData.airlineSerialNumber}
-        baggage={PaymentData.baggage}
-        cabinBaggage={PaymentData.cabinBaggage}
-        additionals={PaymentData.additionals}
-      /> */}
-            {/* Passanger Information */}
-            {/* <div>
-        <hr />
-        <p style={{ marginBottom: 0, fontWeight: "bold" }}>
-          Informasi Penumpang
-        </p>
-        {PaymentData.passanger.map((passenger, index) => (
-          <PassangerDetail
-            key={index}
-            index={index}
-            passangerName={passenger.name}
-            passangerId={passenger.id}
-          />
-        ))}
-      </div> */}
-            {/* Price Information, confused for implement hard data xD  */}
-            {/* <PriceDetail /> */}
-            <BookingCode />
+            <Row
+                className="d-flex justify-content-between"
+                style={{ height: "100vh" }}
+            >
+                <Col>
+                    <h4 className="mb-4">Detail Penerbangan</h4>
+
+                    <div
+                        className="scroll-container"
+                        style={{
+                            maxHeight: "75vh",
+                            overflowY: "auto",
+                            padding: "20px",
+                            border: "2px solid #7126b5",
+                            borderRadius: "10px",
+                        }}
+                    >
+                        {flightDeparture && seatSelectedDeparture && (
+                            <>
+                                <DetailFlight
+                                    TitleDetail={"Jadwal Berangkat"}
+                                    BookingCode={`${booking?.bookingCode}`}
+                                    // BookingStatus
+                                    departureTime={moment
+                                        .tz(
+                                            flightDeparture?.departureAt,
+                                            flightDeparture?.StartAirport
+                                                ?.timezone
+                                        )
+                                        .format("HH:mm")}
+                                    departureDate={moment
+                                        .tz(
+                                            flightDeparture?.departureAt,
+                                            flightDeparture?.StartAirport
+                                                ?.timezone
+                                        )
+                                        .format("DD MMMM yyyy")}
+                                    departureAirport={
+                                        flightDeparture?.StartAirport?.name
+                                    }
+                                    departureTerminal={
+                                        flightDeparture?.StartAirport?.terminal
+                                    }
+                                    arrivalTime={moment
+                                        .tz(
+                                            flightDeparture?.arrivalAt,
+                                            flightDeparture?.EndAirport
+                                                ?.timezone
+                                        )
+                                        .clone()
+                                        .tz(
+                                            flightDeparture?.EndAirport
+                                                ?.timezone
+                                        )
+                                        .format("HH:mm")}
+                                    arrivalDate={moment
+                                        .tz(
+                                            flightDeparture?.arrivalAt,
+                                            flightDeparture?.EndAirport
+                                                ?.timezone
+                                        )
+                                        .clone()
+                                        .tz(
+                                            flightDeparture?.EndAirport
+                                                ?.timezone
+                                        )
+                                        .format("DD MMMM yyyy")}
+                                    arrivalAirport={
+                                        flightDeparture?.EndAirport?.name
+                                    }
+                                    arrivalTerminal={
+                                        flightDeparture?.EndAirport?.terminal
+                                    }
+                                    airlineName={flightDeparture?.Airline?.name}
+                                    airlineLogo={
+                                        flightDeparture?.Airline?.picture
+                                    }
+                                    seatClass={seatType}
+                                    flightCode={flightDeparture?.flightCode}
+                                    baggage={flightDeparture?.Airline?.baggage}
+                                    cabinBaggage={
+                                        flightDeparture?.Airline?.cabinBaggage
+                                    }
+                                    additionals={
+                                        flightDeparture?.Airline?.additionals
+                                    }
+                                    // booking
+                                />
+                                <Price
+                                    adult={adult}
+                                    child={child}
+                                    baby={baby}
+                                    flightPrice={
+                                        flightDeparture[`price${seatType}`]
+                                    }
+                                    setTotalPrice={setDepartureTotalPrice}
+                                />
+                            </>
+                        )}
+
+                        {flightReturn &&
+                            booking.roundtripFlightId &&
+                            seatSelectedReturn && (
+                                <>
+                                    <hr />
+                                    <DetailFlight
+                                        TitleDetail={"Jadwal Pulang"}
+                                        BookingCode={`${booking?.bookingCode}`}
+                                        // BookingStatus
+                                        departureTime={moment
+                                            .tz(
+                                                flightReturn?.departureAt,
+                                                flightReturn?.StartAirport
+                                                    ?.timezone
+                                            )
+                                            .format("HH:mm")}
+                                        departureDate={moment
+                                            .tz(
+                                                flightReturn?.departureAt,
+                                                flightReturn?.StartAirport
+                                                    ?.timezone
+                                            )
+                                            .format("DD MMMM yyyy")}
+                                        departureAirport={
+                                            flightReturn?.StartAirport?.name
+                                        }
+                                        departureTerminal={
+                                            flightReturn?.StartAirport?.terminal
+                                        }
+                                        arrivalTime={moment
+                                            .tz(
+                                                flightReturn?.arrivalAt,
+                                                flightReturn?.EndAirport
+                                                    ?.timezone
+                                            )
+                                            .clone()
+                                            .tz(
+                                                flightReturn?.EndAirport
+                                                    ?.timezone
+                                            )
+                                            .format("HH:mm")}
+                                        arrivalDate={moment
+                                            .tz(
+                                                flightReturn?.arrivalAt,
+                                                flightReturn?.EndAirport
+                                                    ?.timezone
+                                            )
+                                            .clone()
+                                            .tz(
+                                                flightReturn?.EndAirport
+                                                    ?.timezone
+                                            )
+                                            .format("DD MMMM yyyy")}
+                                        arrivalAirport={
+                                            flightReturn?.EndAirport?.name
+                                        }
+                                        arrivalTerminal={
+                                            flightReturn?.EndAirport?.terminal
+                                        }
+                                        airlineName={
+                                            flightReturn?.Airline?.name
+                                        }
+                                        airlineLogo={
+                                            flightReturn?.Airline?.picture
+                                        }
+                                        seatClass={seatType}
+                                        flightCode={flightReturn?.flightCode}
+                                        baggage={flightReturn?.Airline?.baggage}
+                                        cabinBaggage={
+                                            flightReturn?.Airline?.cabinBaggage
+                                        }
+                                        additionals={
+                                            flightReturn?.Airline?.additionals
+                                        }
+                                        // booking
+                                    />
+                                    <Price
+                                        adult={adult}
+                                        child={child}
+                                        baby={baby}
+                                        flightPrice={
+                                            flightReturn[`price${seatType}`]
+                                        }
+                                        setTotalPrice={setReturnTotalPrice}
+                                    />
+                                    <TotalPrice
+                                        departureTotalPrice={
+                                            departureTotalPrice
+                                        }
+                                        returnTotalPrice={returnTotalPrice}
+                                        setTotalPrice={setTotalPrice}
+                                    />
+                                </>
+                            )}
+                    </div>
+                </Col>
+            </Row>
         </Container>
     );
 };
@@ -188,47 +518,10 @@ const DetailBookingMobile = () => {
 
 const PaymentEmbedMidtrans = () => {
     return (
-        <Accordion>
-            <Accordion.Item eventKey="0">
-                <Accordion.Header>Gopay</Accordion.Header>
-                <Accordion.Body>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia
-                    deserunt mollit anim id est laborum.
-                </Accordion.Body>
-            </Accordion.Item>
-            <Accordion.Item eventKey="1">
-                <Accordion.Header>Virtual Accounts</Accordion.Header>
-                <Accordion.Body>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia
-                    deserunt mollit anim id est laborum.
-                </Accordion.Body>
-            </Accordion.Item>
-            <Accordion.Item eventKey="2">
-                <Accordion.Header>Credit Card</Accordion.Header>
-                <Accordion.Body>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia
-                    deserunt mollit anim id est laborum.
-                </Accordion.Body>
-            </Accordion.Item>
-        </Accordion>
+        <>
+            <h4>Isi Data Pembayaran </h4>
+            <div id={"snapContainer"} className={"mt-4"}></div>
+        </>
     );
 };
 
