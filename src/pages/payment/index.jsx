@@ -126,9 +126,9 @@ const BookingDetail = () => {
         baggage={PaymentData.baggage}
         cabinBaggage={PaymentData.cabinBaggage}
         additionals={PaymentData.additionals}
-      /> */}
-            {/* Passanger Information */}
-            {/* <div>
+      /> 
+            Passanger Information 
+            {div>
         <hr />
         <p style={{ marginBottom: 0, fontWeight: "bold" }}>
           Informasi Penumpang
@@ -141,10 +141,10 @@ const BookingDetail = () => {
             passangerId={passenger.id}
           />
         ))}
-      </div> */}
+      </div> 
             {/* Price Information, confused for implement hard data xD  */}
-            {/* <PriceDetail /> */}
-            <BookingCode />
+            <PriceDetail />
+            
         </Container>
     );
 };

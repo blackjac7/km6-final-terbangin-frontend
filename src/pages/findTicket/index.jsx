@@ -600,7 +600,7 @@ const FlightList = ({
                             placement="top"
                             overlay={
                               <Tooltip>
-                                Free {flight.Airline.baggage} baggage
+                                Free {flight.Airline.baggage}kg baggage
                               </Tooltip>
                             }
                           >
