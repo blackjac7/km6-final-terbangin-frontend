@@ -52,7 +52,6 @@ const Profile = () => {
                 boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
                 borderRadius: "0.50rem",
                 padding: "25px",
-                borderRadius: "8px",
               }}
             >
               <img
@@ -72,7 +71,7 @@ const Profile = () => {
               style={{
                 boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
                 borderRadius: "0.50rem",
-                borderRadius: "8px",
+
                 marginTop: "20px",
               }}
             >

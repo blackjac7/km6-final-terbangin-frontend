@@ -105,7 +105,6 @@ const AccountSettingsForm = () => {
         padding: "25px",
         boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
         borderRadius: "0.50rem",
-        borderRadius: "8px",
       }}
     >
       <h4 className="mb-4 text-center">Pengaturan Akun</h4>

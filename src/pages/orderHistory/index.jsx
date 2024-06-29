@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Row, Col, Button, Container, Modal, Card } from "react-bootstrap";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
+import "./order.css";
 
 import HeaderShadow from "../../components/HeaderShadow";
 import BackButton from "../../components/BackButton";
@@ -13,7 +14,6 @@ import {
   getHistoryCardDetails,
   getHistoryCards,
 } from "../../redux/actions/history";
-import { getProfile } from "../../redux/actions/auth";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment-timezone";
 import TotalPrice from "../../components/PriceDetail/TotalPrice";
@@ -31,6 +31,8 @@ const OrderHistory = () => {
 
   const dispatch = useDispatch();
   const { historycards, historycard } = useSelector((state) => state.history);
+
+  const { user } = useSelector((state) => state.auth);
 
   const handleResize = () => {
     setIsMobile(window.innerWidth < 768);
@@ -59,10 +61,9 @@ const OrderHistory = () => {
   };
 
   useEffect(() => {
-    dispatch(getProfile()).then(() => {
-      dispatch(getHistoryCards());
-    });
-  }, [dispatch]);
+    if (!user) return;
+    dispatch(getHistoryCards());
+  }, [dispatch, user]);
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
@@ -153,7 +154,6 @@ const HistoryDestination = ({
         }
       }
       setReturnFlights(flights);
-      console.log("Return Flights: ", flights);
     };
 
     loadReturnFlights();
@@ -367,17 +367,21 @@ const HistoryDetail = ({ booking }) => {
 
     navigate("/payment", {
       state: {
-        price: price,
         seatSelectedDeparture: seatSelectedDeparture,
         seatSelectedReturn: seatSelectedReturn,
         bookingIdResult: bookingIdResult,
+        adultCount: adult,
+        childCount: child,
+        babyCount: baby,
       },
     });
     console.log("To Payment Page: ", {
-      price: price,
       seatSelectedDeparture: seatSelectedDeparture,
       seatSelectedReturn: seatSelectedReturn,
       bookingIdResult: bookingIdResult,
+      adultCount: adult,
+      childCount: child,
+      babyCount: baby,
     });
     toast.info("Silahkan Bayar.");
   };
@@ -395,17 +399,27 @@ const HistoryDetail = ({ booking }) => {
         seatId: item.Seat?.id,
       });
     });
-    // console.log("Seat Map: ", seatMap);
-    // console.log(
-    //     "Seat Map Departure: ",
-    //     seatMap[booking[1]?.Seat?.Flight?.id]
-    // );
-    setSeatSelectedDeparture(seatMap[booking[1]?.Seat?.Flight?.id]);
-    // console.log(
-    //     "Seat Map Return: ",
-    //     seatMap[booking[0].Booking?.roundtripFlightId]
-    // );
-    setSeatSelectedReturn(seatMap[booking[0].Booking?.roundtripFlightId]);
+    console.log("Seat Map: ", seatMap);
+
+    if (!booking[0]?.Booking?.roundtripFlightId) {
+      setSeatSelectedDeparture(seatMap[booking[0]?.Seat?.Flight?.id]);
+      console.log(
+        "Seat Map Departure: ",
+        seatMap[booking[0]?.Seat?.Flight?.id]
+      );
+    } else {
+      setSeatSelectedDeparture(seatMap[booking[1]?.Seat?.Flight?.id]);
+      console.log(
+        "Seat Map Departure: ",
+        seatMap[booking[1]?.Seat?.Flight?.id]
+      );
+
+      setSeatSelectedReturn(seatMap[booking[0].Booking?.roundtripFlightId]);
+      console.log(
+        "Seat Map Return: ",
+        seatMap[booking[0].Booking?.roundtripFlightId]
+      );
+    }
   }, [booking]);
 
   useEffect(() => {
