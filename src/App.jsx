@@ -26,6 +26,7 @@ import OrderHistoryPages from "./pages/orderHistory";
 import BookingForm from "./pages/checkout/index";
 import Payment from "./pages/payment";
 import NotificationPage from "./pages/notification";
+import PaymentSuccess from "./pages/payment/success";
 
 import ProtectedVerification from "./components/ProtectedVerification/ProtectedVerification";
 import ProtectedVerificationProfile from "./components/ProtectedVerification/ProtectedVerificationProfile";
@@ -34,6 +35,8 @@ import ProtectedFilterTicket from "./components/ProtectedFilterTicket/ProtectedV
 import ProtectedBooking from "./components/ProtectedBooking";
 import Protected from "./components/Protected";
 import NonProtected from "./components/NonProtected";
+import ProtectedPayment from "./components/ProtectedPayment";
+import ProtectedPaymentSuccess from "./components/ProtectedPaymentSuccess";
 
 const router = createBrowserRouter([
     {
@@ -124,10 +127,10 @@ const router = createBrowserRouter([
         path: "/order-history",
         element: (
             <>
-                {/* <ProtectedForgetPassword> */}
-                <Navbar />
-                <OrderHistoryPages />
-                {/* </ProtectedForgetPassword> */}
+                <Protected>
+                    <Navbar />
+                    <OrderHistoryPages />
+                </Protected>
             </>
         ),
     },
@@ -144,10 +147,10 @@ const router = createBrowserRouter([
         path: "/payment",
         element: (
             <>
-                {/* <ProtectedForgetPassword> */}
-                <Navbar />
-                <Payment />
-                {/* </ProtectedForgetPassword> */}
+                <ProtectedPayment>
+                    <Navbar />
+                    <Payment />
+                </ProtectedPayment>
             </>
         ),
     },
@@ -155,10 +158,21 @@ const router = createBrowserRouter([
         path: "/notification",
         element: (
             <>
-                {/* <ProtectedForgetPassword> */}
-                <Navbar />
-                <NotificationPage />
-                {/* </ProtectedForgetPassword> */}
+                <Protected>
+                    <Navbar />
+                    <NotificationPage />
+                </Protected>
+            </>
+        ),
+    },
+    {
+        path: "/payment-success",
+        element: (
+            <>
+                <ProtectedPaymentSuccess>
+                    <Navbar />
+                    <PaymentSuccess />
+                </ProtectedPaymentSuccess>
             </>
         ),
     },
