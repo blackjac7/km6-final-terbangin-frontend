@@ -22,3 +22,28 @@ export const createBooking = (data) => async (dispatch, getState) => {
         toast.error(error?.response?.data?.message);
     }
 };
+
+export const getBookingById = (bookingId) => async (_, getState) => {
+    if (!bookingId) {
+        return;
+    }
+    const authToken = getState().auth.token;
+
+    try {
+        const response = await axios.get(
+            `${
+                import.meta.env.VITE_BACKEND_API
+            }/api/v1/booking/id/${bookingId}`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
+        const { data } = response.data;
+        return data;
+    } catch (e) {
+        toast.error(e?.response?.data?.message);
+    }
+};

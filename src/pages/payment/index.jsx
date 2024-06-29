@@ -1,5 +1,5 @@
-import { Breadcrumbs, Link, Typography } from "@mui/material";
-import { Row, Col, Button, Container, Accordion, Modal } from "react-bootstrap";
+import { Breadcrumbs, Link } from "@mui/material";
+import { Row, Col, Button, Container, Modal } from "react-bootstrap";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 // hard data
@@ -9,9 +9,13 @@ import BookingCode from "../../components/BookingWithCode";
 import HeaderShadow from "../../components/HeaderShadow";
 import DetailFlight from "../../components/FlightDetail";
 import PassangerDetail from "../../components/PassangerDetail";
-import Price from "../../components/PriceDetail/Price";
+// import PriceDetail from "../../components/PriceDetail";
 
 import { useState, useEffect } from "react";
+import "./index.css";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { getBookingById } from "../../redux/actions/booking";
 
 const Payment = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -24,6 +28,23 @@ const Payment = () => {
 
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    // integration with midtrans snap
+    useEffect(() => {
+        const midtransScriptUrl = import.meta.env
+            .VITE_MIDTRANS_SANDBOX_SNAP_URL;
+        const scriptTag = document.createElement("script");
+        scriptTag.src = midtransScriptUrl;
+
+        const myMidtransClientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
+        scriptTag.setAttribute("data-client-key", myMidtransClientKey);
+
+        document.body.appendChild(scriptTag);
+
+        return () => {
+            document.body.removeChild(scriptTag);
+        };
     }, []);
 
     return (
@@ -65,7 +86,7 @@ const Payment = () => {
                 </Breadcrumbs>
 
                 {/* Midtrans or Internal timer */}
-                <Row className="my-4 g-2">
+                {/* <Row className="my-4 g-2">
                     <Col md={12} className="d-flex">
                         <Button
                             variant="danger"
@@ -75,7 +96,7 @@ const Payment = () => {
                             Selesaikan Pembayaran sampai 10 Maret 2023 12:00
                         </Button>
                     </Col>
-                </Row>
+                </Row> */}
             </HeaderShadow>
 
             {/* Main Content */}
@@ -95,7 +116,6 @@ const Payment = () => {
                     </Col>
                     {/* Embed for Midtrans */}
                     <Col md={7} xs={12}>
-                        <h4>Isi Data Pembayaran </h4>
                         <PaymentEmbedMidtrans />
                     </Col>
                 </Row>
@@ -106,45 +126,99 @@ const Payment = () => {
 
 // average fetching data here
 const BookingDetail = () => {
+    const [showPayment, setShowPayment] = useState(false);
+    const dispatch = useDispatch();
+    const [snapToken, setSnapToken] = useState("");
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { bookingIdResult } = location.state || {};
+
+    useEffect(() => {
+        const fetchBooking = async () => {
+            const booking = await dispatch(getBookingById(bookingIdResult));
+            console.log(booking[0].Payment.snapToken);
+            setSnapToken(booking[0].Payment.snapToken);
+        };
+        fetchBooking();
+    }, [bookingIdResult, dispatch]);
+
+    
+
     return (
         <Container className="pb-5">
             {/* Flight Information */}
-            {/* <DetailFlight
-        TitleDetail={"Detail Pesanan"}
-        BookingCode={`Booking Code: ${PaymentData.bookingCode}`}
-        departureAt={PaymentData.departureAt}
-        departureDate={PaymentData.arrivalDate}
-        departureAirport={PaymentData.departureAirport}
-        departureTerminal={PaymentData.departureTerminal}
-        arrivalAt={PaymentData.arrivalAt}
-        arrivalDate={PaymentData.arrivalDate}
-        arrivalAirport={PaymentData.arrivalAirport}
-        arrivalTerminal={PaymentData.arrivalTerminal}
-        airlineName={PaymentData.airlineName}
-        seatClass={PaymentData.seatClass}
-        airlineSerialNumber={PaymentData.airlineSerialNumber}
-        baggage={PaymentData.baggage}
-        cabinBaggage={PaymentData.cabinBaggage}
-        additionals={PaymentData.additionals}
-      /> 
-            Passanger Information 
-            {div>
-        <hr />
-        <p style={{ marginBottom: 0, fontWeight: "bold" }}>
-          Informasi Penumpang
-        </p>
-        {PaymentData.passanger.map((passenger, index) => (
-          <PassangerDetail
-            key={index}
-            index={index}
-            passangerName={passenger.name}
-            passangerId={passenger.id}
-          />
-        ))}
-      </div> 
+            <DetailFlight
+                TitleDetail={"Detail Pesanan"}
+                BookingCode={`Booking Code: ${PaymentData.bookingCode}`}
+                departureAt={PaymentData.departureAt}
+                departureDate={PaymentData.arrivalDate}
+                departureAirport={PaymentData.departureAirport}
+                departureTerminal={PaymentData.departureTerminal}
+                arrivalAt={PaymentData.arrivalAt}
+                arrivalDate={PaymentData.arrivalDate}
+                arrivalAirport={PaymentData.arrivalAirport}
+                arrivalTerminal={PaymentData.arrivalTerminal}
+                airlineName={PaymentData.airlineName}
+                seatClass={PaymentData.seatClass}
+                airlineSerialNumber={PaymentData.airlineSerialNumber}
+                baggage={PaymentData.baggage}
+                cabinBaggage={PaymentData.cabinBaggage}
+                additionals={PaymentData.additionals}
+            />
+            {/* Passanger Information */}
+            <div>
+                <hr />
+                <p style={{ marginBottom: 0, fontWeight: "bold" }}>
+                    Informasi Penumpang
+                </p>
+                {PaymentData.passanger.map((passenger, index) => (
+                    <PassangerDetail
+                        key={index}
+                        index={index}
+                        passangerName={passenger.name}
+                        passangerId={passenger.id}
+                    />
+                ))}
+            </div>
             {/* Price Information, confused for implement hard data xD  */}
-            <PriceDetail />
-            
+            {/* <PriceDetail /> */}
+            <Button
+                id={"showPaymentBtn"}
+                className={"w-100 mt-4"}
+                disabled={showPayment}
+                onClick={(e) => {
+                    e.preventDefault();
+
+                    setShowPayment(true);
+
+                    window.snap.embed(snapToken, {
+                        embedId: "snapContainer",
+                        onSuccess: (result) => {
+                            console.log("success");
+                            console.log("masuk sini");
+                            console.log(result);
+                            // navigate("/payment-success");
+                            // window.location.href = "/payment-success";
+                            const queryParam = new URLSearchParams({snapToken}).toString();
+                            window.location.href = `/payment-success?${queryParam}`;
+                        },
+                        onPending: (result) => {
+                            console.log("pending");
+                            console.log(result);
+                        },
+                        onError: (result) => {
+                            console.log("error");
+                            console.log(result);
+                        },
+                        onClose: () => {
+                            console.log("closed");
+                        },
+                    });
+                    setShowPayment(false);
+                }}
+            >
+                Show Payment
+            </Button>
         </Container>
     );
 };
@@ -188,47 +262,10 @@ const DetailBookingMobile = () => {
 
 const PaymentEmbedMidtrans = () => {
     return (
-        <Accordion>
-            <Accordion.Item eventKey="0">
-                <Accordion.Header>Gopay</Accordion.Header>
-                <Accordion.Body>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia
-                    deserunt mollit anim id est laborum.
-                </Accordion.Body>
-            </Accordion.Item>
-            <Accordion.Item eventKey="1">
-                <Accordion.Header>Virtual Accounts</Accordion.Header>
-                <Accordion.Body>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia
-                    deserunt mollit anim id est laborum.
-                </Accordion.Body>
-            </Accordion.Item>
-            <Accordion.Item eventKey="2">
-                <Accordion.Header>Credit Card</Accordion.Header>
-                <Accordion.Body>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia
-                    deserunt mollit anim id est laborum.
-                </Accordion.Body>
-            </Accordion.Item>
-        </Accordion>
+        <>
+            <h4>Isi Data Pembayaran </h4>
+            <div id={"snapContainer"} className={"mt-4"}></div>
+        </>
     );
 };
 

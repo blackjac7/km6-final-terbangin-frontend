@@ -25,7 +25,7 @@ import Price from "../../components/PriceDetail/Price";
 import SeatSelectionComponent from "../../components/Passanger/Seat";
 
 import { createPassanger } from "../../redux/actions/passanger";
-import { createPayment } from "../../redux/actions/payment";
+import { generateSnapPayment } from "../../redux/actions/payment";
 import { createBooking } from "../../redux/actions/booking";
 import { createHelperBooking } from "../../redux/actions/helperBooking";
 
@@ -251,6 +251,71 @@ const BookingForm = () => {
           }
         } catch (error) {
           console.error("Error fetching seat data:", error);
+          try {
+            setSaveDisabled(true);
+
+            const passangerResult = await dispatch(
+              createPassanger(passangerData)
+            );
+            console.log("Data Penumpang: ", passangerResult);
+            const price = totalPrice ? totalPrice : departureTotalPrice;
+
+            const paymentResult = await dispatch(
+              generateSnapPayment({ totalPrice: price })
+            );
+            console.log("Data Pembayaran: ", paymentResult);
+
+            let bookingData = {
+              userId: user?.id,
+              paymentId: paymentResult?.id,
+              status: flightIdReturn ? "Return" : "One Way",
+              roundtripFlightId: flightIdReturn ? flightIdReturn : null,
+            };
+            const bookingResult = await dispatch(createBooking(bookingData));
+            console.log("Data Booking: ", bookingResult);
+
+            setBookingIdResult(bookingResult?.id);
+
+            const helperBookingData = [];
+
+            seatSelectedDeparture?.forEach((seat, key) => {
+              helperBookingData.push({
+                bookingId: bookingResult?.id,
+                seatId: seat.seatId,
+                passangerId: passangerResult[key]?.id,
+              });
+            });
+            seatSelectedReturn?.forEach((seat, key) => {
+              helperBookingData.push({
+                bookingId: bookingResult?.id,
+                seatId: seat.seatId,
+                passangerId: passangerResult[key]?.id,
+              });
+            });
+            console.log(helperBookingData);
+
+            const helperBookingResult = await dispatch(
+              createHelperBooking(helperBookingData)
+            );
+            console.log("Data Helper Booking: ", helperBookingResult);
+
+            if (
+              passangerResult &&
+              paymentResult &&
+              bookingResult &&
+              helperBookingResult
+            ) {
+              setShowFlightDetails(true);
+              setIsSaved(true);
+              setSeatsConfirmed(true);
+              toast.success(
+                "Anda berhasil booking kursi. Silahkan lanjutkan ke pembayaran."
+              );
+              window.scrollTo(0, 0);
+            }
+          } catch (error) {
+            toast.error("Gagal membuat data booking.");
+          }
         }
       }
     };

@@ -1,0 +1,34 @@
+h4 {
+    text-align: center;
+}
+
+#content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#paymentSuccessIllustration {
+    width: 280px;
+}
+
+.paymentSuccessBtn {
+    background-color: #934BAA;
+    outline: none;
+    border: none;
+    border-radius: 12px;
+    height: 48px;
+    width: 400px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.paymentSuccessBtn:hover {
+    background-color: #7a3e8e;
+}
+
+#selamat {
+    color: #7126B5;
+}
