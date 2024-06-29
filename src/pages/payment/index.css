@@ -11,4 +11,21 @@
 
 #snapContainer {
     width: 100%;
+    border: 2px solid #7126b5;
+    border-radius: 10px;
+}
+
+/* (Chrome, Safari) */
+.scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* Untuk Firefox */
+.scroll-container {
+    scrollbar-width: none;
+}
+
+/* Untuk Internet Explorer 10+ */
+.scroll-container {
+    -ms-overflow-style: none;
 }

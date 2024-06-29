@@ -6,9 +6,16 @@ import HeaderShadow from "../../components/HeaderShadow";
 import { useState, useEffect } from "react";
 import { Button, Container, Image } from "react-bootstrap";
 import "./success.css";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { getInvoiceLink } from "../../redux/actions/payment";
 
 const PaymentSuccess = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const query = new URLSearchParams(window.location.search);
+    const snapToken = query.get("snapToken");
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const handleResize = () => {
@@ -65,11 +72,18 @@ const PaymentSuccess = () => {
                 />
                 <h4 id={"selamat"}>Selamat!</h4>
                 <h4>Transaksi pembayaran tiket sukses!</h4>
-                <Button className={"paymentSuccessBtn mt-5"}>
+                <Button className={"paymentSuccessBtn mt-5"} onClick={(e) => {
+                    e.preventDefault();
+                    const invoiceLink = dispatch(getInvoiceLink(snapToken));
+                    window.open(invoiceLink, "_blank");
+                }}>
                     Terbitkan Tiket
                 </Button>
                 <br />
-                <Button className={"paymentSuccessBtn"}>
+                <Button className={"paymentSuccessBtn"} onClick={(e) => {
+                    e.preventDefault();
+                    navigate("/");
+                }}>
                     Cari penerbangan lain
                 </Button>
             </Container>

@@ -127,10 +127,10 @@ const router = createBrowserRouter([
         path: "/order-history",
         element: (
             <>
-                {/* <ProtectedForgetPassword> */}
-                <Navbar />
-                <OrderHistoryPages />
-                {/* </ProtectedForgetPassword> */}
+                <Protected>
+                    <Navbar />
+                    <OrderHistoryPages />
+                </Protected>
             </>
         ),
     },
@@ -158,10 +158,21 @@ const router = createBrowserRouter([
         path: "/notification",
         element: (
             <>
-                {/* <ProtectedForgetPassword> */}
-                <Navbar />
-                <NotificationPage />
-                {/* </ProtectedForgetPassword> */}
+                <Protected>
+                    <Navbar />
+                    <NotificationPage />
+                </Protected>
+            </>
+        ),
+    },
+    {
+        path: "/payment-success",
+        element: (
+            <>
+                <ProtectedPaymentSuccess>
+                    <Navbar />
+                    <PaymentSuccess />
+                </ProtectedPaymentSuccess>
             </>
         ),
     },
