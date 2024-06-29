@@ -54,16 +54,15 @@ const OrderHistory = () => {
     const groupedHistorycards = groupByMonth(historycards);
     // this function is for toggle active status history list, for purple border purpose
     const handleDetailClick = async (booking) => {
-        dispatch(getHistoryCardDetails(booking));
+        await dispatch(getHistoryCardDetails(booking));
         if (historycard[0]?.bookingId === booking) {
             console.log("masuk a");
-
             setShowDetail(!showDetail);
         } else {
             setSelectedBooking(booking);
             setShowDetail(true);
             console.log("masuk b");
-            dispatch(getHistoryCardDetails(booking));
+            await dispatch(getHistoryCardDetails(booking));
         }
 
         if (isMobile) {
@@ -638,53 +637,53 @@ const HistoryDetail = ({ booking }) => {
         <Container className="pb-5">
             <DetailFlight
                 TitleDetail={"Jadwal Berangkat"}
-                BookingCode={`Booking Code: ${booking[1]?.Booking?.bookingCode}`}
+                BookingCode={`Booking Code: ${booking[0]?.Booking?.bookingCode}`}
                 BookingStatus={
                     <StatusPayment
-                        bookingStatus={booking[1]?.Booking?.Payment?.status}
+                        bookingStatus={booking[0]?.Booking?.Payment?.status}
                     />
                 }
                 departureTime={moment
                     .tz(
-                        booking[1]?.Seat?.Flight?.departureAt,
-                        booking[1]?.Seat?.Flight?.StartAirport?.timezone
+                        booking[0]?.Seat?.Flight?.departureAt,
+                        booking[0]?.Seat?.Flight?.StartAirport?.timezone
                     )
                     .format("HH:mm")}
                 departureDate={moment
                     .tz(
-                        booking[1]?.Seat?.Flight?.departureAt,
-                        booking[1]?.Seat?.Flight?.StartAirport?.timezone
+                        booking[0]?.Seat?.Flight?.departureAt,
+                        booking[0]?.Seat?.Flight?.StartAirport?.timezone
                     )
                     .format("DD MMMM yyyy")}
                 departureAirport={booking[0]?.Seat?.Flight?.StartAirport?.name}
                 departureTerminal={
-                    booking[1]?.Seat?.Flight?.StartAirport?.terminal
+                    booking[0]?.Seat?.Flight?.StartAirport?.terminal
                 }
                 arrivalTime={moment
                     .tz(
-                        booking[1]?.Seat?.Flight?.arrivalAt,
-                        booking[1]?.Seat?.Flight?.StartAirport?.timezone
+                        booking[0]?.Seat?.Flight?.arrivalAt,
+                        booking[0]?.Seat?.Flight?.StartAirport?.timezone
                     )
                     .clone()
-                    .tz(booking[1]?.Seat?.Flight?.EndAirport?.timezone)
+                    .tz(booking[0]?.Seat?.Flight?.EndAirport?.timezone)
                     .format("HH:mm")}
                 arrivalDate={moment
                     .tz(
-                        booking[1]?.Seat?.Flight?.arrivalAt,
-                        booking[1]?.Seat?.Flight?.StartAirport?.timezone
+                        booking[0]?.Seat?.Flight?.arrivalAt,
+                        booking[0]?.Seat?.Flight?.StartAirport?.timezone
                     )
                     .clone()
-                    .tz(booking[1]?.Seat?.Flight?.EndAirport?.timezone)
+                    .tz(booking[0]?.Seat?.Flight?.EndAirport?.timezone)
                     .format("DD MMMM yyyy")}
-                arrivalAirport={booking[1]?.Seat?.Flight?.EndAirport?.name}
-                arrivalTerminal={booking[1]?.Seat?.Flight?.EndAirport?.terminal}
-                airlineName={booking[1]?.Seat?.Flight?.Airline?.name}
-                airlineLogo={booking[1]?.Seat?.Flight?.Airline?.picture}
+                arrivalAirport={booking[0]?.Seat?.Flight?.EndAirport?.name}
+                arrivalTerminal={booking[0]?.Seat?.Flight?.EndAirport?.terminal}
+                airlineName={booking[0]?.Seat?.Flight?.Airline?.name}
+                airlineLogo={booking[0]?.Seat?.Flight?.Airline?.picture}
                 seatClass={seatType}
-                flightCode={booking[1]?.Seat?.Flight?.flightCode}
-                baggage={booking[1]?.Seat?.Flight?.Airline?.baggage}
-                cabinBaggage={booking[1]?.Seat?.Flight?.Airline?.cabinBaggage}
-                additionals={booking[1]?.Seat?.Flight?.Airline?.additionals}
+                flightCode={booking[0]?.Seat?.Flight?.flightCode}
+                baggage={booking[0]?.Seat?.Flight?.Airline?.baggage}
+                cabinBaggage={booking[0]?.Seat?.Flight?.Airline?.cabinBaggage}
+                additionals={booking[0]?.Seat?.Flight?.Airline?.additionals}
                 booking={booking}
             />
 
