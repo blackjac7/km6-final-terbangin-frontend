@@ -33,15 +33,15 @@ const Profile = () => {
   };
 
   return (
-    <div style={{ minHeight: "100vh", paddingTop: "20px" }}>
-      <Container>
-        <h4 className="pb-3" style={{ fontWeight: 700 }}>
+    <>
+      <HeaderShadow>
+        <h4 className="pt-4" style={{ fontWeight: 700 }}>
           Akun
         </h4>
-        <div className="justify-content-center d-flex mb-2">
+        <div className="d-flex justify-content-between align-items-center mt-4">
           <BackButton ButtonText={"Beranda"} />
         </div>
-      </Container>
+      </HeaderShadow>
 
       <Container>
         <Row
@@ -122,7 +122,7 @@ const Profile = () => {
           </Col>
         </Row>
       </Container>
-    </div>
+    </>
   );
 };
 

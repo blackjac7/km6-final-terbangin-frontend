@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Button, Container, Modal, Card } from "react-bootstrap";
+import {
+  Row,
+  Col,
+  Button,
+  Container,
+  Modal,
+  Card,
+  Dropdown,
+} from "react-bootstrap";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import "./order.css";
-
+import { FaFilter } from "react-icons/fa";
 import HeaderShadow from "../../components/HeaderShadow";
 import BackButton from "../../components/BackButton";
 import DetailFlight from "../../components/FlightDetail";
@@ -80,17 +88,34 @@ const OrderHistory = () => {
           Riwayat Pemesanan
         </h4>
         <Row className="mt-4">
-          <Col xs={12} md={10} className="d-flex">
+          <Col xs={12} md={10} className="d-flex mt-1 ">
             <BackButton ButtonText={"Beranda"} />
           </Col>
-          <Col xs={12} md={2} className="d-flex">
-            <Button
-              variant="outline-primary"
-              style={{ borderRadius: 14 }}
-              className="flex-fill"
-            >
-              Filter
-            </Button>
+          <Col xs={12} md={2} className="d-flex mt-1">
+            <Dropdown className="flex-fill d-flex">
+              <Dropdown.Toggle
+                variant="outline-secondary"
+                className="px-4 "
+                style={{
+                  borderRadius: "40px",
+                  width: "100%",
+                }}
+              >
+                <FaFilter className="me-2" />
+                Filter
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => handleFilterChange("all")}>
+                  Semua
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleFilterChange("false")}>
+                  Belum Dibaca
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleFilterChange("true")}>
+                  Sudah Dibaca
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
           </Col>
         </Row>
       </HeaderShadow>

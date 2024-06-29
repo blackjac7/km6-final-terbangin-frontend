@@ -3,7 +3,6 @@ import {
   Container,
   Row,
   Col,
-  Button,
   Dropdown,
   ListGroup,
   Modal,
@@ -90,16 +89,18 @@ const NotificationPage = () => {
         <h4 className="pt-4" style={{ fontWeight: 700 }}>
           Notifikasi
         </h4>
-        <div className="d-flex justify-content-between align-items-center mt-4">
-          <BackButton ButtonText={"Beranda"} />
-          <div className="d-flex align-items-center">
-            <Dropdown>
+        <Row className="mt-4">
+          <Col xs={12} md={10} className="d-flex mt-1">
+            <BackButton ButtonText={"Beranda"} />
+          </Col>
+          <Col xs={12} md={2} className="d-flex mt-1">
+            <Dropdown className="flex-fill d-flex">
               <Dropdown.Toggle
                 variant="outline-secondary"
-                className="me-3 px-4 ms-2"
+                className="px-4 "
                 style={{
                   borderRadius: "40px",
-                  width: "200px",
+                  width: "100%",
                 }}
               >
                 <FaFilter className="me-2" />
@@ -117,8 +118,8 @@ const NotificationPage = () => {
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
-          </div>
-        </div>
+          </Col>
+        </Row>
       </HeaderShadow>
 
       <Container className="mt-4">
