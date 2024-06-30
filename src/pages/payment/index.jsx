@@ -2,6 +2,7 @@ import { Breadcrumbs, Link } from "@mui/material";
 import { Row, Col, Button, Container, Modal, Card } from "react-bootstrap";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import moment from "moment-timezone";
+import io from "socket.io-client";
 
 // hard data
 import HeaderShadow from "../../components/HeaderShadow";
@@ -217,6 +218,8 @@ const BookingDetail = () => {
 
     fetchData();
   }, [dispatch, bookingIdResult, seatSelectedDeparture, seatSelectedReturn]);
+
+    const socket = io(import.meta.env.VITE_SOCKET_URL);
 
     useEffect(() => {
         setTimeout(() => {

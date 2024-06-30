@@ -4,11 +4,8 @@ import CustomToastMessage from "../../components/ToastMessage";
 import io from "socket.io-client";
 
 const PaymentNotification = () => {
+    const socket = io(import.meta.env.VITE_SOCKET_URL);
 
-    const socket = io(import.meta.env.VITE_SOCKET_URL, {
-        transports: ["websocket"],
-        secure: true,
-    });
     useEffect(() => {
         socket.on("connect", () => {
             console.log("Connected to server");
@@ -24,7 +21,7 @@ const PaymentNotification = () => {
             toast.success(
                 <CustomToastMessage
                     message={data?.message || "Received booking notification"}
-                    highlight={data?.order_id || "Order ID"}
+                    highlight={data?.totalPrice || "Order ID"}
                 />,
                 {
                     containerId: "navbarToast",
@@ -37,7 +34,7 @@ const PaymentNotification = () => {
             socket.off("paymentSuccess");
             socket.disconnect();
         };
-    }, []);
+    }, [socket]);
 
     return null;
 };
