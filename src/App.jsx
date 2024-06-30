@@ -28,6 +28,7 @@ import Payment from "./pages/payment";
 import NotificationPage from "./pages/notification";
 import PaymentSuccess from "./pages/payment/success";
 import PaymentNotification from "./components/Payment/PaymentNotification";
+import NotFoundPage from "./pages/notfound"
 
 import ProtectedVerification from "./components/ProtectedVerification/ProtectedVerification";
 import ProtectedVerificationProfile from "./components/ProtectedVerification/ProtectedVerificationProfile";
@@ -40,143 +41,152 @@ import ProtectedPayment from "./components/ProtectedPayment";
 import ProtectedPaymentSuccess from "./components/ProtectedPaymentSuccess";
 
 const router = createBrowserRouter([
-    {
-        path: "/",
-        element: (
-            <NonProtected>
-                <Navbar />
-                <Home />
-            </NonProtected>
-        ),
-    },
-    {
-        path: "/login",
-        element: (
-            <NonProtected>
-                <LoginPage />
-            </NonProtected>
-        ),
-    },
-    {
-        path: "/register",
-        element: (
-            <NonProtected>
-                <RegisterPage />
-            </NonProtected>
-        ),
-    },
+  {
+    path: "/",
+    element: (
+      <NonProtected>
+        <Navbar />
+        <Home />
+      </NonProtected>
+    ),
+  },
+  {
+    path: "/login",
+    element: (
+      <NonProtected>
+        <LoginPage />
+      </NonProtected>
+    ),
+  },
+  {
+    path: "/register",
+    element: (
+      <NonProtected>
+        <RegisterPage />
+      </NonProtected>
+    ),
+  },
 
-    {
-        path: "/profile",
-        element: (
-            <Protected>
-                <Navbar />
-                <Profile />
-            </Protected>
-        ),
-    },
-    {
-        path: "/verification",
-        element: (
-            <ProtectedVerification>
-                <OtpVerification />
-            </ProtectedVerification>
-        ),
-    },
-    {
-        path: "/verification-profile",
-        element: (
-            <ProtectedVerificationProfile>
-                <OtpVerificationProfile />
-            </ProtectedVerificationProfile>
-        ),
-    },
-    {
-        path: "/request-reset-password",
-        element: (
-            <NonProtected>
-                <RequestResetPassword />,
-            </NonProtected>
-        ),
-    },
-    {
-        path: "/verify-link",
-        element: (
-            <NonProtected>
-                <VerificationLink />,
-            </NonProtected>
-        ),
-    },
-    {
-        path: "/forget-password",
-        element: (
-            <ProtectedForgetPassword>
-                <ForgetPassword />
-            </ProtectedForgetPassword>
-        ),
-    },
-    {
-        path: "/find-ticket",
-        element: (
-            <ProtectedFilterTicket>
-                <Navbar />
-                <FindTicket />
-            </ProtectedFilterTicket>
-        ),
-    },
-    {
-        path: "/order-history",
-        element: (
-            <>
-                <Protected>
-                    <Navbar />
-                    <OrderHistoryPages />
-                </Protected>
-            </>
-        ),
-    },
-    {
-        path: "/booking",
-        element: (
-            <ProtectedBooking>
-                <Navbar />
-                <BookingForm />
-            </ProtectedBooking>
-        ),
-    },
-    {
-        path: "/payment",
-        element: (
-            <>
-                <ProtectedPayment>
-                    <Navbar />
-                    <Payment />
-                </ProtectedPayment>
-            </>
-        ),
-    },
-    {
-        path: "/notification",
-        element: (
-            <>
-                <Protected>
-                    <Navbar />
-                    <NotificationPage />
-                </Protected>
-            </>
-        ),
-    },
-    {
-        path: "/payment-success",
-        element: (
-            <>
-                <ProtectedPaymentSuccess>
-                    <Navbar />
-                    <PaymentSuccess />
-                </ProtectedPaymentSuccess>
-            </>
-        ),
-    },
+  {
+    path: "/profile",
+    element: (
+      <Protected>
+        <Navbar />
+        <Profile />
+      </Protected>
+    ),
+  },
+  {
+    path: "/verification",
+    element: (
+      <ProtectedVerification>
+        <OtpVerification />
+      </ProtectedVerification>
+    ),
+  },
+  {
+    path: "/verification-profile",
+    element: (
+      <ProtectedVerificationProfile>
+        <OtpVerificationProfile />
+      </ProtectedVerificationProfile>
+    ),
+  },
+  {
+    path: "/request-reset-password",
+    element: (
+      <NonProtected>
+        <RequestResetPassword />,
+      </NonProtected>
+    ),
+  },
+  {
+    path: "/verify-link",
+    element: (
+      <NonProtected>
+        <VerificationLink />,
+      </NonProtected>
+    ),
+  },
+  {
+    path: "/forget-password",
+    element: (
+      <ProtectedForgetPassword>
+        <ForgetPassword />
+      </ProtectedForgetPassword>
+    ),
+  },
+  {
+    path: "/find-ticket",
+    element: (
+      <ProtectedFilterTicket>
+        <Navbar />
+        <FindTicket />
+      </ProtectedFilterTicket>
+    ),
+  },
+  {
+    path: "/order-history",
+    element: (
+      <>
+        <Protected>
+          <Navbar />
+          <OrderHistoryPages />
+        </Protected>
+      </>
+    ),
+  },
+  {
+    path: "/booking",
+    element: (
+      <ProtectedBooking>
+        <Navbar />
+        <BookingForm />
+      </ProtectedBooking>
+    ),
+  },
+  {
+    path: "/payment",
+    element: (
+      <>
+        <ProtectedPayment>
+          <Navbar />
+          <Payment />
+        </ProtectedPayment>
+      </>
+    ),
+  },
+  {
+    path: "/notification",
+    element: (
+      <>
+        <Protected>
+          <Navbar />
+          <NotificationPage />
+        </Protected>
+      </>
+    ),
+  },
+  {
+    path: "/payment-success",
+    element: (
+      <>
+        <ProtectedPaymentSuccess>
+          <Navbar />
+          <PaymentSuccess />
+        </ProtectedPaymentSuccess>
+      </>
+    ),
+  },
+  {
+    path: "/not-found",
+    element: (
+      <>
+        <Navbar />
+        <NotFoundPage />
+      </>
+    ),
+  },
 ]);
 
 function App() {
