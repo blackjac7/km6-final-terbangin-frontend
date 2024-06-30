@@ -37,6 +37,7 @@ const OrderHistory = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [detailHistory, setDetailHistory] = useState([]);
+  const [filterStatus, setFilterStatus] = useState("");
 
   const dispatch = useDispatch();
   const { historycards, historycard } = useSelector((state) => state.history);
@@ -56,6 +57,10 @@ const OrderHistory = () => {
       acc[month].push(item);
       return acc;
     }, {});
+  };
+
+  const handleFilterChange = (status) => {
+    setFilterStatus(status);
   };
 
   const groupedHistorycards = groupByMonth(historycards);
@@ -84,8 +89,13 @@ const OrderHistory = () => {
 
   useEffect(() => {
     if (!user) return;
-    dispatch(getHistoryCards());
-  }, [dispatch, user]);
+    if (filterStatus == "") {
+      dispatch(getHistoryCards());  
+    }else{
+      dispatch(getHistoryCards(filterStatus));
+      setShowDetail(false)
+    }
+  }, [dispatch, user, filterStatus]);
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
@@ -119,14 +129,17 @@ const OrderHistory = () => {
                 Filter
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <Dropdown.Item onClick={() => handleFilterChange("all")}>
+                <Dropdown.Item onClick={() => handleFilterChange("")}>
                   Semua
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleFilterChange("false")}>
-                  Belum Dibaca
+                <Dropdown.Item onClick={() => handleFilterChange("ISSUED")}>
+                  ISSUED
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleFilterChange("true")}>
-                  Sudah Dibaca
+                <Dropdown.Item onClick={() => handleFilterChange("UNPAID")}>
+                  UNPAID
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleFilterChange("CANCELLED")}>
+                  CANCELLED
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>

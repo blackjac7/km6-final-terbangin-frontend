@@ -54,6 +54,6 @@ export const getSeatByFlightId = (flightId) => async () => {
         const { data } = response.data;
         return data;
     } catch (error) {
-        toast.error(error?.response?.data?.message);
+        console.log(error?.response?.data?.message);
     }
 };
