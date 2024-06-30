@@ -218,36 +218,38 @@ const BookingDetail = () => {
     fetchData();
   }, [dispatch, bookingIdResult, seatSelectedDeparture, seatSelectedReturn]);
 
-  useEffect(() => {
-    if (snapToken) {
-      try {
-        window.snap.embed(snapToken, {
-          embedId: "snapContainer",
-          onSuccess: (result) => {
-            console.log("success");
-            console.log(result);
-            const queryParam = new URLSearchParams({
-              snapToken,
-            }).toString();
-            window.location.href = `/payment-success?${queryParam}`;
-          },
-          onPending: (result) => {
-            console.log("pending");
-            console.log(result);
-          },
-          onError: (result) => {
-            console.log("error");
-            console.log(result);
-          },
-          onClose: () => {
-            console.log("closed");
-          },
-        });
-      } catch (error) {
-        console.error("Error during snap embed:", error);
-      }
-    }
-  }, [snapToken]);
+    useEffect(() => {
+        setTimeout(() => {
+            if (snapToken) {
+                try {
+                    window.snap.embed(snapToken, {
+                        embedId: "snapContainer",
+                        onSuccess: (result) => {
+                            console.log("success");
+                            console.log(result);
+                            const queryParam = new URLSearchParams({
+                                snapToken,
+                            }).toString();
+                            window.location.href = `/payment-success?${queryParam}`;
+                        },
+                        onPending: (result) => {
+                            console.log("pending");
+                            console.log(result);
+                        },
+                        onError: (result) => {
+                            console.log("error");
+                            console.log(result);
+                        },
+                        onClose: () => {
+                            console.log("closed");
+                        },
+                    });
+                } catch (error) {
+                    console.error("Error during snap embed:", error);
+                }
+            }
+        }, 500);
+    }, [snapToken]);
 
   return (
     <>

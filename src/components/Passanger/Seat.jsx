@@ -1,6 +1,8 @@
 import { useState, useEffect, Fragment } from "react";
 import { Card, Button } from "react-bootstrap";
 import { toast } from "react-toastify";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
 
 const SeatSelectionComponent = ({
   title,
@@ -26,43 +28,53 @@ const SeatSelectionComponent = ({
     onSeatsSelected(seatSelected);
   }, [seatSelected]);
 
-  useEffect(() => {
-    const seatRows = Math.ceil(totalSeats / seatCols);
+    useEffect(() => {
+        const sortedSeatArray = [...seatArrayAll].sort(
+            (a, b) => a.seatNumber - b.seatNumber
+        );
+        const seatRows = Math.ceil(totalSeats / seatCols);
 
-    const newSeats = Array(seatRows)
-      .fill(null)
-      .map((_, rowIndex) =>
-        Array(seatCols)
-          .fill(null)
-          .map((_, colIndex) => {
-            const seatIndex = rowIndex * seatCols + colIndex;
-            const seatData = seatArrayAll[seatIndex];
-            return {
-              isSelected: false,
-              isAvailable: seatData ? seatData.isAvailable : false,
-              color: seatData
-                ? determineSeatColor(seatData.seatNumber)
-                : "white",
-              number: seatData ? seatData.seatNumber : null,
-            };
-          })
-      );
-    setSeats(newSeats);
-  }, [seatArrayAll, totalSeats, seatCols]);
+        const newSeats = Array(seatRows)
+            .fill(null)
+            .map((_, rowIndex) =>
+                Array(seatCols)
+                    .fill(null)
+                    .map((_, colIndex) => {
+                        const seatIndex = rowIndex * seatCols + colIndex;
+                        const seatData = sortedSeatArray[seatIndex];
+                        return {
+                            isSelected: false,
+                            isAvailable: seatData
+                                ? seatData.isAvailable
+                                : false,
+                            color: seatData
+                                ? determineSeatColor(seatData.seatNumber)
+                                : "white",
+                            number: seatData ? seatData.seatNumber : null,
+                        };
+                    })
+            );
+        setSeats(newSeats);
+    }, [seatArrayAll, totalSeats, seatCols]);
 
   useEffect(() => {
     setTotalSeats(seatArrayAll?.length || 0);
   }, [seatArrayAll, adult, child]);
 
-  const handleSeatClick = (rowIndex, colIndex) => {
-    if (
-      capacity === adultSeats + childSeats &&
-      !seats[rowIndex][colIndex].isSelected
-    ) {
-      toast.error("Anda sudah memilih semua kursi yang dibutuhkan");
-      return;
-    }
-    if (seatsConfirmed) return;
+    const handleSeatClick = (rowIndex, colIndex) => {
+        if (!seats[rowIndex][colIndex].isAvailable) {
+            toast.error("Kursi tidak tersedia");
+            return;
+        }
+
+        if (
+            capacity === adultSeats + childSeats &&
+            !seats[rowIndex][colIndex].isSelected
+        ) {
+            toast.error("Anda sudah memilih semua kursi yang dibutuhkan");
+            return;
+        }
+        if (seatsConfirmed) return;
 
     setSeats((prevSeats) => {
       const updatedSeats = prevSeats.map((row, rIdx) => {
