@@ -87,7 +87,7 @@ const BookingForm = () => {
     const [errors, setErrors] = useState({});
     const [errorStatus, setErrorStatus] = useState(false);
 
-    const socket = io(import.meta.env.VITE_BACKEND_API, {
+    const socket = io(import.meta.env.VITE_SOCKET_URL, {
         transports: ["websocket"],
         secure: true,
     });
