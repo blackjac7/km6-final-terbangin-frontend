@@ -20,7 +20,7 @@ const PaymentNotification = () => {
             toast.success(
                 <CustomToastMessage
                     message={data?.message || "Received booking notification"}
-                    highlight={data?.order_id || "Order ID"}
+                    highlight={data?.totalPrice || "Order ID"}
                 />,
                 {
                     containerId: "navbarToast",
