@@ -4,7 +4,6 @@ import CustomToastMessage from "../../components/ToastMessage";
 import io from "socket.io-client";
 
 const PaymentNotification = () => {
-
     const socket = io(import.meta.env.VITE_SOCKET_URL);
 
     useEffect(() => {
@@ -22,7 +21,7 @@ const PaymentNotification = () => {
             toast.success(
                 <CustomToastMessage
                     message={data?.message || "Received booking notification"}
-                    highlight={data?.order_id || "Order ID"}
+                    highlight={data?.totalPrice || "Order ID"}
                 />,
                 {
                     containerId: "navbarToast",
