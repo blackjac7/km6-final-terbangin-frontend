@@ -31,13 +31,12 @@ import FlightDestinationReturn from "../../components/FlightDestination/return";
 import moment from "moment-timezone";
 
 const OrderHistory = () => {
-    const [showModal, setShowModal] = useState(false);
-    const [showDetail, setShowDetail] = useState(false);
-    const [isActive, setIsActive] = useState(false);
-    const [selectedBooking, setSelectedBooking] = useState(null);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-    const [detailHistory, setDetailHistory] = useState([]);
-    
+  const [showModal, setShowModal] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [detailHistory, setDetailHistory] = useState([]);
 
   const dispatch = useDispatch();
   const { historycards, historycard } = useSelector((state) => state.history);
@@ -48,37 +47,40 @@ const OrderHistory = () => {
     setIsMobile(window.innerWidth < 768);
   };
 
-    const groupByMonth = (data) => {
-      return data.reduce((acc, item) => {
-        const month = moment(item.Seat?.Flight?.departureAt).format(
-          "MMMM YYYY"
-        );
-        if (!acc[month]) {
-          acc[month] = [];
-        }
-        acc[month].push(item);
-        return acc;
-      }, {});
-    };
+  const groupByMonth = (data) => {
+    return data.reduce((acc, item) => {
+      const month = moment(item.Seat?.Flight?.departureAt).format("MMMM YYYY");
+      if (!acc[month]) {
+        acc[month] = [];
+      }
+      acc[month].push(item);
+      return acc;
+    }, {});
+  };
 
-    const groupedHistorycards = groupByMonth(historycards);
-    // this function is for toggle active status history list, for purple border purpose
-    const handleDetailClick = async (booking) => {
-        await dispatch(getHistoryCardDetails(booking));
-        if (historycard[0]?.bookingId === booking) {
-            console.log("masuk a");
-            setShowDetail(!showDetail);
-        } else {
-            setSelectedBooking(booking);
-            setShowDetail(true);
-            console.log("masuk b");
-            await dispatch(getHistoryCardDetails(booking));
-        }
+  const groupedHistorycards = groupByMonth(historycards);
+  // this function is for toggle active status history list, for purple border purpose
+  const handleDetailClick = async (booking) => {
+    await dispatch(getHistoryCardDetails(booking));
+    if (historycard[0]?.bookingId === booking) {
+      console.log("masuk a");
+      setShowDetail(!showDetail);
+    } else {
+      setSelectedBooking(booking);
+      setShowDetail(true);
+      console.log("masuk b");
+      await dispatch(getHistoryCardDetails(booking));
+    }
 
-        if (isMobile) {
-            setShowModal(true);
-        }
-    };
+    // Scroll to the top of the page
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // This makes the scroll smooth
+    });
+    if (isMobile) {
+      setShowModal(true);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -133,8 +135,8 @@ const OrderHistory = () => {
       </HeaderShadow>
       {/* Month for make section history per-month */}
 
-        {/* Main Content */}
-        {/* <Container>
+      {/* Main Content */}
+      {/* <Container>
             <Row className="mx-sm-4">
               <Col md={7}>
                 <HistoryDestination
@@ -145,8 +147,8 @@ const OrderHistory = () => {
                   historycards={historycards}
                 />
               </Col> */}
-        {/* If mobile breakpoint is false, the detail history will show on right side page */}
-        {/* {showDetail && !isMobile && selectedBooking && (
+      {/* If mobile breakpoint is false, the detail history will show on right side page */}
+      {/* {showDetail && !isMobile && selectedBooking && (
                 <Col md={5} className="px-4">
                   <HistoryDetail booking={historycard} />
                 </Col>
@@ -154,46 +156,46 @@ const OrderHistory = () => {
             </Row>
           </Container> */}
 
-        <Container>
-          <Row className="mx-sm-4">
-            <Col md={7}>
-              {Object.keys(groupedHistorycards).map((month) => (
-                <Container>
-                  <Container className="my-3">
-                    <Row >
-                      <h5>{month}</h5>
-                    </Row>
-                  </Container>
-                  <Col>
-                    <HistoryDestination
-                      onDetailClick={handleDetailClick}
-                      isActive={isActive}
-                      setIsActive={setIsActive}
-                      selectedBooking={selectedBooking}
-                      historycards={groupedHistorycards[month]} // Kirim data yang dikelompokkan berdasarkan bulan
-                    />
-                  </Col>
+      <Container>
+        <Row>
+          <Col md={7}>
+            {Object.keys(groupedHistorycards).map((month) => (
+              <>
+                <Container className="my-3">
+                  <Row>
+                    <h5>{month}</h5>
+                  </Row>
                 </Container>
-              ))}
+                <Col>
+                  <HistoryDestination
+                    onDetailClick={handleDetailClick}
+                    isActive={isActive}
+                    setIsActive={setIsActive}
+                    selectedBooking={selectedBooking}
+                    historycards={groupedHistorycards[month]} // Kirim data yang dikelompokkan berdasarkan bulan
+                  />
+                </Col>
+              </>
+            ))}
+          </Col>
+          {showDetail && !isMobile && selectedBooking && (
+            <Col md={5} className=" mt-5">
+              <HistoryDetail booking={historycard} />
             </Col>
-            {showDetail && !isMobile && selectedBooking && (
-              <Col md={5} className="px-4 my-3 mt-5">
-                <HistoryDetail booking={historycard} />
-              </Col>
-            )}
-          </Row>
-        </Container>
+          )}
+        </Row>
+      </Container>
 
-        {/* If mobile breakpoint is true, the detail history will show by modal */}
-        {isMobile && selectedBooking && (
-          <HistoryDetailMobile
-            setShowModal={setShowModal}
-            showModal={showModal}
-            booking={historycard}
-          />
-        )}
-      </>
-    );
+      {/* If mobile breakpoint is true, the detail history will show by modal */}
+      {isMobile && selectedBooking && (
+        <HistoryDetailMobile
+          setShowModal={setShowModal}
+          showModal={showModal}
+          booking={historycard}
+        />
+      )}
+    </>
+  );
 };
 
 const HistoryDestination = ({
@@ -250,7 +252,7 @@ const HistoryDestination = ({
             <Card.Body>
               <Row>
                 {/* Section for render booking status */}
-                <Col md={12} className="d-flex justify-content-start py-2">
+                <Col md={12} className="d-flex justify-content-start">
                   <StatusPayment
                     bookingStatus={booking?.Booking?.Payment?.status}
                   />
@@ -414,22 +416,22 @@ const StatusPayment = ({ bookingStatus }) => {
 
 // average fetching data here
 const HistoryDetail = ({ booking }) => {
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const { historycard } = useSelector((state) => state.history);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { historycard } = useSelector((state) => state.history);
 
-    const [departureTotalPrice, setDepartureTotalPrice] = useState(0);
-    const [returnTotalPrice, setReturnTotalPrice] = useState(0);
-    const [totalPrice, setTotalPrice] = useState(0);
-    const [adult, setAdult] = useState(0);
-    const [child, setChild] = useState(0);
-    const [baby, setBaby] = useState(0);
-    const [seatType, setSeatType] = useState("");
-    const [seatSelectedDeparture, setSeatSelectedDeparture] = useState([]);
-    const [seatSelectedReturn, setSeatSelectedReturn] = useState([]);
-    const [bookingIdResult, setBookingIdResult] = useState("");
-    const [flightReturn, setFlightReturn] = useState(null);
-    const [flightDeparture, setFlightDeparture] = useState(null);
+  const [departureTotalPrice, setDepartureTotalPrice] = useState(0);
+  const [returnTotalPrice, setReturnTotalPrice] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [adult, setAdult] = useState(0);
+  const [child, setChild] = useState(0);
+  const [baby, setBaby] = useState(0);
+  const [seatType, setSeatType] = useState("");
+  const [seatSelectedDeparture, setSeatSelectedDeparture] = useState([]);
+  const [seatSelectedReturn, setSeatSelectedReturn] = useState([]);
+  const [bookingIdResult, setBookingIdResult] = useState("");
+  const [flightReturn, setFlightReturn] = useState(null);
+  const [flightDeparture, setFlightDeparture] = useState(null);
 
   const handleLanjutBayar = (e) => {
     e.preventDefault();
@@ -466,34 +468,32 @@ const HistoryDetail = ({ booking }) => {
         seatMap[flightId] = [];
       }
 
-            seatMap[flightId].push({
-                seatId: item.Seat?.id,
-            });
-        });
-        // console.log("Seat Map: ", seatMap);
+      seatMap[flightId].push({
+        seatId: item.Seat?.id,
+      });
+    });
+    // console.log("Seat Map: ", seatMap);
 
-        if (!booking[0]?.Booking?.roundtripFlightId) {
-            setSeatSelectedDeparture(seatMap[booking[0]?.Seat?.Flight?.id]);
-            // console.log(
-            //     "Seat Map Departure: ",
-            //     seatMap[booking[0]?.Seat?.Flight?.id]
-            // );
-        } else {
-            setSeatSelectedDeparture(seatMap[booking[1]?.Seat?.Flight?.id]);
-            // console.log(
-            //     "Seat Map Departure: ",
-            //     seatMap[booking[1]?.Seat?.Flight?.id]
-            // );
+    if (!booking[0]?.Booking?.roundtripFlightId) {
+      setSeatSelectedDeparture(seatMap[booking[0]?.Seat?.Flight?.id]);
+      // console.log(
+      //     "Seat Map Departure: ",
+      //     seatMap[booking[0]?.Seat?.Flight?.id]
+      // );
+    } else {
+      setSeatSelectedDeparture(seatMap[booking[1]?.Seat?.Flight?.id]);
+      // console.log(
+      //     "Seat Map Departure: ",
+      //     seatMap[booking[1]?.Seat?.Flight?.id]
+      // );
 
-            setSeatSelectedReturn(
-                seatMap[booking[0].Booking?.roundtripFlightId]
-            );
-            // console.log(
-            //     "Seat Map Return: ",
-            //     seatMap[booking[0].Booking?.roundtripFlightId]
-            // );
-        }
-    }, [booking]);
+      setSeatSelectedReturn(seatMap[booking[0].Booking?.roundtripFlightId]);
+      // console.log(
+      //     "Seat Map Return: ",
+      //     seatMap[booking[0].Booking?.roundtripFlightId]
+      // );
+    }
+  }, [booking]);
 
   useEffect(() => {
     if (booking[0]?.Seat?.airlineClass === "ECONOMY") {
@@ -524,32 +524,32 @@ const HistoryDetail = ({ booking }) => {
     ).length;
     setChild(childs);
 
-        const babies = uniqueBookings.filter(
-            (item) => item.Passanger?.type === "BABY"
-        ).length;
-        setBaby(babies);
+    const babies = uniqueBookings.filter(
+      (item) => item.Passanger?.type === "BABY"
+    ).length;
+    setBaby(babies);
 
-        const fetchFlight = async () => {
-            if (booking[0]?.Booking?.roundtripFlightId) {
-                const flightDepartureData = await dispatch(
-                    getFlightById(booking[0]?.Seat?.flightId)
-                );
-                setFlightDeparture(flightDepartureData[0]);
+    const fetchFlight = async () => {
+      if (booking[0]?.Booking?.roundtripFlightId) {
+        const flightDepartureData = await dispatch(
+          getFlightById(booking[0]?.Seat?.flightId)
+        );
+        setFlightDeparture(flightDepartureData[0]);
 
-                const flightReturnData = await dispatch(
-                    getFlightById(booking[0]?.Booking?.roundtripFlightId)
-                );
-                setFlightReturn(flightReturnData[0]);
-            } else {
-                const flightDepartureData = await dispatch(
-                    getFlightById(booking[0]?.Seat?.flightId)
-                );
-                setFlightDeparture(flightDepartureData[0]);
-            }
-        };
+        const flightReturnData = await dispatch(
+          getFlightById(booking[0]?.Booking?.roundtripFlightId)
+        );
+        setFlightReturn(flightReturnData[0]);
+      } else {
+        const flightDepartureData = await dispatch(
+          getFlightById(booking[0]?.Seat?.flightId)
+        );
+        setFlightDeparture(flightDepartureData[0]);
+      }
+    };
 
-        fetchFlight();
-    }, [booking, dispatch]);
+    fetchFlight();
+  }, [booking, dispatch]);
 
   const handlePrintTicket = () => {
     const doc = new jsPDF();

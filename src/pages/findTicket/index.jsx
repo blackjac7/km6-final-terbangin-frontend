@@ -247,7 +247,7 @@ const FindTicket = () => {
       <Container>
         <Row className={isFullScreen ? "pt-4 mx-5" : "pt-4"}>
           <Col>
-            { lendata == false ? (
+            {lendata == false ? (
               <TicketNotFound />
             ) : (
               <FlightList
