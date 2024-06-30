@@ -4,7 +4,10 @@ import CustomToastMessage from "../../components/ToastMessage";
 import io from "socket.io-client";
 
 const PaymentNotification = () => {
-    const socket = io(import.meta.env.VITE_BACKEND_API);
+    const socket = io(import.meta.env.VITE_BACKEND_API, {
+        transports: ["websocket"],
+        secure: true,
+    });
     useEffect(() => {
         socket.on("connect", () => {
             console.log("Connected to server");
@@ -30,6 +33,7 @@ const PaymentNotification = () => {
             );
         });
         return () => {
+            socket.off("paymentSuccess");
             socket.disconnect();
         };
     }, []);
