@@ -4,7 +4,9 @@ import CustomToastMessage from "../../components/ToastMessage";
 import io from "socket.io-client";
 
 const PaymentNotification = () => {
+
     const socket = io(import.meta.env.VITE_SOCKET_URL);
+
     useEffect(() => {
         socket.on("connect", () => {
             console.log("Connected to server");
