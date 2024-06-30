@@ -61,15 +61,16 @@ const PaymentSuccess = () => {
                     src={"/payment-success-illustration.svg"}
                     fluid={true}
                     id={"paymentSuccessIllustration"}
-                    className={"mb-3"}
+                    className={"mb-1 mt-5"}
+                    style={{ width:200 }}
                 />
                 <h4 id={"selamat"}>Selamat!</h4>
                 <h4>Transaksi pembayaran tiket sukses!</h4>
-                <Button className={"paymentSuccessBtn mt-5"}>
+                <Button className={"paymentSuccessBtn mt-1"}>
                     Terbitkan Tiket
                 </Button>
-                <br />
-                <Button className={"paymentSuccessBtn"}>
+                
+                <Button className={"paymentSuccessBtn mt-3"}>
                     Cari penerbangan lain
                 </Button>
             </Container>
