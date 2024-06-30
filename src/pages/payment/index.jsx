@@ -94,7 +94,7 @@ const Payment = () => {
       </HeaderShadow>
 
       {/* Main Content */}
-      <Container className="mt-3">
+      <Container className="mt-3 mb-5">
         <Row>
           {/* Detail Booking */}
 
