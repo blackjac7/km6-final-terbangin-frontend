@@ -88,10 +88,8 @@ const BookingForm = () => {
     const [errorStatus, setErrorStatus] = useState(false);
 
 
-    const socket = io(import.meta.env.VITE_SOCKET_URL, {
-        transports: ["websocket"],
-        secure: true,
-    });
+    const socket = io(import.meta.env.VITE_SOCKET_URL);
+
     useEffect(() => {
         socket.on("connect", () => {
             console.log("Connected to server");
@@ -118,7 +116,7 @@ const BookingForm = () => {
         return () => {
             socket.disconnect();
         };
-    }, []);
+    }, [socket]);
 
     const validateForm = () => {
         let formErrors = {};
