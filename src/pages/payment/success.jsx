@@ -1,14 +1,28 @@
 import { Breadcrumbs, Link } from "@mui/material";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-
+import { useDispatch } from "react-redux";
 import HeaderShadow from "../../components/HeaderShadow";
-
+import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button, Container, Image } from "react-bootstrap";
 import "./success.css";
+import { printTicket } from "../../redux/actions/booking";
 
 const PaymentSuccess = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const { snapToken, bookingId } = location.state || {};
+
+    const handlePrintTicket = () => {
+        dispatch(printTicket(bookingId));
+    };
+
+    const findOther = () => {
+        navigate("/");
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -62,15 +76,21 @@ const PaymentSuccess = () => {
                     fluid={true}
                     id={"paymentSuccessIllustration"}
                     className={"mb-1 mt-5"}
-                    style={{ width:200 }}
+                    style={{ width: 200 }}
                 />
                 <h4 id={"selamat"}>Selamat!</h4>
                 <h4>Transaksi pembayaran tiket sukses!</h4>
-                <Button className={"paymentSuccessBtn mt-1"}>
+                <Button
+                    className={"paymentSuccessBtn mt-1"}
+                    onClick={handlePrintTicket}
+                >
                     Terbitkan Tiket
                 </Button>
-                
-                <Button className={"paymentSuccessBtn mt-3"}>
+
+                <Button
+                    className={"paymentSuccessBtn mt-3"}
+                    onClick={findOther}
+                >
                     Cari penerbangan lain
                 </Button>
             </Container>
