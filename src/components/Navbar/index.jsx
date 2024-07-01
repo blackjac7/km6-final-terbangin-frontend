@@ -104,21 +104,22 @@ function NavScrollExample() {
     }, [user]);
 
     return (
-        <Navbar
-            sticky="top"
-            expand="lg"
-            className="bg-body-tertiary border-bottom"
-            style={{
-                boxShadow: "1px 0 10px 2px rgba(0, 0, 0, 0.1)",
-            }}
-        >
-            <Container>
-                <Navbar.Brand as={Link} to="/">
-                    <Image src={logo} height={35} alt="Logo" />
-                </Navbar.Brand>
-                <Navbar.Toggle aria-controls="navbarScroll" />
-                <Navbar.Collapse id="navbarScroll">
-                    {/* <Form className="d-flex mt-2">
+        <>
+            <Navbar
+                sticky="top"
+                expand="lg"
+                className="bg-body-tertiary border-bottom"
+                style={{
+                    boxShadow: "1px 0 10px 2px rgba(0, 0, 0, 0.1)",
+                }}
+            >
+                <Container>
+                    <Navbar.Brand as={Link} to="/">
+                        <Image src={logo} height={35} alt="Logo" />
+                    </Navbar.Brand>
+                    <Navbar.Toggle aria-controls="navbarScroll" />
+                    <Navbar.Collapse id="navbarScroll">
+                        {/* <Form className="d-flex mt-2">
                         <Form.Control
                             type="search"
                             placeholder="Search"
@@ -134,101 +135,104 @@ function NavScrollExample() {
                             <SearchIcon />
                         </button>
                     </Form> */}
-                    {!user && (
-                        <Button
-                            className="d-flex ms-auto mt-2"
-                            style={{
-                                backgroundColor: "#7126b5",
-                                borderColor: "#7126b5",
-                            }}
-                            as={Link}
-                            to="/login"
-                        >
-                            <span
+                        {!user && (
+                            <Button
+                                className="d-flex ms-auto mt-2"
                                 style={{
-                                    display: "flex",
-                                    alignItems: "center",
+                                    backgroundColor: "#7126b5",
+                                    borderColor: "#7126b5",
                                 }}
+                                as={Link}
+                                to="/login"
                             >
-                                <img
-                                    src={login}
-                                    className="me-2"
-                                    alt="Login Icon"
-                                />
-                                Masuk
-                            </span>
-                        </Button>
-                    )}
-                    {user && (
-                        <>
-                            <div className="d-flex ms-auto">
-                                <IconButton
-                                    color="inherit"
-                                    onClick={() => {
-                                        navigate("/order-history");
-                                        handleClose();
+                                <span
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
                                     }}
                                 >
-                                    <FormatListBulletedIcon />
-                                </IconButton>
-                                <IconButton
-                                    color="inherit"
-                                    onClick={() => {
-                                        navigate("/notification");
-                                        handleClose();
-                                    }}
-                                >
-                                    <Badge
-                                        badgeContent={notificationCount}
-                                        color="error"
+                                    <img
+                                        src={login}
+                                        className="me-2"
+                                        alt="Login Icon"
+                                    />
+                                    Masuk
+                                </span>
+                            </Button>
+                        )}
+                        {user && (
+                            <>
+                                <div className="d-flex ms-auto">
+                                    <IconButton
+                                        color="inherit"
+                                        onClick={() => {
+                                            navigate("/order-history");
+                                            handleClose();
+                                        }}
                                     >
-                                        <NotificationsNoneIcon />
-                                    </Badge>
-                                </IconButton>
-                                <IconButton
-                                    color="inherit"
-                                    onClick={handleMenu}
-                                >
-                                    {user.picture ? (
-                                        <Avatar
-                                            src={user.picture}
-                                            alt="User Profile"
-                                            sx={{
-                                                width: 30,
-                                                height: 30,
-                                            }}
-                                        />
-                                    ) : (
-                                        <AccountCircle />
-                                    )}
-                                </IconButton>
-                            </div>
+                                        <FormatListBulletedIcon />
+                                    </IconButton>
+                                    <IconButton
+                                        color="inherit"
+                                        onClick={() => {
+                                            navigate("/notification");
+                                            handleClose();
+                                        }}
+                                    >
+                                        <Badge
+                                            badgeContent={notificationCount}
+                                            color="error"
+                                        >
+                                            <NotificationsNoneIcon />
+                                        </Badge>
+                                    </IconButton>
+                                    <IconButton
+                                        color="inherit"
+                                        onClick={handleMenu}
+                                    >
+                                        {user.picture ? (
+                                            <Avatar
+                                                src={user.picture}
+                                                alt="User Profile"
+                                                sx={{
+                                                    width: 30,
+                                                    height: 30,
+                                                }}
+                                            />
+                                        ) : (
+                                            <AccountCircle />
+                                        )}
+                                    </IconButton>
+                                </div>
 
-                            <Menu
-                                anchorEl={anchorEl}
-                                open={open}
-                                onClose={handleClose}
-                                MenuListProps={{
-                                    "aria-labelledby": "basic-button",
-                                }}
-                            >
-                                <MenuItem
-                                    onClick={() => {
-                                        navigate("/profile");
-                                        handleClose();
+                                <Menu
+                                    anchorEl={anchorEl}
+                                    open={open}
+                                    onClose={handleClose}
+                                    MenuListProps={{
+                                        "aria-labelledby": "basic-button",
                                     }}
                                 >
-                                    Profil
-                                </MenuItem>
-                                <StyledMenuItemLogout onClick={handleLogout}>
-                                    Keluar
-                                </StyledMenuItemLogout>
-                            </Menu>
-                        </>
-                    )}
-                </Navbar.Collapse>
-            </Container>
-        </Navbar>
+                                    <MenuItem
+                                        onClick={() => {
+                                            navigate("/profile");
+                                            handleClose();
+                                        }}
+                                    >
+                                        Profil
+                                    </MenuItem>
+                                    <StyledMenuItemLogout
+                                        onClick={handleLogout}
+                                    >
+                                        Keluar
+                                    </StyledMenuItemLogout>
+                                </Menu>
+                            </>
+                        )}
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
+        </>
     );
 }
 
