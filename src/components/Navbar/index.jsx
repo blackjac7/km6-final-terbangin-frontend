@@ -82,7 +82,11 @@ function NavScrollExample() {
             return;
         }
 
-        socket.current = io(import.meta.env.VITE_SOCKET_URL);
+        socket.current = io(import.meta.env.VITE_SOCKET_URL, {
+            transports: ["websocket"],
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 2000,
+        });
 
         socket.current.on("connect", () => {
             console.log("Connected to server");
