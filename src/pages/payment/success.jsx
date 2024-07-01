@@ -82,14 +82,14 @@ const PaymentSuccess = () => {
                 <h4>Transaksi pembayaran tiket sukses!</h4>
                 <Button
                     className={"paymentSuccessBtn mt-1"}
-                    onClick={handlePrintTicket}
+                    onClick={()=>handlePrintTicket}
                 >
                     Terbitkan Tiket
                 </Button>
 
                 <Button
                     className={"paymentSuccessBtn mt-3"}
-                    onClick={findOther}
+                    onClick={()=>findOther}
                 >
                     Cari penerbangan lain
                 </Button>
