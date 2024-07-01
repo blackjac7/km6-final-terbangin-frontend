@@ -1,6 +1,6 @@
 import { Row, Col, Image } from "react-bootstrap";
 import PropTypes from "prop-types";
-import Arrow from "../../assets/ArrowReturn.png";
+import Arrow from "../../assets/airline-left.png";
 
 const FlightDestinationReturn = ({
     departureTime,
@@ -10,6 +10,7 @@ const FlightDestinationReturn = ({
     arrivalTime,
     arrivalDate,
     arrivalCity,
+    additionals,
 }) => {
     return (
         <Row className="d-flex justify-content-center">
@@ -44,7 +45,7 @@ const FlightDestinationReturn = ({
                     className="img-fluid"
                     style={{ marginBottom: 0 }}
                 />
-                <p className="my-0">Flight Duration</p>
+                <p className="my-0">{additionals}</p>
             </Col>
             <Col
                 md={3}

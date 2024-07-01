@@ -1,16 +1,20 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Image, Container, Form, Navbar } from "react-bootstrap";
+import { Button, Image, Container, Navbar } from "react-bootstrap";
 import logo from "../../assets/Logo/svg/logo-no-background.svg";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import login from "../../assets/fi_log-in.png";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getProfile, logout } from "../../redux/actions/auth";
-import SearchIcon from "@mui/icons-material/Search";
-import { Menu, MenuItem, IconButton, Avatar } from "@mui/material";
+import { Menu, MenuItem, IconButton, Avatar, Badge } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
+import "./navbar.css";
+import { getNotificationByUserId } from "../../redux/actions/notification";
+import { ToastContainer, Zoom } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import io from "socket.io-client";
 
 const StyledMenuItemLogout = styled(MenuItem)(({ theme }) => ({
     "&:hover": {
@@ -28,6 +32,9 @@ function NavScrollExample() {
     const dispatch = useDispatch();
     const { user, token } = useSelector((state) => state.auth);
     const [anchorEl, setAnchorEl] = useState(null);
+    const [notificationCount, setNotificationCount] = useState(0);
+    const [notifications, setNotifications] = useState([]);
+    const socket = useRef(null);
     const open = Boolean(anchorEl);
 
     const handleMenu = (event) => {
@@ -44,26 +51,77 @@ function NavScrollExample() {
         handleClose();
     };
 
+    const fetchNotifications = async () => {
+        if (!user) {
+            return;
+        }
+        const data = await dispatch(getNotificationByUserId(user?.id));
+        setNotifications(data);
+
+        let count = 0;
+        data.forEach((notification) => {
+            if (!notification.statusRead) {
+                count++;
+            }
+        });
+        setNotificationCount(count);
+    };
+
     useEffect(() => {
         dispatch(getProfile());
     }, [dispatch, token]);
 
+    useEffect(() => {
+        if (user) {
+            fetchNotifications();
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (!user) {
+            return;
+        }
+
+        socket.current = io(import.meta.env.VITE_SOCKET_URL);
+
+        socket.current.on("connect", () => {
+            console.log("Connected to server");
+        });
+
+        socket.current.on("disconnect", () => {
+            console.log("Disconnected from server");
+        });
+
+        socket.current.on("notificationUpdate", (data) => {
+            fetchNotifications();
+        });
+
+        return () => {
+            if (socket.current) {
+                socket.current.off("notificationUpdate");
+                socket.current.disconnect();
+                socket.current = null;
+            }
+        };
+    }, [user]);
+
     return (
-        <Navbar
-            sticky="top"
-            expand="lg"
-            className="bg-body-tertiary border-bottom"
-            style={{
-                boxShadow: "1px 0 10px 2px rgba(0, 0, 0, 0.1)",
-            }}
-        >
-            <Container>
-                <Navbar.Brand as={Link} to="/">
-                    <Image src={logo} height={35} alt="Logo" />
-                </Navbar.Brand>
-                <Navbar.Toggle aria-controls="navbarScroll" />
-                <Navbar.Collapse id="navbarScroll">
-                    {/* <Form className="d-flex mt-2">
+        <>
+            <Navbar
+                sticky="top"
+                expand="lg"
+                className="bg-body-tertiary border-bottom"
+                style={{
+                    boxShadow: "1px 0 10px 2px rgba(0, 0, 0, 0.1)",
+                }}
+            >
+                <Container>
+                    <Navbar.Brand as={Link} to="/">
+                        <Image src={logo} height={35} alt="Logo" />
+                    </Navbar.Brand>
+                    <Navbar.Toggle aria-controls="navbarScroll" />
+                    <Navbar.Collapse id="navbarScroll">
+                        {/* <Form className="d-flex mt-2">
                         <Form.Control
                             type="search"
                             placeholder="Search"
@@ -79,96 +137,112 @@ function NavScrollExample() {
                             <SearchIcon />
                         </button>
                     </Form> */}
-                    {!user && (
-                        <Button
-                            className="d-flex ms-auto mt-2"
-                            style={{
-                                backgroundColor: "#7126b5",
-                                borderColor: "#7126b5",
-                            }}
-                            as={Link}
-                            to="/login"
-                        >
-                            <span
+                        {!user && (
+                            <Button
+                                className="d-flex ms-auto mt-2"
                                 style={{
-                                    display: "flex",
-                                    alignItems: "center",
+                                    backgroundColor: "#7126b5",
+                                    borderColor: "#7126b5",
                                 }}
+                                as={Link}
+                                to="/login"
                             >
-                                <img
-                                    src={login}
-                                    className="me-2"
-                                    alt="Login Icon"
-                                />
-                                Masuk
-                            </span>
-                        </Button>
-                    )}
-                    {user && (
-                        <>
-                            <div className="d-flex ms-auto">
-                                <IconButton
-                                    color="inherit"
-                                    onClick={() => {
-                                        navigate("/order-history");
-                                        handleClose();
+                                <span
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
                                     }}
                                 >
-                                    <FormatListBulletedIcon />
-                                </IconButton>
-                                <IconButton
-                                    color="inherit"
-                                    onClick={() => {
-                                        navigate("/notification");
-                                        handleClose();
-                                    }}
-                                >
-                                    <NotificationsNoneIcon />
-                                </IconButton>
-                                <IconButton
-                                    color="inherit"
-                                    onClick={handleMenu}
-                                >
-                                    {user.picture ? (
-                                        <Avatar
-                                            src={user.picture}
-                                            alt="User Profile"
-                                            sx={{
-                                                width: 30,
-                                                height: 30,
-                                            }}
-                                        />
-                                    ) : (
-                                        <AccountCircle />
-                                    )}
-                                </IconButton>
-                            </div>
+                                    <img
+                                        src={login}
+                                        className="me-2"
+                                        alt="Login Icon"
+                                    />
+                                    Masuk
+                                </span>
+                            </Button>
+                        )}
+                        {user && (
+                            <>
+                                <div className="d-flex ms-auto">
+                                    <IconButton
+                                        color="inherit"
+                                        onClick={() => {
+                                            navigate("/order-history");
+                                            handleClose();
+                                        }}
+                                    >
+                                        <FormatListBulletedIcon />
+                                    </IconButton>
+                                    <IconButton
+                                        color="inherit"
+                                        onClick={() => {
+                                            navigate("/notification");
+                                            handleClose();
+                                        }}
+                                    >
+                                        <Badge
+                                            badgeContent={notificationCount}
+                                            color="error"
+                                        >
+                                            <NotificationsNoneIcon />
+                                        </Badge>
+                                    </IconButton>
+                                    <IconButton
+                                        color="inherit"
+                                        onClick={handleMenu}
+                                    >
+                                        {user.picture ? (
+                                            <Avatar
+                                                src={user.picture}
+                                                alt="User Profile"
+                                                sx={{
+                                                    width: 30,
+                                                    height: 30,
+                                                }}
+                                            />
+                                        ) : (
+                                            <AccountCircle />
+                                        )}
+                                    </IconButton>
+                                </div>
 
-                            <Menu
-                                anchorEl={anchorEl}
-                                open={open}
-                                onClose={handleClose}
-                                MenuListProps={{
-                                    "aria-labelledby": "basic-button",
-                                }}
-                            >
-                                <MenuItem
-                                    onClick={() => {
-                                        navigate("/profile");
-                                        handleClose();
+                                <Menu
+                                    anchorEl={anchorEl}
+                                    open={open}
+                                    onClose={handleClose}
+                                    MenuListProps={{
+                                        "aria-labelledby": "basic-button",
                                     }}
                                 >
-                                    Profil
-                                </MenuItem>
-                                <StyledMenuItemLogout onClick={handleLogout}>
-                                    Keluar
-                                </StyledMenuItemLogout>
-                            </Menu>
-                        </>
-                    )}
-                </Navbar.Collapse>
-            </Container>
-        </Navbar>
+                                    <MenuItem
+                                        onClick={() => {
+                                            navigate("/profile");
+                                            handleClose();
+                                        }}
+                                    >
+                                        Profil
+                                    </MenuItem>
+                                    <StyledMenuItemLogout
+                                        onClick={handleLogout}
+                                    >
+                                        Keluar
+                                    </StyledMenuItemLogout>
+                                </Menu>
+                            </>
+                        )}
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
+            <ToastContainer
+                enableMultiContainer
+                containerId={"navbarToast"}
+                position="top-right"
+                autoClose={5000}
+                transition={Zoom}
+                className="custom-toast-container"
+            />
+        </>
     );
 }
 
