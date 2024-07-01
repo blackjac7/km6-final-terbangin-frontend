@@ -9,7 +9,11 @@ const NotificationHandler = () => {
     useEffect(() => {
         // Initialize socket connection
         if (!socket.current) {
-            socket.current = io(import.meta.env.VITE_SOCKET_URL);
+            socket.current = io(import.meta.env.VITE_SOCKET_URL, {
+                transports: ["websocket"],
+                reconnectionAttempts: Infinity,
+                reconnectionDelay: 2000,
+            });
 
             socket.current.on("connect", () => {
                 console.log("Connected to server");
@@ -79,6 +83,8 @@ const NotificationHandler = () => {
             if (socket.current) {
                 socket.current.off("bookingNotification");
                 socket.current.off("paymentSuccess");
+                socket.current.off("paymentFailed");
+                socket.current.off("connect_error");
                 socket.current.disconnect();
                 socket.current = null;
             }
