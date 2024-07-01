@@ -122,7 +122,8 @@ const SeatSelectionComponent = ({
                                     adult: seat.adult ? seat.adult + 1 : 1,
                                     seatId: seatData ? seatData?.id : null,
                                 };
-                                seatCode = `P${seat.adult}`;
+                                console.log("ini untuk lihat seat adult"+seat.adult)
+                                seatCode = `P${adultSeats+1}`;
                             } else if (childSeats < child) {
                                 setChildSeats(childSeats + 1);
                                 seat = {
@@ -134,7 +135,9 @@ const SeatSelectionComponent = ({
                                         : 1,
                                     seatId: seatData ? seatData.id : null,
                                 };
-                                seatCode = `P${seat.child + adultSeats}`;
+                                console.log("ini mau cek adultnya"+adultSeats)
+                                console.log("ini untuk seat child"+seat.child)
+                                seatCode = `P${childSeats + adultSeats+1}`;
                             }
                         }
                         return {
