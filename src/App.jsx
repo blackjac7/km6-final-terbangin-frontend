@@ -27,6 +27,7 @@ import BookingForm from "./pages/checkout/index";
 import Payment from "./pages/payment";
 import NotificationPage from "./pages/notification";
 import PaymentSuccess from "./pages/payment/success";
+import NotFoundPage from "./pages/notfound";
 
 import ProtectedVerification from "./components/ProtectedVerification/ProtectedVerification";
 import ProtectedVerificationProfile from "./components/ProtectedVerification/ProtectedVerificationProfile";
@@ -174,6 +175,15 @@ const router = createBrowserRouter([
                     <Navbar />
                     <PaymentSuccess />
                 </ProtectedPaymentSuccess>
+            </>
+        ),
+    },
+    {
+        path: "/not-found",
+        element: (
+            <>
+                <Navbar />
+                <NotFoundPage />
             </>
         ),
     },

@@ -406,7 +406,7 @@ const BookingForm = () => {
             <HeaderShadow>
                 <Breadcrumbs
                     separator={<NavigateNextIcon fontSize="small" />}
-                    className="pt-4 pb-4"
+                    className="pt-4"
                     aria-label="breadcrumb"
                     style={{
                         fontWeight: "700",
@@ -440,8 +440,14 @@ const BookingForm = () => {
             </HeaderShadow>
             <Container>
                 <Row>
-                    <Col md={8}>
-                        <Card className="mb-4 mt-5">
+                    <Col md={7}>
+                        <Card
+                            className="mb-4 mt-3"
+                            style={{
+                                boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
+                                borderRadius: "0.50rem",
+                            }}
+                        >
                             <h4
                                 className="mb-0"
                                 style={{
@@ -533,7 +539,14 @@ const BookingForm = () => {
                                 </Form>
                             </Card.Body>
                         </Card>
-                        <Card className="mb-3" id="data-penumpang">
+                        <Card
+                            className="mb-3"
+                            id="data-penumpang"
+                            style={{
+                                boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
+                                borderRadius: "0.50rem",
+                            }}
+                        >
                             <h4
                                 className="mb-0"
                                 style={{
@@ -631,7 +644,6 @@ const BookingForm = () => {
                                 disabled={saveDisabled || seatsConfirmed}
                                 onClick={handleSubmit}
                                 style={{
-                                    marginTop: "20px",
                                     width: "100%",
                                     paddingTop: "20px",
                                     paddingBottom: "20px",
@@ -646,8 +658,14 @@ const BookingForm = () => {
                         </div>
                     </Col>
 
-                    <Col md={4}>
-                        <Card className="mb-4 mt-5">
+                    <Col md={5}>
+                        <Card
+                            className="mb-3 mt-3"
+                            style={{
+                                boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
+                                borderRadius: "0.50rem",
+                            }}
+                        >
                             <h4
                                 className="mb-0"
                                 style={{
@@ -831,7 +849,6 @@ const BookingForm = () => {
                                     type="submit"
                                     disabled={loading}
                                     style={{
-                                        marginTop: "20px",
                                         width: "100%",
                                         paddingTop: "20px",
                                         paddingBottom: "20px",

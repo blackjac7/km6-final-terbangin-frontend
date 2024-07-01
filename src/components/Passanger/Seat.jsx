@@ -3,6 +3,7 @@ import { Card, Button } from "react-bootstrap";
 import { toast } from "react-toastify";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
+import { useNavigate } from "react-router-dom";
 
 const SeatSelectionComponent = ({
     title,
@@ -23,12 +24,16 @@ const SeatSelectionComponent = ({
     const [childSeats, setChildSeats] = useState(0);
     // const [babySeats, setBabySeats] = useState(0);
     const [seatSelected, setSeatSelected] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         onSeatsSelected(seatSelected);
     }, [seatSelected]);
 
     const initializeSeats = (seatArray) => {
+        if (seatArrayAll === undefined) {
+            navigate("/not-found");
+        }
         const sortedSeatArray = [...seatArray].sort(
             (a, b) => a.seatNumber - b.seatNumber
         );

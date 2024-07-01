@@ -1,4 +1,4 @@
-import Banner from "../../assets/img banner.png";
+import Banner from "../../assets/newBanner.svg";
 
 const banner = () => {
   return (
@@ -6,19 +6,18 @@ const banner = () => {
       className="position-relative mt-5"
       style={{
         backgroundColor: "#b892da",
-        height: "150px",
+        height: "250px",
         width: "100%",
         display: "flex",
         justifyContent: "center",
         top: "25px",
-        
       }}
     >
       <img
         src={Banner}
         alt="Banner"
         style={{
-          height: "200px",
+          height: "300px",
           position: "relative",
           bottom: "25px",
         }}

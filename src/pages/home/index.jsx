@@ -41,7 +41,7 @@ const Home = () => {
                 title={
                     <>
                         Pilih Jadwal Penerbangan spesial di{" "}
-                        <span style={{ color: "#7126B5" }}>Terbangin!</span>
+                        <span style={{ color: "#7126B5" }}>TerbangIn!</span>
                     </>
                 }
             />

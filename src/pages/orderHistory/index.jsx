@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Row, Col, Button, Container, Modal } from "react-bootstrap";
 import "./order.css";
 import Swal from "sweetalert2";
-
+import { FaFilter } from "react-icons/fa";
 import HeaderShadow from "../../components/HeaderShadow";
 import BackButton from "../../components/BackButton";
 import DetailFlight from "../../components/FlightDetail";
@@ -29,6 +29,7 @@ const OrderHistory = () => {
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [detailHistory, setDetailHistory] = useState([]);
+    const [filterStatus, setFilterStatus] = useState("");
 
     const dispatch = useDispatch();
     const { historycards, historycard } = useSelector((state) => state.history);
@@ -52,6 +53,10 @@ const OrderHistory = () => {
         }, {});
     };
 
+    const handleFilterChange = (status) => {
+        setFilterStatus(status);
+    };
+
     const groupedHistorycards = groupByMonth(historycards);
     // this function is for toggle active status history list, for purple border purpose
     const handleDetailClick = async (booking) => {
@@ -66,6 +71,11 @@ const OrderHistory = () => {
             await dispatch(getHistoryCardDetails(booking));
         }
 
+        // Scroll to the top of the page
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth", // This makes the scroll smooth
+        });
         if (isMobile) {
             setShowModal(true);
         }
@@ -73,8 +83,13 @@ const OrderHistory = () => {
 
     useEffect(() => {
         if (!user) return;
-        dispatch(getHistoryCards());
-    }, [dispatch, user]);
+        if (filterStatus == "") {
+            dispatch(getHistoryCards());
+        } else {
+            dispatch(getHistoryCards(filterStatus));
+            setShowDetail(false);
+        }
+    }, [dispatch, user, filterStatus]);
 
     useEffect(() => {
         window.addEventListener("resize", handleResize);
@@ -90,28 +105,52 @@ const OrderHistory = () => {
                 <h4 className="pt-4" style={{ fontWeight: 700 }}>
                     Riwayat Pemesanan
                 </h4>
-                <Row className="my-4 g-2">
-                    <Col xs={12} md={10} className="d-flex">
+                <Row className="mt-4">
+                    <Col xs={12} md={10} className="d-flex mt-1 ">
                         <BackButton ButtonText={"Beranda"} />
                     </Col>
-                    <Col xs={12} md={2} className="d-flex">
-                        <Button
-                            variant="outline-primary"
-                            style={{ borderRadius: 14 }}
-                            className="flex-fill"
-                        >
-                            Filter
-                        </Button>
+                    <Col xs={12} md={2} className="d-flex mt-1">
+                        <Dropdown className="flex-fill d-flex">
+                            <Dropdown.Toggle
+                                variant="outline-secondary"
+                                className="px-4 "
+                                style={{
+                                    borderRadius: "40px",
+                                    width: "100%",
+                                }}
+                            >
+                                <FaFilter className="me-2" />
+                                Filter
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu>
+                                <Dropdown.Item
+                                    onClick={() => handleFilterChange("")}
+                                >
+                                    Semua
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                    onClick={() => handleFilterChange("ISSUED")}
+                                >
+                                    ISSUED
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                    onClick={() => handleFilterChange("UNPAID")}
+                                >
+                                    UNPAID
+                                </Dropdown.Item>
+                                <Dropdown.Item
+                                    onClick={() =>
+                                        handleFilterChange("CANCELLED")
+                                    }
+                                >
+                                    CANCELLED
+                                </Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
                     </Col>
                 </Row>
             </HeaderShadow>
             {/* Month for make section history per-month */}
-
-            {/* <Container className="my-3">
-            <Row className="mx-sm-4">
-              <h5>Maret 2024</h5>
-            </Row>
-          </Container> */}
 
             {/* Main Content */}
             {/* <Container>
@@ -135,10 +174,10 @@ const OrderHistory = () => {
           </Container> */}
 
             <Container>
-                <Row className="mx-sm-4">
+                <Row>
                     <Col md={7}>
                         {Object.keys(groupedHistorycards).map((month) => (
-                            <Container>
+                            <>
                                 <Container className="my-3">
                                     <Row>
                                         <h5>{month}</h5>
@@ -155,11 +194,11 @@ const OrderHistory = () => {
                                         } // Kirim data yang dikelompokkan berdasarkan bulan
                                     />
                                 </Col>
-                            </Container>
+                            </>
                         ))}
                     </Col>
                     {showDetail && !isMobile && selectedBooking && (
-                        <Col md={5} className="px-4 my-3 mt-5">
+                        <Col md={5} className=" mt-5">
                             <HistoryDetail booking={historycard} />
                         </Col>
                     )}
@@ -214,7 +253,7 @@ const HistoryDestination = ({
                     booking?.Booking?.roundtripFlightId !== null;
 
                 return (
-                    <Button
+                    <Card
                         key={booking?.bookingId}
                         className="mb-3"
                         variant="custom"
@@ -231,204 +270,224 @@ const HistoryDestination = ({
                                 isActive === booking?.bookingId
                                     ? "2px solid purple"
                                     : "",
-                            boxShadow: "1px 0 5px 1px rgba(0, 0, 0, 0.1)",
+                            boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
                             borderRadius: "0.50rem",
                         }}
                     >
-                        <Row>
-                            {/* Section for render booking status */}
-                            <Col
-                                md={12}
-                                className="d-flex justify-content-start py-2"
-                            >
-                                <StatusPayment
-                                    bookingStatus={
-                                        booking?.Booking?.Payment?.status
-                                    }
-                                />
-                            </Col>
-                            <Col md={12}>
-                                {/* Section for render history destination or history list */}
-                                {booking && (
-                                    <FlightDestination
-                                        departureTime={moment
-                                            .tz(
-                                                booking?.Seat?.Flight
-                                                    ?.departureAt,
-                                                booking?.Seat?.Flight
-                                                    ?.StartAirport?.timezone
-                                            )
-                                            .format("HH:mm")}
-                                        departureDate={moment
-                                            .tz(
-                                                booking?.Seat?.Flight
-                                                    ?.departureAt,
-                                                booking?.Seat?.Flight
-                                                    ?.StartAirport?.timezone
-                                            )
-                                            .format("DD MMMM yyyy")}
-                                        departureCity={
-                                            booking?.Seat?.Flight?.StartAirport
-                                                ?.city
-                                        }
-                                        flightDuration={
-                                            booking?.Seat?.Flight?.duration
-                                        }
-                                        arrivalCity={
-                                            booking?.Seat?.Flight?.EndAirport
-                                                ?.city
-                                        }
-                                        arrivalTime={moment
-                                            .tz(
-                                                booking?.Seat?.Flight
-                                                    ?.arrivalAt,
-                                                booking?.Seat?.Flight
-                                                    ?.StartAirport?.timezone
-                                            )
-                                            .clone()
-                                            .tz(
-                                                booking?.Seat?.Flight
-                                                    ?.EndAirport?.timezone
-                                            )
-                                            .format("HH:mm")}
-                                        arrivalDate={moment
-                                            .tz(
-                                                booking?.Seat?.Flight
-                                                    ?.arrivalAt,
-                                                booking?.Seat?.Flight
-                                                    ?.StartAirport?.timezone
-                                            )
-                                            .clone()
-                                            .tz(
-                                                booking?.Seat?.Flight
-                                                    ?.EndAirport?.timezone
-                                            )
-                                            .format("DD MMMM yyyy")}
-                                        additionals={
-                                            booking?.Seat?.Flight?.Airline
-                                                ?.additionals
+                        <Card.Body>
+                            <Row>
+                                {/* Section for render booking status */}
+                                <Col
+                                    md={12}
+                                    className="d-flex justify-content-start"
+                                >
+                                    <StatusPayment
+                                        bookingStatus={
+                                            booking?.Booking?.Payment?.status
                                         }
                                     />
-                                )}
-                                {hasRoundtrip &&
-                                    returnFlights[booking.bookingId] && (
-                                        <>
-                                            <hr className="solid" />
-                                            <FlightDestinationReturn
-                                                departureTime={moment
-                                                    .tz(
-                                                        returnFlights[
-                                                            booking.bookingId
-                                                        ]?.departureAt,
-                                                        returnFlights[
-                                                            booking.bookingId
-                                                        ]?.StartAirport
-                                                            ?.timezone
-                                                    )
-                                                    .format("HH:mm")}
-                                                departureDate={moment
-                                                    .tz(
-                                                        returnFlights[
-                                                            booking.bookingId
-                                                        ]?.departureAt,
-                                                        returnFlights[
-                                                            booking.bookingId
-                                                        ]?.StartAirport
-                                                            ?.timezone
-                                                    )
-                                                    .format("DD MMMM yyyy")}
-                                                departureCity={
-                                                    returnFlights[
-                                                        booking.bookingId
-                                                    ]?.StartAirport?.city
-                                                }
-                                                flightDuration={
-                                                    returnFlights[
-                                                        booking.bookingId
-                                                    ]?.duration
-                                                }
-                                                arrivalCity={
-                                                    returnFlights[
-                                                        booking.bookingId
-                                                    ]?.EndAirport?.city
-                                                }
-                                                arrivalTime={moment
-                                                    .tz(
-                                                        returnFlights[
-                                                            booking.bookingId
-                                                        ]?.arrivalAt,
-                                                        returnFlights[
-                                                            booking.bookingId
-                                                        ]?.StartAirport
-                                                            ?.timezone
-                                                    )
-                                                    .clone()
-                                                    .tz(
-                                                        returnFlights[
-                                                            booking.bookingId
-                                                        ]?.EndAirport?.timezone
-                                                    )
-                                                    .format("HH:mm")}
-                                                arrivalDate={moment
-                                                    .tz(
-                                                        returnFlights[
-                                                            booking.bookingId
-                                                        ]?.arrivalAt,
-                                                        returnFlights[
-                                                            booking.bookingId
-                                                        ]?.StartAirport
-                                                            ?.timezone
-                                                    )
-                                                    .clone()
-                                                    .tz(
-                                                        returnFlights[
-                                                            booking.bookingId
-                                                        ]?.EndAirport?.timezone
-                                                    )
-                                                    .format("DD MMMM yyyy")}
-                                                additionals={
-                                                    returnFlights[
-                                                        booking.bookingId
-                                                    ]?.Airline?.additionals
-                                                }
-                                            />
-                                        </>
-                                    )}
-                                <hr className="solid" />
-                            </Col>
-                            <Row style={{ textAlign: "left" }}>
-                                <Col md={4}>
-                                    <p style={{ margin: 0, fontWeight: "700" }}>
-                                        Booking Code:
-                                    </p>
-                                    <p>{booking?.Booking?.bookingCode}</p>
                                 </Col>
-                                <Col md={4}>
-                                    <p style={{ margin: 0, fontWeight: "700" }}>
-                                        Class:
-                                    </p>
-                                    {booking?.Seat?.airlineClass ===
-                                    "FIRST_CLASS" ? (
-                                        <p>FirstClass</p>
-                                    ) : (
-                                        booking?.Seat?.airlineClass
+                                <Col md={12}>
+                                    {/* Section for render history destination or history list */}
+                                    {booking && (
+                                        <FlightDestination
+                                            departureTime={moment
+                                                .tz(
+                                                    booking?.Seat?.Flight
+                                                        ?.departureAt,
+                                                    booking?.Seat?.Flight
+                                                        ?.StartAirport?.timezone
+                                                )
+                                                .format("HH:mm")}
+                                            departureDate={moment
+                                                .tz(
+                                                    booking?.Seat?.Flight
+                                                        ?.departureAt,
+                                                    booking?.Seat?.Flight
+                                                        ?.StartAirport?.timezone
+                                                )
+                                                .format("DD MMMM yyyy")}
+                                            departureCity={
+                                                booking?.Seat?.Flight
+                                                    ?.StartAirport?.city
+                                            }
+                                            flightDuration={
+                                                booking?.Seat?.Flight?.duration
+                                            }
+                                            arrivalCity={
+                                                booking?.Seat?.Flight
+                                                    ?.EndAirport?.city
+                                            }
+                                            arrivalTime={moment
+                                                .tz(
+                                                    booking?.Seat?.Flight
+                                                        ?.arrivalAt,
+                                                    booking?.Seat?.Flight
+                                                        ?.StartAirport?.timezone
+                                                )
+                                                .clone()
+                                                .tz(
+                                                    booking?.Seat?.Flight
+                                                        ?.EndAirport?.timezone
+                                                )
+                                                .format("HH:mm")}
+                                            arrivalDate={moment
+                                                .tz(
+                                                    booking?.Seat?.Flight
+                                                        ?.arrivalAt,
+                                                    booking?.Seat?.Flight
+                                                        ?.StartAirport?.timezone
+                                                )
+                                                .clone()
+                                                .tz(
+                                                    booking?.Seat?.Flight
+                                                        ?.EndAirport?.timezone
+                                                )
+                                                .format("DD MMMM yyyy")}
+                                        />
                                     )}
-                                </Col>
-                                <Col md={4} className="">
-                                    <p style={{ margin: 0, fontWeight: "700" }}>
-                                        Total Payment:
-                                    </p>
-                                    <p>
-                                        Rp{" "}
-                                        {formattedPrice(
-                                            booking?.Booking?.Payment
-                                                ?.totalPrice
+                                    {hasRoundtrip &&
+                                        returnFlights[booking.bookingId] && (
+                                            <>
+                                                <hr className="solid" />
+                                                <FlightDestinationReturn
+                                                    departureTime={moment
+                                                        .tz(
+                                                            returnFlights[
+                                                                booking
+                                                                    .bookingId
+                                                            ]?.departureAt,
+                                                            returnFlights[
+                                                                booking
+                                                                    .bookingId
+                                                            ]?.StartAirport
+                                                                ?.timezone
+                                                        )
+                                                        .format("HH:mm")}
+                                                    departureDate={moment
+                                                        .tz(
+                                                            returnFlights[
+                                                                booking
+                                                                    .bookingId
+                                                            ]?.departureAt,
+                                                            returnFlights[
+                                                                booking
+                                                                    .bookingId
+                                                            ]?.StartAirport
+                                                                ?.timezone
+                                                        )
+                                                        .format("DD MMMM yyyy")}
+                                                    departureCity={
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.StartAirport?.city
+                                                    }
+                                                    flightDuration={
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.duration
+                                                    }
+                                                    arrivalCity={
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.EndAirport?.city
+                                                    }
+                                                    arrivalTime={moment
+                                                        .tz(
+                                                            returnFlights[
+                                                                booking
+                                                                    .bookingId
+                                                            ]?.arrivalAt,
+                                                            returnFlights[
+                                                                booking
+                                                                    .bookingId
+                                                            ]?.StartAirport
+                                                                ?.timezone
+                                                        )
+                                                        .clone()
+                                                        .tz(
+                                                            returnFlights[
+                                                                booking
+                                                                    .bookingId
+                                                            ]?.EndAirport
+                                                                ?.timezone
+                                                        )
+                                                        .format("HH:mm")}
+                                                    arrivalDate={moment
+                                                        .tz(
+                                                            returnFlights[
+                                                                booking
+                                                                    .bookingId
+                                                            ]?.arrivalAt,
+                                                            returnFlights[
+                                                                booking
+                                                                    .bookingId
+                                                            ]?.StartAirport
+                                                                ?.timezone
+                                                        )
+                                                        .clone()
+                                                        .tz(
+                                                            returnFlights[
+                                                                booking
+                                                                    .bookingId
+                                                            ]?.EndAirport
+                                                                ?.timezone
+                                                        )
+                                                        .format("DD MMMM yyyy")}
+                                                />
+                                            </>
                                         )}
-                                    </p>
+                                    <hr className="solid" />
                                 </Col>
+                                <Row style={{ textAlign: "left" }}>
+                                    <Col md={4}>
+                                        <p
+                                            style={{
+                                                margin: 0,
+                                                fontWeight: "700",
+                                            }}
+                                        >
+                                            Booking Code:
+                                        </p>
+                                        <p>{booking?.Booking?.bookingCode}</p>
+                                    </Col>
+                                    <Col md={4}>
+                                        <p
+                                            style={{
+                                                margin: 0,
+                                                fontWeight: "700",
+                                            }}
+                                        >
+                                            Class:
+                                        </p>
+                                        {booking?.Seat?.airlineClass ===
+                                        "FIRST_CLASS" ? (
+                                            <p>FirstClass</p>
+                                        ) : (
+                                            booking?.Seat?.airlineClass
+                                        )}
+                                    </Col>
+                                    <Col md={4} className="">
+                                        <p
+                                            style={{
+                                                margin: 0,
+                                                fontWeight: "700",
+                                            }}
+                                        >
+                                            Total Payment:
+                                        </p>
+                                        <p>
+                                            Rp{" "}
+                                            {formattedPrice(
+                                                booking?.Booking?.Payment
+                                                    ?.totalPrice
+                                            )}
+                                        </p>
+                                    </Col>
+                                </Row>
                             </Row>
-                        </Row>
-                    </Button>
+                        </Card.Body>
+                    </Card>
                 );
             })}
         </>
@@ -623,22 +682,18 @@ const HistoryDetail = ({ booking }) => {
     };
 
     return (
-        <Container className="pb-5">
-            <div
-                className="scroll-container"
-                style={{
-                    maxHeight: "70vh",
-                    overflowY: "auto",
-                    padding: "20px",
-                    border: "2px solid #7126b5",
-                    borderRadius: "10px",
-                }}
-            >
-                {flightDeparture && (
+        <Card
+            style={{
+                boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
+                borderRadius: "0.50rem",
+            }}
+        >
+            <Card.Body>
+                {!booking[0]?.Booking?.roundtripFlightId ? (
                     <>
                         <DetailFlight
                             TitleDetail={"Jadwal Berangkat"}
-                            BookingCode={`${booking[0]?.Booking?.bookingCode}`}
+                            BookingCode={`Booking Code: ${booking[0]?.Booking?.bookingCode}`}
                             BookingStatus={
                                 <StatusPayment
                                     bookingStatus={
@@ -648,64 +703,170 @@ const HistoryDetail = ({ booking }) => {
                             }
                             departureTime={moment
                                 .tz(
-                                    flightDeparture?.departureAt,
-                                    flightDeparture?.StartAirport?.timezone
+                                    booking[0]?.Seat?.Flight?.departureAt,
+                                    booking[0]?.Seat?.Flight?.StartAirport
+                                        ?.timezone
                                 )
                                 .format("HH:mm")}
                             departureDate={moment
                                 .tz(
-                                    flightDeparture?.departureAt,
-                                    flightDeparture?.StartAirport?.timezone
+                                    booking[0]?.Seat?.Flight?.departureAt,
+                                    booking[0]?.Seat?.Flight?.StartAirport
+                                        ?.timezone
                                 )
                                 .format("DD MMMM yyyy")}
                             departureAirport={
-                                flightDeparture?.StartAirport?.name
+                                booking[0]?.Seat?.Flight?.StartAirport?.name
                             }
                             departureTerminal={
-                                flightDeparture?.StartAirport?.terminal
+                                booking[0]?.Seat?.Flight?.StartAirport?.terminal
                             }
                             arrivalTime={moment
                                 .tz(
-                                    flightDeparture?.arrivalAt,
-                                    flightDeparture?.EndAirport?.timezone
+                                    booking[0]?.Seat?.Flight?.arrivalAt,
+                                    booking[0]?.Seat?.Flight?.StartAirport
+                                        ?.timezone
                                 )
                                 .clone()
-                                .tz(flightDeparture?.EndAirport?.timezone)
+                                .tz(
+                                    booking[0]?.Seat?.Flight?.EndAirport
+                                        ?.timezone
+                                )
                                 .format("HH:mm")}
                             arrivalDate={moment
                                 .tz(
-                                    flightDeparture?.arrivalAt,
-                                    flightDeparture?.EndAirport?.timezone
+                                    booking[0]?.Seat?.Flight?.arrivalAt,
+                                    booking[0]?.Seat?.Flight?.StartAirport
+                                        ?.timezone
                                 )
                                 .clone()
-                                .tz(flightDeparture?.EndAirport?.timezone)
+                                .tz(
+                                    booking[0]?.Seat?.Flight?.EndAirport
+                                        ?.timezone
+                                )
                                 .format("DD MMMM yyyy")}
-                            arrivalAirport={flightDeparture?.EndAirport?.name}
+                            arrivalAirport={
+                                booking[0]?.Seat?.Flight?.EndAirport?.name
+                            }
                             arrivalTerminal={
-                                flightDeparture?.EndAirport?.terminal
+                                booking[0]?.Seat?.Flight?.EndAirport?.terminal
                             }
-                            airlineName={flightDeparture?.Airline?.name}
-                            airlineLogo={flightDeparture?.Airline?.picture}
+                            airlineName={
+                                booking[0]?.Seat?.Flight?.Airline?.name
+                            }
+                            airlineLogo={
+                                booking[0]?.Seat?.Flight?.Airline?.picture
+                            }
                             seatClass={seatType}
-                            flightCode={flightDeparture?.flightCode}
-                            baggage={flightDeparture?.Airline?.baggage}
+                            flightCode={booking[0]?.Seat?.Flight?.flightCode}
+                            baggage={booking[0]?.Seat?.Flight?.Airline?.baggage}
                             cabinBaggage={
-                                flightDeparture?.Airline?.cabinBaggage
+                                booking[0]?.Seat?.Flight?.Airline?.cabinBaggage
                             }
-                            additionals={flightDeparture?.Airline?.additionals}
+                            additionals={
+                                booking[0]?.Seat?.Flight?.Airline?.additionals
+                            }
                             booking={booking}
                         />
                         <Price
                             adult={adult}
                             child={child}
                             baby={baby}
-                            flightPrice={flightDeparture[`price${seatType}`]}
+                            flightPrice={
+                                booking[0]?.Seat?.Flight[`price${seatType}`]
+                            }
                             setTotalPrice={setDepartureTotalPrice}
                         />
                     </>
-                )}
-                {flightReturn && booking[0].Booking.roundtripFlightId && (
+                ) : (
                     <>
+                        <DetailFlight
+                            TitleDetail={"Jadwal Berangkat"}
+                            BookingCode={`Booking Code: ${booking[1]?.Booking?.bookingCode}`}
+                            BookingStatus={
+                                <StatusPayment
+                                    bookingStatus={
+                                        booking[1]?.Booking?.Payment?.status
+                                    }
+                                />
+                            }
+                            departureTime={moment
+                                .tz(
+                                    booking[1]?.Seat?.Flight?.departureAt,
+                                    booking[1]?.Seat?.Flight?.StartAirport
+                                        ?.timezone
+                                )
+                                .format("HH:mm")}
+                            departureDate={moment
+                                .tz(
+                                    booking[1]?.Seat?.Flight?.departureAt,
+                                    booking[1]?.Seat?.Flight?.StartAirport
+                                        ?.timezone
+                                )
+                                .format("DD MMMM yyyy")}
+                            departureAirport={
+                                booking[1]?.Seat?.Flight?.StartAirport?.name
+                            }
+                            departureTerminal={
+                                booking[1]?.Seat?.Flight?.StartAirport?.terminal
+                            }
+                            arrivalTime={moment
+                                .tz(
+                                    booking[1]?.Seat?.Flight?.arrivalAt,
+                                    booking[1]?.Seat?.Flight?.StartAirport
+                                        ?.timezone
+                                )
+                                .clone()
+                                .tz(
+                                    booking[1]?.Seat?.Flight?.EndAirport
+                                        ?.timezone
+                                )
+                                .format("HH:mm")}
+                            arrivalDate={moment
+                                .tz(
+                                    booking[1]?.Seat?.Flight?.arrivalAt,
+                                    booking[1]?.Seat?.Flight?.StartAirport
+                                        ?.timezone
+                                )
+                                .clone()
+                                .tz(
+                                    booking[1]?.Seat?.Flight?.EndAirport
+                                        ?.timezone
+                                )
+                                .format("DD MMMM yyyy")}
+                            arrivalAirport={
+                                booking[1]?.Seat?.Flight?.EndAirport?.name
+                            }
+                            arrivalTerminal={
+                                booking[1]?.Seat?.Flight?.EndAirport?.terminal
+                            }
+                            airlineName={
+                                booking[1]?.Seat?.Flight?.Airline?.name
+                            }
+                            airlineLogo={
+                                booking[1]?.Seat?.Flight?.Airline?.picture
+                            }
+                            seatClass={seatType}
+                            flightCode={booking[1]?.Seat?.Flight?.flightCode}
+                            baggage={booking[1]?.Seat?.Flight?.Airline?.baggage}
+                            cabinBaggage={
+                                booking[1]?.Seat?.Flight?.Airline?.cabinBaggage
+                            }
+                            additionals={
+                                booking[1]?.Seat?.Flight?.Airline?.additionals
+                            }
+                            booking={booking}
+                        />
+                        <Price
+                            adult={adult}
+                            child={child}
+                            baby={baby}
+                            flightPrice={
+                                booking[1]?.Seat?.Flight[`price${seatType}`]
+                            }
+                            setTotalPrice={setDepartureTotalPrice}
+                        />
+
                         <br />
                         <hr
                             style={{
@@ -716,7 +877,7 @@ const HistoryDetail = ({ booking }) => {
                         />
                         <DetailFlight
                             TitleDetail={"Jadwal Pulang"}
-                            BookingCode={`${booking[0]?.Booking?.bookingCode}`}
+                            BookingCode={`Booking Code: ${booking[0]?.Booking?.bookingCode}`}
                             BookingStatus={
                                 <StatusPayment
                                     bookingStatus={
@@ -726,52 +887,78 @@ const HistoryDetail = ({ booking }) => {
                             }
                             departureTime={moment
                                 .tz(
-                                    flightReturn?.departureAt,
-                                    flightReturn?.StartAirport?.timezone
+                                    booking[0]?.Seat?.Flight?.departureAt,
+                                    booking[0]?.Seat?.Flight?.StartAirport
+                                        ?.timezone
                                 )
                                 .format("HH:mm")}
                             departureDate={moment
                                 .tz(
-                                    flightReturn?.departureAt,
-                                    flightReturn?.StartAirport?.timezone
+                                    booking[0]?.Seat?.Flight?.departureAt,
+                                    booking[0]?.Seat?.Flight?.StartAirport
+                                        ?.timezone
                                 )
                                 .format("DD MMMM yyyy")}
-                            departureAirport={flightReturn?.StartAirport?.name}
+                            departureAirport={
+                                booking[0]?.Seat?.Flight?.StartAirport?.name
+                            }
                             departureTerminal={
-                                flightReturn?.StartAirport?.terminal
+                                booking[0]?.Seat?.Flight?.StartAirport?.terminal
                             }
                             arrivalTime={moment
                                 .tz(
-                                    flightReturn?.arrivalAt,
-                                    flightReturn?.StartAirport?.timezone
+                                    booking[0]?.Seat?.Flight?.arrivalAt,
+                                    booking[0]?.Seat?.Flight?.StartAirport
+                                        ?.timezone
                                 )
                                 .clone()
-                                .tz(flightReturn?.EndAirport?.timezone)
+                                .tz(
+                                    booking[0]?.Seat?.Flight?.EndAirport
+                                        ?.timezone
+                                )
                                 .format("HH:mm")}
                             arrivalDate={moment
                                 .tz(
-                                    flightReturn?.arrivalAt,
-                                    flightReturn?.StartAirport?.timezone
+                                    booking[0]?.Seat?.Flight?.arrivalAt,
+                                    booking[0]?.Seat?.Flight?.StartAirport
+                                        ?.timezone
                                 )
                                 .clone()
-                                .tz(flightReturn?.EndAirport?.timezone)
+                                .tz(
+                                    booking[0]?.Seat?.Flight?.EndAirport
+                                        ?.timezone
+                                )
                                 .format("DD MMMM yyyy")}
-                            arrivalAirport={flightReturn?.EndAirport?.name}
-                            arrivalTerminal={flightReturn?.EndAirport?.terminal}
-                            airlineName={flightReturn?.Airline?.name}
-                            airlineLogo={flightReturn?.Airline?.picture}
+                            arrivalAirport={
+                                booking[0]?.Seat?.Flight?.EndAirport?.name
+                            }
+                            arrivalTerminal={
+                                booking[0]?.Seat?.Flight?.EndAirport?.terminal
+                            }
+                            airlineName={
+                                booking[0]?.Seat?.Flight?.Airline?.name
+                            }
+                            airlineLogo={
+                                booking[0]?.Seat?.Flight?.Airline?.picture
+                            }
                             seatClass={seatType}
-                            flightCode={flightReturn?.flightCode}
-                            baggage={flightReturn?.Airline?.baggage}
-                            cabinBaggage={flightReturn?.Airline?.cabinBaggage}
-                            additionals={flightReturn?.Airline?.additionals}
+                            flightCode={booking[0]?.Seat?.Flight?.flightCode}
+                            baggage={booking[0]?.Seat?.Flight?.Airline?.baggage}
+                            cabinBaggage={
+                                booking[0]?.Seat?.Flight?.Airline?.cabinBaggage
+                            }
+                            additionals={
+                                booking[0]?.Seat?.Flight?.Airline?.additionals
+                            }
                             booking={booking}
                         />
                         <Price
                             adult={adult}
                             child={child}
                             baby={baby}
-                            flightPrice={flightReturn[`price${seatType}`]}
+                            flightPrice={
+                                booking[1]?.Seat?.Flight[`price${seatType}`]
+                            }
                             setTotalPrice={setReturnTotalPrice}
                         />
 
@@ -782,51 +969,50 @@ const HistoryDetail = ({ booking }) => {
                         />
                     </>
                 )}
-            </div>
 
-            {(booking[0]?.Booking?.Payment?.status === "UNPAID" && (
-                <Row className="pt-3 d-flex justify-content-between">
-                    <Col xs={12} className="d-flex">
-                        <Button
-                            onClick={handleLanjutBayar}
-                            className="flex-fill"
-                            type="button"
-                            variant="danger"
-                            style={{
-                                borderRadius: 14,
-                                fontWeight: 700,
-                                height: 50,
-                            }}
-                        >
-                            Lanjut Bayar
-                        </Button>
-                    </Col>
-                </Row>
-            )) ||
-                (booking[0]?.Booking?.Payment?.status === "ISSUED" && (
+                {(booking[0]?.Booking?.Payment?.status === "UNPAID" && (
                     <Row className="pt-3 d-flex justify-content-between">
                         <Col xs={12} className="d-flex">
                             <Button
-                                onClick={handlePrintTicket}
+                                onClick={handleLanjutBayar}
                                 className="flex-fill"
                                 type="button"
-                                variant="primary"
+                                variant="danger"
                                 style={{
                                     borderRadius: 14,
                                     fontWeight: 700,
                                     height: 50,
                                 }}
-                                disabled={loading}
                             >
-                                {loading
-                                    ? "Tiket sedang dicetak.."
-                                    : "Cetak Tiket"}
+                                Lanjut Bayar
                             </Button>
                         </Col>
                     </Row>
-                ))}
-            {/* Refund Feature */}
-            {/* )) ||
+                )) ||
+                    (booking[0]?.Booking?.Payment?.status === "ISSUED" && (
+                        <Row className="pt-3 d-flex justify-content-between">
+                            <Col xs={12} className="d-flex">
+                                <Button
+                                    onClick={handlePrintTicket}
+                                    className="flex-fill"
+                                    type="button"
+                                    variant="primary"
+                                    style={{
+                                        borderRadius: 14,
+                                        fontWeight: 700,
+                                        height: 50,
+                                    }}
+                                    disabled={loading}
+                                >
+                                    {loading
+                                        ? "Tiket sedang dicetak.."
+                                        : "Cetak Tiket"}
+                                </Button>
+                            </Col>
+                        </Row>
+                    ))}
+                {/* Refund Feature */}
+                {/* )) ||
                 (booking[0]?.Booking?.Payment?.status === "CANCELED" && (
                     <Row className="pt-3 d-flex justify-content-between">
                         <Col xs={12} className="d-flex">
@@ -840,18 +1026,18 @@ const HistoryDetail = ({ booking }) => {
                         </Col>
                     </Row>
                 ))} */}
-        </Container>
+            </Card.Body>
+        </Card>
     );
 };
 
 const HistoryDetailMobile = ({ showModal, setShowModal, booking }) => {
     return (
         <Modal show={showModal} onHide={() => setShowModal(false)}>
-            <Modal.Header closeButton></Modal.Header>
-            <Modal.Body>
-                <HistoryDetail booking={booking} />
-            </Modal.Body>
-            <hr />
+            <Modal.Header closeButton className="my-1"></Modal.Header>
+
+            <HistoryDetail booking={booking} />
+
             {/* <Container>
                 <Row className="pb-3 d-flex justify-content-between">
                     <Col xs={6} className="d-flex">

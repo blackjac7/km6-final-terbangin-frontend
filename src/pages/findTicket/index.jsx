@@ -17,7 +17,6 @@ import {
   Typography,
   Modal,
 } from "@mui/material";
-import { format } from "date-fns";
 import { toast } from "react-toastify";
 
 import findTicketLoading from "../../assets/findTicketLoading.svg";
@@ -44,6 +43,7 @@ const FindTicket = () => {
   const [isFullScreen, setIsFullScreen] = useState(window.innerWidth > 1160);
   const [flightIdDeparture, setflightIdDeparture] = useState("");
   const [flightIdReturn, setflightIdReturn] = useState("");
+  const [isSelectingReturn, setIsSelectingReturn] = useState(false);
 
   const navigate = useNavigate();
 
@@ -150,6 +150,7 @@ const FindTicket = () => {
           seatType
         )
       );
+      setIsSelectingReturn(true);
     } else {
       dispatch(
         getFilterFlights(
@@ -162,6 +163,7 @@ const FindTicket = () => {
           seatType
         )
       );
+      setIsSelectingReturn(false);
     }
   }, [
     dispatch,
@@ -182,7 +184,11 @@ const FindTicket = () => {
       {/* Header */}
       <HeaderShadow>
         <h4 className="pt-4" style={{ fontWeight: 700 }}>
-          Pilih Penerbangan
+          {flightType === "Return"
+            ? isSelectingReturn
+              ? "Pilih Penerbangan Kepulangan"
+              : "Pilih Penerbangan Keberangkatan"
+            : "Pilih Penerbangan"}
         </h4>
 
         <Row className="mt-4 g-2">
@@ -241,7 +247,7 @@ const FindTicket = () => {
       <Container>
         <Row className={isFullScreen ? "pt-4 mx-5" : "pt-4"}>
           <Col>
-            { lendata == false ? (
+            {lendata == false ? (
               <TicketNotFound />
             ) : (
               <FlightList
@@ -538,7 +544,7 @@ const FlightList = ({
             className="mb-3 py-2"
             style={{
               border: expanded === flight.id ? "2px solid purple" : "",
-              boxShadow: "1px 0 5px 1px rgba(0, 0, 0, 0.1)",
+              boxShadow: "1px 0 5px 2px rgba(0, 0, 0, 0.1)",
               borderRadius: "0.50rem",
             }}
           >
@@ -600,7 +606,7 @@ const FlightList = ({
                             placement="top"
                             overlay={
                               <Tooltip>
-                                Free {flight.Airline.baggage} baggage
+                                Free {flight.Airline.baggage}kg baggage
                               </Tooltip>
                             }
                           >
@@ -616,7 +622,7 @@ const FlightList = ({
                         style={{ padding: 0 }}
                       >
                         <h3 style={{ fontSize: 20, fontWeight: 650 }}>
-                          IDR{" "}
+                          IDR
                           {formatCurrency(
                             flight["price" + datafiltering.seatType]
                           )}
