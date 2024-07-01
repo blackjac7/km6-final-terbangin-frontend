@@ -10,7 +10,6 @@ const NotificationHandler = () => {
         // Initialize socket connection
         if (!socket.current) {
             socket.current = io(import.meta.env.VITE_SOCKET_URL, {
-                transports: ["websocket"],
                 reconnectionAttempts: Infinity,
                 reconnectionDelay: 2000,
             });
