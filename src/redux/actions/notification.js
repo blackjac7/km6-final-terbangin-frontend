@@ -45,7 +45,7 @@ export const getNotificationByUserId =
             dispatch(setNotifications(data));
             return data;
         } catch (error) {
-            toast.info("Tidak ada notifikasi");
+            console.log("tidak ada notif");
         }
     };
 
