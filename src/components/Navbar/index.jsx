@@ -6,7 +6,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import login from "../../assets/fi_log-in.png";
 import { useEffect, useState, useRef } from "react";
 import { getProfile, logout } from "../../redux/actions/auth";
-import { Menu, MenuItem, IconButton, Avatar } from "@mui/material";
+import { Menu, MenuItem, IconButton, Avatar, Badge } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
@@ -178,7 +178,12 @@ function NavScrollExample() {
                                         handleClose();
                                     }}
                                 >
-                                    <NotificationsNoneIcon />
+                                    <Badge
+                                        badgeContent={notificationCount}
+                                        color="error"
+                                    >
+                                        <NotificationsNoneIcon />
+                                    </Badge>
                                 </IconButton>
                                 <IconButton
                                     color="inherit"
