@@ -12,6 +12,8 @@ import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import "./navbar.css";
 import { getNotificationByUserId } from "../../redux/actions/notification";
+import { ToastContainer, Zoom } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import io from "socket.io-client";
 
 const StyledMenuItemLogout = styled(MenuItem)(({ theme }) => ({
@@ -232,6 +234,14 @@ function NavScrollExample() {
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
+            <ToastContainer
+                enableMultiContainer
+                containerId={"navbarToast"}
+                position="top-right"
+                autoClose={5000}
+                transition={Zoom}
+                className="custom-toast-container"
+            />
         </>
     );
 }
