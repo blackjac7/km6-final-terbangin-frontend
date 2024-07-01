@@ -27,7 +27,6 @@ import BookingForm from "./pages/checkout/index";
 import Payment from "./pages/payment";
 import NotificationPage from "./pages/notification";
 import PaymentSuccess from "./pages/payment/success";
-import PaymentNotification from "./components/Payment/PaymentNotification";
 
 import ProtectedVerification from "./components/ProtectedVerification/ProtectedVerification";
 import ProtectedVerificationProfile from "./components/ProtectedVerification/ProtectedVerificationProfile";
@@ -38,6 +37,7 @@ import Protected from "./components/Protected";
 import NonProtected from "./components/NonProtected";
 import ProtectedPayment from "./components/ProtectedPayment";
 import ProtectedPaymentSuccess from "./components/ProtectedPaymentSuccess";
+import NotificationHandler from "./components/NotificationRealTime";
 
 const router = createBrowserRouter([
     {
@@ -186,7 +186,7 @@ function App() {
                 clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
             >
                 <RouterProvider router={router} />
-                <PaymentNotification />
+                <NotificationHandler />
                 <ToastContainer theme="colored" />
             </GoogleOAuthProvider>
         </Provider>

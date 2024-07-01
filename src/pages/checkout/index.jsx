@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Form, Row, Col, Container, Card, Button } from "react-bootstrap";
 import { Breadcrumbs, Link } from "@mui/material";
@@ -16,12 +16,12 @@ import PassangerForm from "../../components/Passanger/PassangerForm";
 import TotalPrice from "../../components/PriceDetail/TotalPrice";
 import Price from "../../components/PriceDetail/Price";
 import SeatSelectionComponent from "../../components/Passanger/Seat";
-import CustomToastMessage from "../../components/ToastMessage";
 
 import { createPassanger } from "../../redux/actions/passanger";
 import { generateSnapPayment } from "../../redux/actions/payment";
 import { createBooking } from "../../redux/actions/booking";
 import { createHelperBooking } from "../../redux/actions/helperBooking";
+import Swal from "sweetalert2";
 
 const BookingForm = () => {
     const { user } = useSelector((state) => state.auth);
@@ -61,6 +61,8 @@ const BookingForm = () => {
     const [departureTotalPrice, setDepartureTotalPrice] = useState(0);
     const [returnTotalPrice, setReturnTotalPrice] = useState(0);
     const [bookingIdResult, setBookingIdResult] = useState("");
+    const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
+    const socket = useRef(null);
 
     const initialPassangerState = {
         title: "",
@@ -86,36 +88,6 @@ const BookingForm = () => {
     });
     const [errors, setErrors] = useState({});
     const [errorStatus, setErrorStatus] = useState(false);
-
-    const socket = io(import.meta.env.VITE_SOCKET_URL);
-
-    useEffect(() => {
-        socket.on("connect", () => {
-            console.log("Connected to server");
-        });
-
-        socket.on("disconnect", () => {
-            console.log("Disconnected from server");
-        });
-
-        socket.on("bookingNotification", (data) => {
-            console.log("Received booking notification:", data);
-            toast.info(
-                <CustomToastMessage
-                    message={data?.message || "Received booking notification"}
-                    highlight={data?.bookingCode}
-                />,
-                {
-                    containerId: "navbarToast",
-                    closeOnClick: true,
-                }
-            );
-        });
-
-        return () => {
-            socket.disconnect();
-        };
-    }, [socket]);
 
     const validateForm = () => {
         let formErrors = {};
@@ -208,74 +180,99 @@ const BookingForm = () => {
         setCapacityUser(capacity - baby);
     }, [dispatch, flightIdDeparture]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            if (flightDeparture?.id || flightReturn?.id) {
-                let selectedAirlineClass = "";
+    const fetchData = async () => {
+        if (flightDeparture?.id || flightReturn?.id) {
+            let selectedAirlineClass = "";
 
-                if (seatType === "Economy") {
-                    selectedAirlineClass = "ECONOMY";
-                } else if (seatType === "Bussines") {
-                    selectedAirlineClass = "BUSINESS";
-                } else if (seatType === "FirstClass") {
-                    selectedAirlineClass = "FIRST_CLASS";
-                }
+            if (seatType === "Economy") {
+                selectedAirlineClass = "ECONOMY";
+            } else if (seatType === "Bussines") {
+                selectedAirlineClass = "BUSINESS";
+            } else if (seatType === "FirstClass") {
+                selectedAirlineClass = "FIRST_CLASS";
+            }
 
-                setAirlineClass(selectedAirlineClass);
+            setAirlineClass(selectedAirlineClass);
 
-                try {
-                    // console.log(
-                    //     "Data Penerbangan Berangkat: ",
-                    //     flightDeparture
-                    // );
-                    const dataDeparture = await dispatch(
-                        getSeatByFlightId(flightDeparture?.id)
+            try {
+                // console.log(
+                //     "Data Penerbangan Berangkat: ",
+                //     flightDeparture
+                // );
+                const dataDeparture = await dispatch(
+                    getSeatByFlightId(flightDeparture?.id)
+                );
+                const filteredDataDeparture = dataDeparture?.filter(
+                    (seat) => seat.airlineClass === selectedAirlineClass
+                );
+                const availableSeatsDeparture = filteredDataDeparture?.filter(
+                    (seat) => seat.isAvailable === true
+                );
+                setSeatDeparture(filteredDataDeparture);
+                setSeatDepartureAvailable(availableSeatsDeparture);
+
+                // console.log("Data Kursi Berangkat: ", filteredDataDeparture);
+                console.log(
+                    "Data Kursi Tersedia Berangkat: ",
+                    availableSeatsDeparture
+                );
+
+                if (flightIdReturn && flightReturn?.id) {
+                    // console.log(flightIdReturn);
+                    // console.log("Data Penerbangan Pulang: ", flightReturn);
+                    const dataReturn = await dispatch(
+                        getSeatByFlightId(flightReturn?.id)
                     );
-                    const filteredDataDeparture = dataDeparture?.filter(
+                    const filteredDataReturn = dataReturn?.filter(
                         (seat) => seat.airlineClass === selectedAirlineClass
                     );
-                    const availableSeatsDeparture =
-                        filteredDataDeparture?.filter(
-                            (seat) => seat.isAvailable === true
-                        );
-                    setSeatDeparture(filteredDataDeparture);
-                    setSeatDepartureAvailable(availableSeatsDeparture);
-
-                    // console.log("Data Kursi Berangkat: ", filteredDataDeparture);
-                    console.log(
-                        "Data Kursi Tersedia Berangkat: ",
-                        availableSeatsDeparture
+                    const availableSeatsReturn = filteredDataReturn?.filter(
+                        (seat) => seat.isAvailable === true
                     );
+                    setSeatReturn(filteredDataReturn);
+                    setSeatReturnAvailable(availableSeatsReturn);
 
-                    if (flightIdReturn && flightReturn?.id) {
-                        // console.log(flightIdReturn);
-                        // console.log("Data Penerbangan Pulang: ", flightReturn);
-                        const dataReturn = await dispatch(
-                            getSeatByFlightId(flightReturn?.id)
-                        );
-                        const filteredDataReturn = dataReturn?.filter(
-                            (seat) => seat.airlineClass === selectedAirlineClass
-                        );
-                        const availableSeatsReturn = filteredDataReturn?.filter(
-                            (seat) => seat.isAvailable === true
-                        );
-                        setSeatReturn(filteredDataReturn);
-                        setSeatReturnAvailable(availableSeatsReturn);
-
-                        // console.log("Data Kursi Pulang: ", filteredDataReturn);
-                        console.log(
-                            "Data Kursi Tersedia Pulang: ",
-                            availableSeatsReturn
-                        );
-                    }
-                } catch (error) {
-                    console.error("Error fetching seat data:", error);
+                    // console.log("Data Kursi Pulang: ", filteredDataReturn);
+                    console.log(
+                        "Data Kursi Tersedia Pulang: ",
+                        availableSeatsReturn
+                    );
                 }
+            } catch (error) {
+                console.error("Error fetching seat data:", error);
+            }
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+        setIsPaymentSuccess(false);
+    }, [dispatch, flightDeparture, flightReturn, seatType, isPaymentSuccess]);
+
+    useEffect(() => {
+        socket.current = io(import.meta.env.VITE_SOCKET_URL);
+
+        socket.current.on("connect", () => {
+            console.log("Connected to server");
+        });
+
+        socket.current.on("disconnect", () => {
+            console.log("Disconnected from server");
+        });
+
+        socket.current.on("seatsUpdate", (message) => {
+            console.log("Payment successful, updating seat data");
+            setIsPaymentSuccess(true);
+        });
+
+        return () => {
+            if (socket.current) {
+                socket.current.off("paymentSuccess");
+                socket.current.disconnect();
+                socket.current = null;
             }
         };
-
-        fetchData();
-    }, [dispatch, flightDeparture, flightReturn, seatType]);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -362,6 +359,13 @@ const BookingForm = () => {
                     setIsSaved(true);
                     setSeatsConfirmed(true);
                     window.scrollTo(0, 0);
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "Booking Berhasil",
+                        text: "Silahkan lanjutkan ke pembayaran.",
+                        confirmButtonColor: "#7126B5",
+                    });
                 }
             } catch (error) {
                 toast.error("Gagal membuat data booking.");

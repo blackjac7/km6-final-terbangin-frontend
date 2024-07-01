@@ -4,7 +4,7 @@ import { Button, Image, Container, Form, Navbar } from "react-bootstrap";
 import logo from "../../assets/Logo/svg/logo-no-background.svg";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import login from "../../assets/fi_log-in.png";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getProfile, logout } from "../../redux/actions/auth";
 // import SearchIcon from "@mui/icons-material/Search";
 import { Menu, MenuItem, IconButton, Avatar, Badge } from "@mui/material";
@@ -15,6 +15,7 @@ import { ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./navbar.css";
 import { getNotificationByUserId } from "../../redux/actions/notification";
+import io from "socket.io-client";
 
 const StyledMenuItemLogout = styled(MenuItem)(({ theme }) => ({
     "&:hover": {
@@ -35,6 +36,7 @@ function NavScrollExample() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [notificationCount, setNotificationCount] = useState(0);
     const [notifications, setNotifications] = useState([]);
+    const socket = useRef(null);
     const open = Boolean(anchorEl);
 
     const handleMenu = (event) => {
@@ -51,30 +53,59 @@ function NavScrollExample() {
         handleClose();
     };
 
+    const fetchNotifications = async () => {
+        if (!user) {
+            return;
+        }
+        const data = await dispatch(getNotificationByUserId(user?.id));
+        setNotifications(data);
+
+        let count = 0;
+        data.forEach((notification) => {
+            if (!notification.statusRead) {
+                count++;
+            }
+        });
+        setNotificationCount(count);
+    };
+
     useEffect(() => {
         dispatch(getProfile());
     }, [dispatch, token]);
 
     useEffect(() => {
-        const fetchData = async () => {
-            if (!user) {
-                return;
+        if (user) {
+            fetchNotifications();
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (!user) {
+            return;
+        }
+
+        socket.current = io(import.meta.env.VITE_SOCKET_URL);
+
+        socket.current.on("connect", () => {
+            console.log("Connected to server");
+        });
+
+        socket.current.on("disconnect", () => {
+            console.log("Disconnected from server");
+        });
+
+        socket.current.on("notificationUpdate", (data) => {
+            fetchNotifications();
+        });
+
+        return () => {
+            if (socket.current) {
+                socket.current.off("notificationUpdate");
+                socket.current.disconnect();
+                socket.current = null;
             }
-            const data = await dispatch(getNotificationByUserId(user?.id));
-
-            setNotifications(data);
-
-            let count = 0;
-            notifications.forEach((notification) => {
-                if (!notification.statusRead) {
-                    count++;
-                }
-            });
-            setNotificationCount(count);
         };
-
-        fetchData();
-    }, [dispatch, user, notifications]);
+    }, [user]);
 
     return (
         <>

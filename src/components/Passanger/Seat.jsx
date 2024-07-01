@@ -18,7 +18,7 @@ const SeatSelectionComponent = ({
 }) => {
     const [totalSeats, setTotalSeats] = useState(seatArrayAll?.length ?? 0);
     const [seatCols] = useState(6);
-    const [seats, setSeats] = useState([]);
+    const [seats, setSeats] = useState(null);
     const [adultSeats, setAdultSeats] = useState(0);
     const [childSeats, setChildSeats] = useState(0);
     // const [babySeats, setBabySeats] = useState(0);
@@ -28,8 +28,8 @@ const SeatSelectionComponent = ({
         onSeatsSelected(seatSelected);
     }, [seatSelected]);
 
-    useEffect(() => {
-        const sortedSeatArray = [...seatArrayAll].sort(
+    const initializeSeats = (seatArray) => {
+        const sortedSeatArray = [...seatArray].sort(
             (a, b) => a.seatNumber - b.seatNumber
         );
         const seatRows = Math.ceil(totalSeats / seatCols);
@@ -55,6 +55,10 @@ const SeatSelectionComponent = ({
                     })
             );
         setSeats(newSeats);
+    };
+
+    useEffect(() => {
+        initializeSeats(seatArrayAll);
     }, [seatArrayAll, totalSeats, seatCols]);
 
     useEffect(() => {
@@ -209,7 +213,7 @@ const SeatSelectionComponent = ({
                             )
                         )}
                     </div>
-                    {seats.map((row, rowIndex) => (
+                    {seats?.map((row, rowIndex) => (
                         <div
                             key={rowIndex}
                             className="d-flex justify-content-center mb-2"

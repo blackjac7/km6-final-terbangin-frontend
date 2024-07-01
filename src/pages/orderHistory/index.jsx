@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Row, Col, Button, Container, Modal } from "react-bootstrap";
-import { jsPDF } from "jspdf";
-import "jspdf-autotable";
 import "./order.css";
+import Swal from "sweetalert2";
 
 import HeaderShadow from "../../components/HeaderShadow";
 import BackButton from "../../components/BackButton";
@@ -21,6 +20,7 @@ import { toast } from "react-toastify";
 import { getFlightById } from "../../redux/actions/flight";
 import FlightDestinationReturn from "../../components/FlightDestination/return";
 import moment from "moment-timezone";
+import { printTicket } from "../../redux/actions/booking";
 
 const OrderHistory = () => {
     const [showModal, setShowModal] = useState(false);
@@ -29,7 +29,6 @@ const OrderHistory = () => {
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [detailHistory, setDetailHistory] = useState([]);
-    
 
     const dispatch = useDispatch();
     const { historycards, historycard } = useSelector((state) => state.history);
@@ -41,16 +40,16 @@ const OrderHistory = () => {
     };
 
     const groupByMonth = (data) => {
-      return data.reduce((acc, item) => {
-        const month = moment(item.Seat?.Flight?.departureAt).format(
-          "MMMM YYYY"
-        );
-        if (!acc[month]) {
-          acc[month] = [];
-        }
-        acc[month].push(item);
-        return acc;
-      }, {});
+        return data.reduce((acc, item) => {
+            const month = moment(item.Seat?.Flight?.departureAt).format(
+                "MMMM YYYY"
+            );
+            if (!acc[month]) {
+                acc[month] = [];
+            }
+            acc[month].push(item);
+            return acc;
+        }, {});
     };
 
     const groupedHistorycards = groupByMonth(historycards);
@@ -85,37 +84,37 @@ const OrderHistory = () => {
     }, []);
 
     return (
-      <>
-        {/* Header */}
-        <HeaderShadow>
-          <h4 className="pt-4" style={{ fontWeight: 700 }}>
-            Riwayat Pemesanan
-          </h4>
-          <Row className="my-4 g-2">
-            <Col xs={12} md={10} className="d-flex">
-              <BackButton ButtonText={"Beranda"} />
-            </Col>
-            <Col xs={12} md={2} className="d-flex">
-              <Button
-                variant="outline-primary"
-                style={{ borderRadius: 14 }}
-                className="flex-fill"
-              >
-                Filter
-              </Button>
-            </Col>
-          </Row>
-        </HeaderShadow>
-        {/* Month for make section history per-month */}
+        <>
+            {/* Header */}
+            <HeaderShadow>
+                <h4 className="pt-4" style={{ fontWeight: 700 }}>
+                    Riwayat Pemesanan
+                </h4>
+                <Row className="my-4 g-2">
+                    <Col xs={12} md={10} className="d-flex">
+                        <BackButton ButtonText={"Beranda"} />
+                    </Col>
+                    <Col xs={12} md={2} className="d-flex">
+                        <Button
+                            variant="outline-primary"
+                            style={{ borderRadius: 14 }}
+                            className="flex-fill"
+                        >
+                            Filter
+                        </Button>
+                    </Col>
+                </Row>
+            </HeaderShadow>
+            {/* Month for make section history per-month */}
 
-        {/* <Container className="my-3">
+            {/* <Container className="my-3">
             <Row className="mx-sm-4">
               <h5>Maret 2024</h5>
             </Row>
           </Container> */}
 
-        {/* Main Content */}
-        {/* <Container>
+            {/* Main Content */}
+            {/* <Container>
             <Row className="mx-sm-4">
               <Col md={7}>
                 <HistoryDestination
@@ -126,8 +125,8 @@ const OrderHistory = () => {
                   historycards={historycards}
                 />
               </Col> */}
-        {/* If mobile breakpoint is false, the detail history will show on right side page */}
-        {/* {showDetail && !isMobile && selectedBooking && (
+            {/* If mobile breakpoint is false, the detail history will show on right side page */}
+            {/* {showDetail && !isMobile && selectedBooking && (
                 <Col md={5} className="px-4">
                   <HistoryDetail booking={historycard} />
                 </Col>
@@ -135,45 +134,47 @@ const OrderHistory = () => {
             </Row>
           </Container> */}
 
-        <Container>
-          <Row className="mx-sm-4">
-            <Col md={7}>
-              {Object.keys(groupedHistorycards).map((month) => (
-                <Container>
-                  <Container className="my-3">
-                    <Row >
-                      <h5>{month}</h5>
-                    </Row>
-                  </Container>
-                  <Col>
-                    <HistoryDestination
-                      onDetailClick={handleDetailClick}
-                      isActive={isActive}
-                      setIsActive={setIsActive}
-                      selectedBooking={selectedBooking}
-                      historycards={groupedHistorycards[month]} // Kirim data yang dikelompokkan berdasarkan bulan
-                    />
-                  </Col>
-                </Container>
-              ))}
-            </Col>
-            {showDetail && !isMobile && selectedBooking && (
-              <Col md={5} className="px-4 my-3 mt-5">
-                <HistoryDetail booking={historycard} />
-              </Col>
-            )}
-          </Row>
-        </Container>
+            <Container>
+                <Row className="mx-sm-4">
+                    <Col md={7}>
+                        {Object.keys(groupedHistorycards).map((month) => (
+                            <Container>
+                                <Container className="my-3">
+                                    <Row>
+                                        <h5>{month}</h5>
+                                    </Row>
+                                </Container>
+                                <Col>
+                                    <HistoryDestination
+                                        onDetailClick={handleDetailClick}
+                                        isActive={isActive}
+                                        setIsActive={setIsActive}
+                                        selectedBooking={selectedBooking}
+                                        historycards={
+                                            groupedHistorycards[month]
+                                        } // Kirim data yang dikelompokkan berdasarkan bulan
+                                    />
+                                </Col>
+                            </Container>
+                        ))}
+                    </Col>
+                    {showDetail && !isMobile && selectedBooking && (
+                        <Col md={5} className="px-4 my-3 mt-5">
+                            <HistoryDetail booking={historycard} />
+                        </Col>
+                    )}
+                </Row>
+            </Container>
 
-        {/* If mobile breakpoint is true, the detail history will show by modal */}
-        {isMobile && selectedBooking && (
-          <HistoryDetailMobile
-            setShowModal={setShowModal}
-            showModal={showModal}
-            booking={historycard}
-          />
-        )}
-      </>
+            {/* If mobile breakpoint is true, the detail history will show by modal */}
+            {isMobile && selectedBooking && (
+                <HistoryDetailMobile
+                    setShowModal={setShowModal}
+                    showModal={showModal}
+                    booking={historycard}
+                />
+            )}
+        </>
     );
 };
 
@@ -303,6 +304,10 @@ const HistoryDestination = ({
                                                     ?.EndAirport?.timezone
                                             )
                                             .format("DD MMMM yyyy")}
+                                        additionals={
+                                            booking?.Seat?.Flight?.Airline
+                                                ?.additionals
+                                        }
                                     />
                                 )}
                                 {hasRoundtrip &&
@@ -381,6 +386,11 @@ const HistoryDestination = ({
                                                         ]?.EndAirport?.timezone
                                                     )
                                                     .format("DD MMMM yyyy")}
+                                                additionals={
+                                                    returnFlights[
+                                                        booking.bookingId
+                                                    ]?.Airline?.additionals
+                                                }
                                             />
                                         </>
                                     )}
@@ -460,7 +470,6 @@ const StatusPayment = ({ bookingStatus }) => {
 const HistoryDetail = ({ booking }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { historycard } = useSelector((state) => state.history);
 
     const [departureTotalPrice, setDepartureTotalPrice] = useState(0);
     const [returnTotalPrice, setReturnTotalPrice] = useState(0);
@@ -474,11 +483,10 @@ const HistoryDetail = ({ booking }) => {
     const [bookingIdResult, setBookingIdResult] = useState("");
     const [flightReturn, setFlightReturn] = useState(null);
     const [flightDeparture, setFlightDeparture] = useState(null);
+    const [loading, setloading] = useState(false);
 
     const handleLanjutBayar = (e) => {
         e.preventDefault();
-
-        const price = totalPrice ? totalPrice : departureTotalPrice;
 
         navigate("/payment", {
             state: {
@@ -595,86 +603,23 @@ const HistoryDetail = ({ booking }) => {
         fetchFlight();
     }, [booking, dispatch]);
 
-    const handlePrintTicket = () => {
-        const doc = new jsPDF();
-
-        // Add title
-        doc.setFontSize(22);
-        doc.setFont("helvetica", "bold");
-        doc.text("Ticket Information", 105, 20, null, null, "center");
-
-        // Draw a line below the title
-        doc.setLineWidth(0.5);
-        doc.line(20, 25, 190, 25);
-
-        // Booking Code
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-        doc.text("Booking Code:", 20, 35);
-        doc.setFont("helvetica", "normal");
-        doc.text(`${booking[0]?.Booking?.bookingCode}`, 60, 35);
-
-        // Flight details
-        doc.setFont("helvetica", "bold");
-        doc.text("Flight Details", 20, 45);
-        doc.setFont("helvetica", "normal");
-        doc.text(
-            `From: ${booking[1]?.Seat?.Flight?.StartAirport?.name}`,
-            20,
-            55
-        );
-        doc.text(`To: ${booking[1]?.Seat?.Flight?.EndAirport?.name}`, 20, 65);
-        doc.text(`Flight: ${booking[1]?.Seat?.Flight?.flightCode}`, 20, 75);
-
-        // Departure and arrival times
-        doc.text(
-            `Departure Time: ${moment
-                .tz(
-                    booking[1]?.Seat?.Flight?.departureAt,
-                    booking[1]?.Seat?.Flight?.StartAirport?.timezone
-                )
-                .format("HH:mm DD MMMM yyyy")}`,
-            20,
-            85
-        );
-        doc.text(
-            `Arrival Time: ${moment
-                .tz(
-                    booking[1]?.Seat?.Flight?.arrivalAt,
-                    booking[1]?.Seat?.Flight?.EndAirport?.timezone
-                )
-                .format("HH:mm DD MMMM yyyy")}`,
-            20,
-            95
-        );
-
-        // Seat class
-        doc.setFont("helvetica", "bold");
-        doc.text("Seat Class:", 20, 105);
-        doc.setFont("helvetica", "normal");
-        doc.text(seatType, 60, 105);
-
-        // Passenger info
-        doc.setFont("helvetica", "bold");
-        doc.text("Passenger Info", 20, 115);
-        doc.setFont("helvetica", "normal");
-        doc.text(`Adults: ${adult}`, 20, 125);
-        doc.text(`Children: ${child}`, 20, 135);
-        doc.text(`Babies: ${baby}`, 20, 145);
-
-        // Total price
-        doc.setFont("helvetica", "bold");
-        doc.text("Total Price:", 20, 155);
-        doc.setFont("helvetica", "normal");
-        doc.text(`IDR ${totalPrice}`, 60, 155);
-
-        // Draw a box around the details
-        doc.setDrawColor(0);
-        doc.setLineWidth(0.5);
-        doc.rect(10, 30, 190, 130);
-
-        // Save the PDF
-        doc.save(`ticket_${booking[0]?.Booking?.bookingCode}.pdf`);
+    const handlePrintTicket = async () => {
+        try {
+            setloading(true);
+            await dispatch(printTicket(booking[0]?.Booking?.id));
+            Swal.fire({
+                icon: "success",
+                title: "Tiket berhasil dikirim ke email Anda",
+            });
+            setloading(false);
+        } catch (error) {
+            console.error("Failed to print ticket:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Gagal mengirim tiket. Silakan coba lagi!",
+            });
+        }
     };
 
     return (
@@ -871,8 +816,11 @@ const HistoryDetail = ({ booking }) => {
                                     fontWeight: 700,
                                     height: 50,
                                 }}
+                                disabled={loading}
                             >
-                                Cetak Tiket
+                                {loading
+                                    ? "Tiket sedang dicetak.."
+                                    : "Cetak Tiket"}
                             </Button>
                         </Col>
                     </Row>
