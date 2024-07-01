@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Image, Container, Form, Navbar } from "react-bootstrap";
+import { Button, Image, Container, Navbar } from "react-bootstrap";
 import logo from "../../assets/Logo/svg/logo-no-background.svg";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import login from "../../assets/fi_log-in.png";
@@ -12,6 +12,7 @@ import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import "./navbar.css";
 import { getNotificationByUserId } from "../../redux/actions/notification";
+import io from "socket.io-client";
 
 const StyledMenuItemLogout = styled(MenuItem)(({ theme }) => ({
     "&:hover": {
