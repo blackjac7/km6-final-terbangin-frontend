@@ -4,7 +4,7 @@ import { Button, Image, Container, Navbar } from "react-bootstrap";
 import logo from "../../assets/Logo/svg/logo-no-background.svg";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import login from "../../assets/fi_log-in.png";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { getProfile, logout } from "../../redux/actions/auth";
 import { Menu, MenuItem, IconButton, Avatar, Badge } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -14,7 +14,7 @@ import "./navbar.css";
 import { getNotificationByUserId } from "../../redux/actions/notification";
 import { ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import io from "socket.io-client";
+import { useSocket } from "../SocketContext";
 
 const StyledMenuItemLogout = styled(MenuItem)(({ theme }) => ({
     "&:hover": {
@@ -34,7 +34,7 @@ function NavScrollExample() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [notificationCount, setNotificationCount] = useState(0);
     const [notifications, setNotifications] = useState([]);
-    const socket = useRef(null);
+    const socket = useSocket();
     const open = Boolean(anchorEl);
 
     const handleMenu = (event) => {
@@ -59,7 +59,7 @@ function NavScrollExample() {
         setNotifications(data);
 
         let count = 0;
-        data.forEach((notification) => {
+        data?.forEach((notification) => {
             if (!notification.statusRead) {
                 count++;
             }
@@ -78,35 +78,20 @@ function NavScrollExample() {
     }, [user]);
 
     useEffect(() => {
-        if (!user) {
+        if (!user || !socket.current) {
             return;
         }
 
-        socket.current = io(import.meta.env.VITE_SOCKET_URL, {
-            reconnectionAttempts: Infinity,
-            reconnectionDelay: 2000,
-        });
-
-        socket.current.on("connect", () => {
-            console.log("Connected to server");
-        });
-
-        socket.current.on("disconnect", () => {
-            console.log("Disconnected from server");
-        });
-
-        socket.current.on("notificationUpdate", (data) => {
+        socket.current.on("notificationUpdate", () => {
             fetchNotifications();
         });
 
         return () => {
             if (socket.current) {
                 socket.current.off("notificationUpdate");
-                socket.current.disconnect();
-                socket.current = null;
             }
         };
-    }, [user]);
+    }, [socket.current]);
 
     return (
         <>

@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { Button, Container, Image } from "react-bootstrap";
 import "./success.css";
 import { printTicket } from "../../redux/actions/booking";
+import Swal from "sweetalert2";
 
 const PaymentSuccess = () => {
     const location = useLocation();
@@ -15,9 +16,25 @@ const PaymentSuccess = () => {
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const { snapToken, bookingId } = location.state || {};
+    const [loading, setloading] = useState(false);
 
-    const handlePrintTicket = () => {
-        dispatch(printTicket(bookingId));
+    const handlePrintTicket = async () => {
+        try {
+            setloading(true);
+            await dispatch(printTicket(bookingId));
+            Swal.fire({
+                icon: "success",
+                title: "Tiket berhasil dikirim ke email Anda",
+            });
+            setloading(false);
+        } catch (error) {
+            console.error("Failed to print ticket:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Gagal mengirim tiket. Silakan coba lagi!",
+            });
+        }
     };
 
     const findOther = () => {
@@ -83,8 +100,9 @@ const PaymentSuccess = () => {
                 <Button
                     className={"paymentSuccessBtn mt-1"}
                     onClick={handlePrintTicket}
+                    disabled={loading}
                 >
-                    Terbitkan Tiket
+                    {loading ? "Loading..." : "Kirim Jadwal Penerbangan"}
                 </Button>
 
                 <Button

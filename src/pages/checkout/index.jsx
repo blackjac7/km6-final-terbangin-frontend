@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getFlightById } from "../../redux/actions/flight";
 import { getSeatByFlightId } from "../../redux/actions/seat";
 import moment from "moment-timezone";
-import io from "socket.io-client";
+import { useSocket } from "../../components/SocketContext";
 
 import DetailFlight from "../../components/FlightDetail";
 import HeaderShadow from "../../components/HeaderShadow";
@@ -62,7 +62,7 @@ const BookingForm = () => {
     const [returnTotalPrice, setReturnTotalPrice] = useState(0);
     const [bookingIdResult, setBookingIdResult] = useState("");
     const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
-    const socket = useRef(null);
+    const socket = useSocket();
 
     const initialPassangerState = {
         title: "",
@@ -250,18 +250,9 @@ const BookingForm = () => {
     }, [dispatch, flightDeparture, flightReturn, seatType, isPaymentSuccess]);
 
     useEffect(() => {
-        socket.current = io(import.meta.env.VITE_SOCKET_URL, {
-            reconnectionAttempts: Infinity,
-            reconnectionDelay: 2000,
-        });
-
-        socket.current.on("connect", () => {
-            console.log("Connected to server");
-        });
-
-        socket.current.on("disconnect", () => {
-            console.log("Disconnected from server");
-        });
+        if (!user || !socket.current) {
+            return;
+        }
 
         socket.current.on("seatsUpdate", (message) => {
             console.log("Payment successful, updating seat data");
@@ -271,11 +262,9 @@ const BookingForm = () => {
         return () => {
             if (socket.current) {
                 socket.current.off("seatsUpdate");
-                socket.current.disconnect();
-                socket.current = null;
             }
         };
-    }, []);
+    }, [socket.current]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -856,7 +845,6 @@ const BookingForm = () => {
                                         paddingTop: "20px",
                                         paddingBottom: "20px",
                                         borderRadius: "17px",
-                                        backgroundColor: "#7126B5",
                                     }}
                                 >
                                     {loading ? "Loading..." : "Lanjut Bayar"}
