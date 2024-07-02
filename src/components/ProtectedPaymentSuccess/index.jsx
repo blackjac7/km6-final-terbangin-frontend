@@ -18,7 +18,7 @@ export default function ProtectedPaymentSuccess({ children }) {
         if (!token) {
             navigate("/login", { replace: true });
         }
-
+        
         if (!snapToken || !bookingId) {
             navigate("/");
         }

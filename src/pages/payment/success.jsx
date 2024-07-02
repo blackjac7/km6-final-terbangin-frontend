@@ -107,7 +107,7 @@ const PaymentSuccess = () => {
 
                 <Button
                     className={"paymentSuccessBtn mt-3"}
-                    onClick={findOther}
+                    onClick={() => findOther}
                 >
                     Cari penerbangan lain
                 </Button>

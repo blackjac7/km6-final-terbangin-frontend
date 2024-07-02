@@ -82,7 +82,7 @@ function NavScrollExample() {
             return;
         }
 
-        socket.current.on("notificationUpdate", () => {
+        socket.current.on("notificationUpdate", (message) => {
             fetchNotifications();
         });
 
