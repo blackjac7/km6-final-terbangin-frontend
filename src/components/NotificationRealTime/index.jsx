@@ -12,6 +12,65 @@ const NotificationHandler = () => {
         if (!user || !socket.current) {
             return;
         }
+<<<<<<< HEAD
+
+        socket.current.on("bookingNotification", (data) => {
+            if (data.userId === user.id) {
+                console.log("Received booking notification:", data);
+                toast.info(
+                    <CustomToastMessage
+                        message={
+                            data?.message || "Received booking notification"
+                        }
+                        highlight={data?.highlight}
+                    />,
+                    {
+                        containerId: "navbarToast",
+                        closeOnClick: true,
+                    }
+                );
+            }
+        });
+
+        socket.current.on("paymentSuccess", (data) => {
+            if (data.userId === user.id) {
+                console.log("Received payment success notification:", data);
+                toast.success(
+                    <CustomToastMessage
+                        message={
+                            data?.message || "Received payment notification"
+                        }
+                        highlight={data?.highlight || "Order ID"}
+                    />,
+                    {
+                        containerId: "navbarToast",
+                        autoClose: 5000,
+                        closeOnClick: true,
+                    }
+                );
+            }
+        });
+
+        socket.current.on("paymentFailed", (data) => {
+            if (data.userId === user.id) {
+                console.log("Received payment failed notification:", data);
+                toast.error(
+                    <CustomToastMessage
+                        message={
+                            data?.message || "Received payment notification"
+                        }
+                        highlight={data?.highlight || "Order ID"}
+                    />,
+                    {
+                        containerId: "navbarToast",
+                        autoClose: 5000,
+                        closeOnClick: true,
+                    }
+                );
+            }
+        });
+=======
+>>>>>>> main
 
         socket.current.on("bookingNotification", (data) => {
             console.log("Received booking notification:", data);
@@ -64,7 +123,11 @@ const NotificationHandler = () => {
                 socket.current.off("paymentFailed");
             }
         };
+<<<<<<< HEAD
+    }, [socket.current, user]);
+=======
     }, [socket.current]);
+>>>>>>> main
 
     return null;
 };
