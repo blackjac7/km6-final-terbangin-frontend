@@ -39,6 +39,7 @@ import NonProtected from "./components/NonProtected";
 import ProtectedPayment from "./components/ProtectedPayment";
 import ProtectedPaymentSuccess from "./components/ProtectedPaymentSuccess";
 import NotificationHandler from "./components/NotificationRealTime";
+import { SocketProvider } from "./components/SocketContext";
 
 const router = createBrowserRouter([
     {
@@ -192,13 +193,15 @@ const router = createBrowserRouter([
 function App() {
     return (
         <Provider store={store}>
-            <GoogleOAuthProvider
-                clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
-            >
-                <RouterProvider router={router} />
-                <NotificationHandler />
-                <ToastContainer theme="colored" />
-            </GoogleOAuthProvider>
+            <SocketProvider>
+                <GoogleOAuthProvider
+                    clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
+                >
+                    <RouterProvider router={router} />
+                    <NotificationHandler />
+                    <ToastContainer theme="colored" />
+                </GoogleOAuthProvider>
+            </SocketProvider>
         </Provider>
     );
 }

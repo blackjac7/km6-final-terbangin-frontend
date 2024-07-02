@@ -30,23 +30,6 @@ const Payment = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // integration with midtrans snap
-    useEffect(() => {
-        const midtransScriptUrl = import.meta.env
-            .VITE_MIDTRANS_SANDBOX_SNAP_URL;
-        const scriptTag = document.createElement("script");
-        scriptTag.src = midtransScriptUrl;
-
-        const myMidtransClientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
-        scriptTag.setAttribute("data-client-key", myMidtransClientKey);
-
-        document.body.appendChild(scriptTag);
-
-        return () => {
-            document.body.removeChild(scriptTag);
-        };
-    }, []);
-
     return (
         <>
             {/* Header */}
@@ -141,6 +124,7 @@ const BookingDetail = () => {
     const [adult, setAdult] = useState(0);
     const [child, setChild] = useState(0);
     const [baby, setBaby] = useState(0);
+    const [snapLoaded, setSnapLoaded] = useState(false);
 
     const {
         seatSelectedDeparture,
@@ -243,44 +227,56 @@ const BookingDetail = () => {
         fetchData();
     }, [dispatch, bookingIdResult, seatSelectedDeparture, seatSelectedReturn]);
 
+    // integration with midtrans snap
     useEffect(() => {
-        setTimeout(() => {
-            if (snapToken) {
-                try {
-                    window.snap.embed(snapToken, {
-                        embedId: "snapContainer",
-                        onSuccess: (result) => {
-                            console.log("success");
-                            console.log(result);
-                            // const queryParam = new URLSearchParams({
-                            //     snapToken,
-                            // }).toString();
-                            // window.location.href = `/payment-success?${queryParam}`;
-                            navigate("/payment-success", {
-                                state: {
-                                    snapToken,
-                                    bookingId: bookingIdResult,
-                                },
-                            });
-                        },
-                        onPending: (result) => {
-                            console.log("pending");
-                            console.log(result);
-                        },
-                        onError: (result) => {
-                            console.log("error");
-                            console.log(result);
-                        },
-                        onClose: () => {
-                            console.log("closed");
+        const midtransScriptUrl = import.meta.env
+            .VITE_MIDTRANS_SANDBOX_SNAP_URL;
+        const scriptTag = document.createElement("script");
+        scriptTag.src = midtransScriptUrl;
+
+        const myMidtransClientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
+        scriptTag.setAttribute("data-client-key", myMidtransClientKey);
+
+        scriptTag.onload = () => setSnapLoaded(true);
+        document.body.appendChild(scriptTag);
+
+        return () => {
+            document.body.removeChild(scriptTag);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!snapLoaded || !snapToken) return;
+
+        try {
+            window.snap.embed(snapToken, {
+                embedId: "snapContainer",
+                onSuccess: (result) => {
+                    console.log("success");
+                    console.log(result);
+                    navigate("/payment-success", {
+                        state: {
+                            snapToken,
+                            bookingId: bookingIdResult,
                         },
                     });
-                } catch (error) {
-                    console.error("Error during snap embed:", error);
-                }
-            }
-        }, 500);
-    }, [snapToken, navigate]);
+                },
+                onPending: (result) => {
+                    console.log("pending");
+                    console.log(result);
+                },
+                onError: (result) => {
+                    console.log("error");
+                    console.log(result);
+                },
+                onClose: () => {
+                    console.log("closed");
+                },
+            });
+        } catch (error) {
+            console.error("Error during snap embed:", error);
+        }
+    }, [snapLoaded, snapToken, navigate]);
 
     return (
         <>

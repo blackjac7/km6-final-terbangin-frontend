@@ -21,6 +21,7 @@ import {
     getHistoryCardDetails,
     getHistoryCards,
 } from "../../redux/actions/history";
+import { resetHistoryState } from "../../redux/reducers/history";
 import { useDispatch, useSelector } from "react-redux";
 import TotalPrice from "../../components/PriceDetail/TotalPrice";
 import { useNavigate } from "react-router-dom";
@@ -42,7 +43,7 @@ const OrderHistory = () => {
     const dispatch = useDispatch();
     const { historycards, historycard } = useSelector((state) => state.history);
 
-    const { user } = useSelector((state) => state.auth);
+    const { user, token } = useSelector((state) => state.auth);
 
     const handleResize = () => {
         setIsMobile(window.innerWidth < 768);
@@ -90,6 +91,13 @@ const OrderHistory = () => {
     };
 
     useEffect(() => {
+        return () => {
+            // Dispatch action to reset history state
+            dispatch(resetHistoryState());
+        };
+    }, [dispatch]);
+
+    useEffect(() => {
         if (!user) return;
         if (filterStatus == "") {
             dispatch(getHistoryCards());
@@ -97,7 +105,7 @@ const OrderHistory = () => {
             dispatch(getHistoryCards(filterStatus));
             setShowDetail(false);
         }
-    }, [dispatch, user, filterStatus]);
+    }, [dispatch, token, filterStatus]);
 
     useEffect(() => {
         window.addEventListener("resize", handleResize);
@@ -183,9 +191,25 @@ const OrderHistory = () => {
 
             <Container>
                 <Row>
+                    <div className="text-center mt-5 ">
+                        <img
+                            src="/Search-rafiki.svg"
+                            alt="history not available"
+                            loading="lazy"
+                            width="300"
+                            height="300"
+                            style={{
+                                maxWidth: "100%",
+                                height: "auto",
+                            }}
+                        />
+                    </div>
                     <Col md={7}>
+                        {Object.keys(groupedHistorycards).length === 0 && (
+                            <Container className="my-3"></Container>
+                        )}
                         {Object.keys(groupedHistorycards).map((month) => (
-                            <>
+                            <React.Fragment key={month}>
                                 <Container className="my-3">
                                     <Row>
                                         <h5>{month}</h5>
@@ -202,7 +226,7 @@ const OrderHistory = () => {
                                         } // Kirim data yang dikelompokkan berdasarkan bulan
                                     />
                                 </Col>
-                            </>
+                            </React.Fragment>
                         ))}
                     </Col>
                     {showDetail && !isMobile && selectedBooking && (
@@ -1013,8 +1037,8 @@ const HistoryDetail = ({ booking }) => {
                                     disabled={loading}
                                 >
                                     {loading
-                                        ? "Tiket sedang dicetak.."
-                                        : "Cetak Tiket"}
+                                        ? "Jadwal Penerbangan Sedang Dikirim.."
+                                        : "Kirim Jadwal Penerbangan"}
                                 </Button>
                             </Col>
                         </Row>

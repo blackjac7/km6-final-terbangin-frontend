@@ -57,7 +57,6 @@ const DestinationFavorit = ({ isFullScreen }) => {
     const [sortContinent, setSortContinent] = useState("Asia");
     const { flights } = useSelector((state) => state.flight);
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
 
     const getButtonStyle = (buttonId) => {
         return {
@@ -114,14 +113,6 @@ const DestinationFavorit = ({ isFullScreen }) => {
             },
         });
     };
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setLoading(false);
-        }, 2000);
-
-        return () => clearTimeout(timeout);
-    }, []);
 
     useEffect(() => {
         if (sortContinent !== null) {
@@ -186,10 +177,14 @@ const DestinationFavorit = ({ isFullScreen }) => {
                         >
                             <Card.Img
                                 src={flight.EndAirport.picture}
+                                alt="End Airport"
+                                loading="lazy"
                                 style={{
                                     width: "100%",
                                     height: "200px",
                                     objectFit: "cover",
+                                    display: "block",
+                                    backgroundColor: "#f0f0f0",
                                 }}
                             />
                             <Card.Body style={{ flex: "1 1 auto" }}>

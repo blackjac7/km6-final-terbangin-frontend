@@ -40,12 +40,22 @@ export const getNotificationByUserId =
 
         try {
             const response = await axios.request(config);
-            const { data } = response.data;
-
-            dispatch(setNotifications(data));
-            return data;
+            const { data } = response?.data;
+            if (data?.length > 0) {
+                dispatch(setNotifications(data));
+                return data;
+            }
         } catch (error) {
-            console.log("tidak ada notif");
+            if (error.response && error.response.status === 404) {
+                dispatch(setNotifications([])); // Set empty array on 404
+                return [];
+            } else {
+                toast.error(
+                    error?.response?.data?.message ||
+                        "Failed to fetch notifications"
+                );
+                throw error;
+            }
         }
     };
 
