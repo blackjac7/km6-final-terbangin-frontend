@@ -30,6 +30,7 @@ import { getFlightById } from "../../redux/actions/flight";
 import FlightDestinationReturn from "../../components/FlightDestination/return";
 import moment from "moment-timezone";
 import { printTicket } from "../../redux/actions/booking";
+import { useSocket } from "../../components/SocketContext";
 
 const OrderHistory = () => {
     const [showModal, setShowModal] = useState(false);
@@ -39,6 +40,7 @@ const OrderHistory = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [detailHistory, setDetailHistory] = useState([]);
     const [filterStatus, setFilterStatus] = useState("");
+    const socket = useSocket();
 
     const dispatch = useDispatch();
     const { historycards, historycard } = useSelector((state) => state.history);
@@ -105,7 +107,30 @@ const OrderHistory = () => {
             dispatch(getHistoryCards(filterStatus));
             setShowDetail(false);
         }
-    }, [dispatch, token, filterStatus, user]);
+    }, [dispatch, filterStatus, user]);
+
+    useEffect(() => {
+        if (!user || !socket.current) {
+            return;
+        }
+
+        socket.current.on("paymentUpdate", (message) => {
+            console.log("Payment status updated");
+            if (filterStatus == "") {
+                dispatch(getHistoryCards());
+                setShowDetail(false);
+            } else {
+                dispatch(getHistoryCards(filterStatus));
+                setShowDetail(false);
+            }
+        });
+
+        return () => {
+            if (socket.current) {
+                socket.current.off("paymentUpdate");
+            }
+        };
+    }, [socket.current]);
 
     useEffect(() => {
         window.addEventListener("resize", handleResize);
@@ -261,7 +286,7 @@ const HistoryDestination = ({
     const [returnFlights, setReturnFlights] = useState({});
 
     const formattedPrice = (price) => {
-        return price?.toLocaleString("id-ID");
+        return Number(price).toLocaleString("id-ID");
     };
 
     useEffect(() => {
@@ -280,6 +305,7 @@ const HistoryDestination = ({
 
         loadReturnFlights();
     }, [dispatch, historycards]);
+
     return (
         <>
             {historycards.map((booking) => {
@@ -483,7 +509,14 @@ const HistoryDestination = ({
                                         >
                                             Booking Code:
                                         </p>
-                                        <p>{booking?.Booking?.bookingCode}</p>
+                                        <p
+                                            style={{
+                                                color: "#7126b5",
+                                                fontWeight: "bold",
+                                            }}
+                                        >
+                                            {booking?.Booking?.bookingCode}
+                                        </p>
                                     </Col>
                                     <Col md={4}>
                                         <p
@@ -615,7 +648,7 @@ const HistoryDetail = ({ booking }) => {
                 seatId: item.Seat?.id,
             });
         });
-        // console.log("Seat Map: ", seatMap);
+        console.log("Seat Map: ", seatMap);
 
         if (!booking[0]?.Booking?.roundtripFlightId) {
             setSeatSelectedDeparture(seatMap[booking[0]?.Seat?.Flight?.id]);
@@ -624,7 +657,13 @@ const HistoryDetail = ({ booking }) => {
             //     seatMap[booking[0]?.Seat?.Flight?.id]
             // );
         } else {
-            setSeatSelectedDeparture(seatMap[booking[1]?.Seat?.Flight?.id]);
+            let departure;
+            booking.forEach((item) => {
+                if (item.Booking?.roundtripFlightId !== item.Seat?.flightId) {
+                    departure = item.Seat?.flightId;
+                }
+            });
+            setSeatSelectedDeparture(seatMap[departure]);
             // console.log(
             //     "Seat Map Departure: ",
             //     seatMap[booking[1]?.Seat?.Flight?.id]
@@ -685,7 +724,7 @@ const HistoryDetail = ({ booking }) => {
                     getFlightById(booking[0]?.Booking?.roundtripFlightId)
                 );
                 setFlightReturn(flightReturnData[0]);
-            } else {
+            } else if (booking[0]?.Seat?.flightId) {
                 const flightDepartureData = await dispatch(
                     getFlightById(booking[0]?.Seat?.flightId)
                 );
@@ -723,11 +762,11 @@ const HistoryDetail = ({ booking }) => {
             }}
         >
             <Card.Body>
-                {!booking[0]?.Booking?.roundtripFlightId ? (
+                {flightDeparture && (
                     <>
                         <DetailFlight
                             TitleDetail={"Jadwal Berangkat"}
-                            BookingCode={`Booking Code: ${booking[0]?.Booking?.bookingCode}`}
+                            BookingCode={`${booking[0]?.Booking?.bookingCode}`}
                             BookingStatus={
                                 <StatusPayment
                                     bookingStatus={
@@ -737,170 +776,64 @@ const HistoryDetail = ({ booking }) => {
                             }
                             departureTime={moment
                                 .tz(
-                                    booking[0]?.Seat?.Flight?.departureAt,
-                                    booking[0]?.Seat?.Flight?.StartAirport
-                                        ?.timezone
+                                    flightDeparture?.departureAt,
+                                    flightDeparture?.StartAirport?.timezone
                                 )
                                 .format("HH:mm")}
                             departureDate={moment
                                 .tz(
-                                    booking[0]?.Seat?.Flight?.departureAt,
-                                    booking[0]?.Seat?.Flight?.StartAirport
-                                        ?.timezone
+                                    flightDeparture?.departureAt,
+                                    flightDeparture?.StartAirport?.timezone
                                 )
                                 .format("DD MMMM yyyy")}
                             departureAirport={
-                                booking[0]?.Seat?.Flight?.StartAirport?.name
+                                flightDeparture?.StartAirport?.name
                             }
                             departureTerminal={
-                                booking[0]?.Seat?.Flight?.StartAirport?.terminal
+                                flightDeparture?.StartAirport?.terminal
                             }
                             arrivalTime={moment
                                 .tz(
-                                    booking[0]?.Seat?.Flight?.arrivalAt,
-                                    booking[0]?.Seat?.Flight?.StartAirport
-                                        ?.timezone
+                                    flightDeparture?.arrivalAt,
+                                    flightDeparture?.EndAirport?.timezone
                                 )
                                 .clone()
-                                .tz(
-                                    booking[0]?.Seat?.Flight?.EndAirport
-                                        ?.timezone
-                                )
+                                .tz(flightDeparture?.EndAirport?.timezone)
                                 .format("HH:mm")}
                             arrivalDate={moment
                                 .tz(
-                                    booking[0]?.Seat?.Flight?.arrivalAt,
-                                    booking[0]?.Seat?.Flight?.StartAirport
-                                        ?.timezone
+                                    flightDeparture?.arrivalAt,
+                                    flightDeparture?.EndAirport?.timezone
                                 )
                                 .clone()
-                                .tz(
-                                    booking[0]?.Seat?.Flight?.EndAirport
-                                        ?.timezone
-                                )
+                                .tz(flightDeparture?.EndAirport?.timezone)
                                 .format("DD MMMM yyyy")}
-                            arrivalAirport={
-                                booking[0]?.Seat?.Flight?.EndAirport?.name
-                            }
+                            arrivalAirport={flightDeparture?.EndAirport?.name}
                             arrivalTerminal={
-                                booking[0]?.Seat?.Flight?.EndAirport?.terminal
+                                flightDeparture?.EndAirport?.terminal
                             }
-                            airlineName={
-                                booking[0]?.Seat?.Flight?.Airline?.name
-                            }
-                            airlineLogo={
-                                booking[0]?.Seat?.Flight?.Airline?.picture
-                            }
+                            airlineName={flightDeparture?.Airline?.name}
+                            airlineLogo={flightDeparture?.Airline?.picture}
                             seatClass={seatType}
-                            flightCode={booking[0]?.Seat?.Flight?.flightCode}
-                            baggage={booking[0]?.Seat?.Flight?.Airline?.baggage}
+                            flightCode={flightDeparture?.flightCode}
+                            baggage={flightDeparture?.Airline?.baggage}
                             cabinBaggage={
-                                booking[0]?.Seat?.Flight?.Airline?.cabinBaggage
+                                flightDeparture?.Airline?.cabinBaggage
                             }
-                            additionals={
-                                booking[0]?.Seat?.Flight?.Airline?.additionals
-                            }
+                            additionals={flightDeparture?.Airline?.additionals}
                             booking={booking}
                         />
                         <Price
                             adult={adult}
                             child={child}
                             baby={baby}
-                            flightPrice={
-                                booking[0]?.Seat?.Flight[`price${seatType}`]
-                            }
+                            flightPrice={flightDeparture[`price${seatType}`]}
                             setTotalPrice={setDepartureTotalPrice}
                         />
                     </>
-                ) : (
+                )}
+                {flightReturn && booking[0]?.Booking?.roundtripFlightId && (
                     <>
-                        <DetailFlight
-                            TitleDetail={"Jadwal Berangkat"}
-                            BookingCode={`Booking Code: ${booking[1]?.Booking?.bookingCode}`}
-                            BookingStatus={
-                                <StatusPayment
-                                    bookingStatus={
-                                        booking[1]?.Booking?.Payment?.status
-                                    }
-                                />
-                            }
-                            departureTime={moment
-                                .tz(
-                                    booking[1]?.Seat?.Flight?.departureAt,
-                                    booking[1]?.Seat?.Flight?.StartAirport
-                                        ?.timezone
-                                )
-                                .format("HH:mm")}
-                            departureDate={moment
-                                .tz(
-                                    booking[1]?.Seat?.Flight?.departureAt,
-                                    booking[1]?.Seat?.Flight?.StartAirport
-                                        ?.timezone
-                                )
-                                .format("DD MMMM yyyy")}
-                            departureAirport={
-                                booking[1]?.Seat?.Flight?.StartAirport?.name
-                            }
-                            departureTerminal={
-                                booking[1]?.Seat?.Flight?.StartAirport?.terminal
-                            }
-                            arrivalTime={moment
-                                .tz(
-                                    booking[1]?.Seat?.Flight?.arrivalAt,
-                                    booking[1]?.Seat?.Flight?.StartAirport
-                                        ?.timezone
-                                )
-                                .clone()
-                                .tz(
-                                    booking[1]?.Seat?.Flight?.EndAirport
-                                        ?.timezone
-                                )
-                                .format("HH:mm")}
-                            arrivalDate={moment
-                                .tz(
-                                    booking[1]?.Seat?.Flight?.arrivalAt,
-                                    booking[1]?.Seat?.Flight?.StartAirport
-                                        ?.timezone
-                                )
-                                .clone()
-                                .tz(
-                                    booking[1]?.Seat?.Flight?.EndAirport
-                                        ?.timezone
-                                )
-                                .format("DD MMMM yyyy")}
-                            arrivalAirport={
-                                booking[1]?.Seat?.Flight?.EndAirport?.name
-                            }
-                            arrivalTerminal={
-                                booking[1]?.Seat?.Flight?.EndAirport?.terminal
-                            }
-                            airlineName={
-                                booking[1]?.Seat?.Flight?.Airline?.name
-                            }
-                            airlineLogo={
-                                booking[1]?.Seat?.Flight?.Airline?.picture
-                            }
-                            seatClass={seatType}
-                            flightCode={booking[1]?.Seat?.Flight?.flightCode}
-                            baggage={booking[1]?.Seat?.Flight?.Airline?.baggage}
-                            cabinBaggage={
-                                booking[1]?.Seat?.Flight?.Airline?.cabinBaggage
-                            }
-                            additionals={
-                                booking[1]?.Seat?.Flight?.Airline?.additionals
-                            }
-                            booking={booking}
-                        />
-                        <Price
-                            adult={adult}
-                            child={child}
-                            baby={baby}
-                            flightPrice={
-                                booking[1]?.Seat?.Flight[`price${seatType}`]
-                            }
-                            setTotalPrice={setDepartureTotalPrice}
-                        />
-
                         <br />
                         <hr
                             style={{
@@ -911,7 +844,7 @@ const HistoryDetail = ({ booking }) => {
                         />
                         <DetailFlight
                             TitleDetail={"Jadwal Pulang"}
-                            BookingCode={`Booking Code: ${booking[0]?.Booking?.bookingCode}`}
+                            BookingCode={`${booking[0]?.Booking?.bookingCode}`}
                             BookingStatus={
                                 <StatusPayment
                                     bookingStatus={
@@ -921,78 +854,52 @@ const HistoryDetail = ({ booking }) => {
                             }
                             departureTime={moment
                                 .tz(
-                                    booking[0]?.Seat?.Flight?.departureAt,
-                                    booking[0]?.Seat?.Flight?.StartAirport
-                                        ?.timezone
+                                    flightReturn?.departureAt,
+                                    flightReturn?.StartAirport?.timezone
                                 )
                                 .format("HH:mm")}
                             departureDate={moment
                                 .tz(
-                                    booking[0]?.Seat?.Flight?.departureAt,
-                                    booking[0]?.Seat?.Flight?.StartAirport
-                                        ?.timezone
+                                    flightReturn?.departureAt,
+                                    flightReturn?.StartAirport?.timezone
                                 )
                                 .format("DD MMMM yyyy")}
-                            departureAirport={
-                                booking[0]?.Seat?.Flight?.StartAirport?.name
-                            }
+                            departureAirport={flightReturn?.StartAirport?.name}
                             departureTerminal={
-                                booking[0]?.Seat?.Flight?.StartAirport?.terminal
+                                flightReturn?.StartAirport?.terminal
                             }
                             arrivalTime={moment
                                 .tz(
-                                    booking[0]?.Seat?.Flight?.arrivalAt,
-                                    booking[0]?.Seat?.Flight?.StartAirport
-                                        ?.timezone
+                                    flightReturn?.arrivalAt,
+                                    flightReturn?.StartAirport?.timezone
                                 )
                                 .clone()
-                                .tz(
-                                    booking[0]?.Seat?.Flight?.EndAirport
-                                        ?.timezone
-                                )
+                                .tz(flightReturn?.EndAirport?.timezone)
                                 .format("HH:mm")}
                             arrivalDate={moment
                                 .tz(
-                                    booking[0]?.Seat?.Flight?.arrivalAt,
-                                    booking[0]?.Seat?.Flight?.StartAirport
-                                        ?.timezone
+                                    flightReturn?.arrivalAt,
+                                    flightReturn?.StartAirport?.timezone
                                 )
                                 .clone()
-                                .tz(
-                                    booking[0]?.Seat?.Flight?.EndAirport
-                                        ?.timezone
-                                )
+                                .tz(flightReturn?.EndAirport?.timezone)
                                 .format("DD MMMM yyyy")}
-                            arrivalAirport={
-                                booking[0]?.Seat?.Flight?.EndAirport?.name
-                            }
-                            arrivalTerminal={
-                                booking[0]?.Seat?.Flight?.EndAirport?.terminal
-                            }
-                            airlineName={
-                                booking[0]?.Seat?.Flight?.Airline?.name
-                            }
-                            airlineLogo={
-                                booking[0]?.Seat?.Flight?.Airline?.picture
-                            }
+                            arrivalAirport={flightReturn?.EndAirport?.name}
+                            arrivalTerminal={flightReturn?.EndAirport?.terminal}
+                            airlineName={flightReturn?.Airline?.name}
+                            airlineLogo={flightReturn?.Airline?.picture}
                             seatClass={seatType}
-                            flightCode={booking[0]?.Seat?.Flight?.flightCode}
-                            baggage={booking[0]?.Seat?.Flight?.Airline?.baggage}
-                            cabinBaggage={
-                                booking[0]?.Seat?.Flight?.Airline?.cabinBaggage
-                            }
-                            additionals={
-                                booking[0]?.Seat?.Flight?.Airline?.additionals
-                            }
+                            flightCode={flightReturn?.flightCode}
+                            baggage={flightReturn?.Airline?.baggage}
+                            cabinBaggage={flightReturn?.Airline?.cabinBaggage}
+                            additionals={flightReturn?.Airline?.additionals}
                             booking={booking}
                         />
                         <Price
                             adult={adult}
                             child={child}
                             baby={baby}
-                            flightPrice={
-                                booking[1]?.Seat?.Flight[`price${seatType}`]
-                            }
+                            flightPrice={flightReturn[`price${seatType}`]}
                             setTotalPrice={setReturnTotalPrice}
                         />
 
