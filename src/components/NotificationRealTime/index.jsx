@@ -12,7 +12,6 @@ const NotificationHandler = () => {
         if (!user || !socket.current) {
             return;
         }
-<<<<<<< HEAD
 
         socket.current.on("bookingNotification", (data) => {
             if (data.userId === user.id) {
@@ -69,8 +68,6 @@ const NotificationHandler = () => {
                 );
             }
         });
-=======
->>>>>>> main
 
         socket.current.on("bookingNotification", (data) => {
             console.log("Received booking notification:", data);
@@ -123,11 +120,7 @@ const NotificationHandler = () => {
                 socket.current.off("paymentFailed");
             }
         };
-<<<<<<< HEAD
     }, [socket.current, user]);
-=======
-    }, [socket.current]);
->>>>>>> main
 
     return null;
 };
