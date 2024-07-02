@@ -22,7 +22,7 @@ const TotalPrice = ({
             <hr />
             <Row style={{ borderBottom: "2px solid black" }}>
                 <Col>
-                    <b>Total Harga</b>
+                    <b style={{ fontSize: "1.2rem" }}>Total Harga</b>
                 </Col>
                 <Col
                     className="d-flex justify-content-end"
