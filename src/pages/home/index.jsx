@@ -117,12 +117,12 @@ const DestinationFavorit = ({ isFullScreen }) => {
     useEffect(() => {
         if (sortContinent !== null) {
             const datePlus30Days = getDatePlus30Days();
-            console.log(
-                "Dispatching getFlightByContinent with date:",
-                datePlus30Days,
-                "and continent:",
-                sortContinent
-            );
+            // console.log(
+            //     "Dispatching getFlightByContinent with date:",
+            //     datePlus30Days,
+            //     "and continent:",
+            //     sortContinent
+            // );
             dispatch(getFlightByContinent(datePlus30Days, sortContinent)).catch(
                 (error) => {
                     console.error("Error fetching flights:", error);

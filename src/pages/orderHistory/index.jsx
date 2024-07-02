@@ -73,12 +73,12 @@ const OrderHistory = () => {
     const handleDetailClick = async (booking) => {
         await dispatch(getHistoryCardDetails(booking));
         if (historycard[0]?.bookingId === booking) {
-            console.log("masuk a");
+            // console.log("masuk a");
             setShowDetail(!showDetail);
         } else {
             setSelectedBooking(booking);
             setShowDetail(true);
-            console.log("masuk b");
+            // console.log("masuk b");
             await dispatch(getHistoryCardDetails(booking));
         }
 
@@ -115,7 +115,7 @@ const OrderHistory = () => {
         }
 
         socket.current.on("paymentUpdate", (message) => {
-            console.log("Payment status updated");
+            // console.log("Payment status updated");
             if (filterStatus == "") {
                 dispatch(getHistoryCards());
                 setShowDetail(false);
@@ -624,14 +624,14 @@ const HistoryDetail = ({ booking }) => {
                 babyCount: baby,
             },
         });
-        console.log("To Payment Page: ", {
-            seatSelectedDeparture: seatSelectedDeparture,
-            seatSelectedReturn: seatSelectedReturn,
-            bookingIdResult: bookingIdResult,
-            adultCount: adult,
-            childCount: child,
-            babyCount: baby,
-        });
+        // console.log("To Payment Page: ", {
+        //     seatSelectedDeparture: seatSelectedDeparture,
+        //     seatSelectedReturn: seatSelectedReturn,
+        //     bookingIdResult: bookingIdResult,
+        //     adultCount: adult,
+        //     childCount: child,
+        //     babyCount: baby,
+        // });
         toast.info("Silahkan Bayar.");
     };
     useEffect(() => {

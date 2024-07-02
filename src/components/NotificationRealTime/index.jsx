@@ -15,7 +15,7 @@ const NotificationHandler = () => {
 
         socket.current.on("bookingNotification", (data) => {
             if (data.userId === user.id) {
-                console.log("Received booking notification:", data);
+                // console.log("Received booking notification:", data);
                 toast.info(
                     <CustomToastMessage
                         message={
@@ -33,7 +33,7 @@ const NotificationHandler = () => {
 
         socket.current.on("paymentSuccess", (data) => {
             if (data.userId === user.id) {
-                console.log("Received payment success notification:", data);
+                // console.log("Received payment success notification:", data);
                 toast.success(
                     <CustomToastMessage
                         message={
@@ -52,7 +52,7 @@ const NotificationHandler = () => {
 
         socket.current.on("paymentFailed", (data) => {
             if (data.userId === user.id) {
-                console.log("Received payment failed notification:", data);
+                // console.log("Received payment failed notification:", data);
                 toast.error(
                     <CustomToastMessage
                         message={

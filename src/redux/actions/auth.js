@@ -28,7 +28,7 @@ export const login =
 
             dispatch(setToken(token));
             dispatch(setUser(user));
-            console.log(data);
+            // console.log(data);
 
             const bookingData = JSON.parse(localStorage.getItem("bookingData"));
 
@@ -48,13 +48,13 @@ export const login =
     };
 
 export const loginWithGoogle = (navigate, accessToken) => async (dispatch) => {
-    console.log("running dispatch login with google...");
+    // console.log("running dispatch login with google...");
 
     let data = JSON.stringify({
         access_token: accessToken,
     });
 
-    console.log("data:", data);
+    // console.log("data:", data);
 
     let config = {
         method: "post",
@@ -67,12 +67,12 @@ export const loginWithGoogle = (navigate, accessToken) => async (dispatch) => {
 
     try {
         const response = await axios.request(config);
-        console.log("loginWithGoogle -> ", response);
+        // console.log("loginWithGoogle -> ", response);
 
         // get and save the token to local storage
         const { data } = response.data;
         const { token, user } = data;
-        console.log(user);
+        // console.log(user);
 
         if (
             user &&
@@ -106,7 +106,7 @@ export const register =
     async (dispatch) => {
         setLoading(true);
 
-        console.log("register", name, email, phoneNumber, password, picture);
+        // console.log("register", name, email, phoneNumber, password, picture);
         let data = new FormData();
         data.append("fullName", name);
         data.append("email", email);
@@ -134,7 +134,7 @@ export const register =
             dispatch(setUser(user));
             dispatch(setToken(token));
 
-            console.log(data);
+            // console.log(data);
             const bookingData = JSON.parse(localStorage.getItem("bookingData"));
 
             if (bookingData) {

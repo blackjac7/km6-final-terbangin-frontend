@@ -14,7 +14,7 @@ export const getDestinations = () => async () => {
         const response = await axios.request(config);
 
         const { data } = response.data;
-        console.log(data);
+        // console.log(data);
         return data;
     } catch (error) {
         toast.error(error?.response?.data?.message);
