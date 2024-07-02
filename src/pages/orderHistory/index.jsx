@@ -105,7 +105,7 @@ const OrderHistory = () => {
             dispatch(getHistoryCards(filterStatus));
             setShowDetail(false);
         }
-    }, [dispatch, token, filterStatus]);
+    }, [dispatch, token, filterStatus, user]);
 
     useEffect(() => {
         window.addEventListener("resize", handleResize);
@@ -191,23 +191,22 @@ const OrderHistory = () => {
 
             <Container>
                 <Row>
-                    <div className="text-center mt-5 ">
-                        <img
-                            src="/Search-rafiki.svg"
-                            alt="history not available"
-                            loading="lazy"
-                            width="300"
-                            height="300"
-                            style={{
-                                maxWidth: "100%",
-                                height: "auto",
-                            }}
-                        />
-                    </div>
+                    {historycards.length === 0 && (
+                        <div className="text-center mt-5 ">
+                            <img
+                                src="/Search-rafiki.svg"
+                                alt="history not available"
+                                loading="lazy"
+                                width="300"
+                                height="300"
+                                style={{
+                                    maxWidth: "100%",
+                                    height: "auto",
+                                }}
+                            />
+                        </div>
+                    )}
                     <Col md={7}>
-                        {Object.keys(groupedHistorycards).length === 0 && (
-                            <Container className="my-3"></Container>
-                        )}
                         {Object.keys(groupedHistorycards).map((month) => (
                             <React.Fragment key={month}>
                                 <Container className="my-3">
