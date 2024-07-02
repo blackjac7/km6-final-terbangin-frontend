@@ -27,7 +27,7 @@ export const generateOTP =
             const response = await axios.request(config);
 
             const { data } = response.data;
-            console.log(data);
+            // console.log(data);
             toast.success(response.data.message, {
                 position: "top-center",
             });
@@ -90,7 +90,7 @@ export const generateOTPProfile =
             const response = await axios.request(config);
 
             const { data } = response.data;
-            console.log(data);
+            // console.log(data);
             toast.success(response.data.message, {
                 position: "top-center",
             });
@@ -185,7 +185,7 @@ export const verifyOTPProfile =
         try {
             const response = await axios.request(config);
             const { data } = response.data;
-            console.log(data);
+            // console.log(data);
 
             toast.success("Verification success. Updating profile...", {
                 position: "top-center",
@@ -226,7 +226,7 @@ export const generateLink = (email, setLoading) => async () => {
 
     try {
         const response = await axios.request(config);
-        console.log(response.data);
+        // console.log(response.data);
         toast.success(response.data.message, {
             position: "top-center",
         });
@@ -251,7 +251,7 @@ export const verifyLink = (navigate, token) => async () => {
     try {
         const response = await axios.request(config);
         const { data } = response.data;
-        console.log(data);
+        // console.log(data);
         navigate("/forget-password", {
             state: {
                 id: data.id,
@@ -292,9 +292,9 @@ export const updateForgetPasswordUser =
             const response = await axios.request(config);
 
             const { data } = response.data;
-            console.log(data);
+            // console.log(data);
 
-            console.log("id: ", userId, "\nnewPassword: ", newPassword);
+            // console.log("id: ", userId, "\nnewPassword: ", newPassword);
 
             navigate("/login");
 

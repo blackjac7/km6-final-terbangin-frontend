@@ -212,10 +212,10 @@ const BookingForm = () => {
                 setSeatDepartureAvailable(availableSeatsDeparture);
 
                 // console.log("Data Kursi Berangkat: ", filteredDataDeparture);
-                console.log(
-                    "Data Kursi Tersedia Berangkat: ",
-                    availableSeatsDeparture
-                );
+                // console.log(
+                //     "Data Kursi Tersedia Berangkat: ",
+                //     availableSeatsDeparture
+                // );
 
                 if (flightIdReturn && flightReturn?.id) {
                     // console.log(flightIdReturn);
@@ -233,10 +233,10 @@ const BookingForm = () => {
                     setSeatReturnAvailable(availableSeatsReturn);
 
                     // console.log("Data Kursi Pulang: ", filteredDataReturn);
-                    console.log(
-                        "Data Kursi Tersedia Pulang: ",
-                        availableSeatsReturn
-                    );
+                    // console.log(
+                    //     "Data Kursi Tersedia Pulang: ",
+                    //     availableSeatsReturn
+                    // );
                 }
             } catch (error) {
                 console.error("Error fetching seat data:", error);
@@ -255,7 +255,7 @@ const BookingForm = () => {
         }
 
         socket.current.on("seatsUpdate", (message) => {
-            console.log("Payment successful, updating seat data");
+            // console.log("Payment successful, updating seat data");
             setIsPaymentSuccess(true);
         });
 
@@ -285,11 +285,11 @@ const BookingForm = () => {
         } else {
             setErrorStatus(false);
             // console.log("Data yang disimpan: ", passangerData);
-            console.log("Kursi yang dipesan: ", seatSelectedDeparture);
-            console.log(
-                "Total Harga: ",
-                totalPrice ? totalPrice : departureTotalPrice
-            );
+            // console.log("Kursi yang dipesan: ", seatSelectedDeparture);
+            // console.log(
+            //     "Total Harga: ",
+            //     totalPrice ? totalPrice : departureTotalPrice
+            // );
 
             try {
                 setSaveDisabled(true);
@@ -297,13 +297,13 @@ const BookingForm = () => {
                 const passangerResult = await dispatch(
                     createPassanger(passangerData)
                 );
-                console.log("Data Penumpang: ", passangerResult);
+                // console.log("Data Penumpang: ", passangerResult);
                 const price = totalPrice ? totalPrice : departureTotalPrice;
 
                 const paymentResult = await dispatch(
                     generateSnapPayment({ totalPrice: price })
                 );
-                console.log("Data Pembayaran: ", paymentResult);
+                // console.log("Data Pembayaran: ", paymentResult);
 
                 let bookingData = {
                     userId: user?.id,
@@ -314,7 +314,7 @@ const BookingForm = () => {
                 const bookingResult = await dispatch(
                     createBooking(bookingData)
                 );
-                console.log("Data Booking: ", bookingResult);
+                // console.log("Data Booking: ", bookingResult);
 
                 setBookingIdResult(bookingResult?.id);
 
@@ -334,12 +334,12 @@ const BookingForm = () => {
                         passangerId: passangerResult[key]?.id,
                     });
                 });
-                console.log(helperBookingData);
+                // console.log(helperBookingData);
 
                 const helperBookingResult = await dispatch(
                     createHelperBooking(helperBookingData)
                 );
-                console.log("Data Helper Booking: ", helperBookingResult);
+                // console.log("Data Helper Booking: ", helperBookingResult);
 
                 if (
                     passangerResult &&
@@ -381,14 +381,14 @@ const BookingForm = () => {
                     babyCount: baby,
                 },
             });
-            console.log("To Payment Page: ", {
-                seatSelectedDeparture,
-                seatSelectedReturn,
-                bookingIdResult,
-                adultCount: adult,
-                childCount: child,
-                babyCount: baby,
-            });
+            // console.log("To Payment Page: ", {
+            //     seatSelectedDeparture,
+            //     seatSelectedReturn,
+            //     bookingIdResult,
+            //     adultCount: adult,
+            //     childCount: child,
+            //     babyCount: baby,
+            // });
             toast.info("Silahkan Bayar.");
         }, 1000);
     };

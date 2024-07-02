@@ -142,7 +142,7 @@ const BookingDetail = () => {
                     const bookingData = await dispatch(
                         getBookingById(bookingIdResult)
                     );
-                    console.log("Booking:", bookingData);
+                    // console.log("Booking:", bookingData);
                     setBooking(bookingData[0]);
                     setSnapToken(bookingData[0]?.Payment?.snapToken);
 
@@ -157,15 +157,15 @@ const BookingDetail = () => {
                         const seatDeparture = await dispatch(
                             getSeatById(seatSelectedDeparture[0].seatId)
                         );
-                        console.log("Seat Departure:", seatDeparture);
+                        // console.log("Seat Departure:", seatDeparture);
                         if (seatDeparture.length > 0) {
                             const flightDepartureData = await dispatch(
                                 getFlightById(seatDeparture[0].flightId)
                             );
-                            console.log(
-                                "Flight Departure:",
-                                flightDepartureData
-                            );
+                            // console.log(
+                            //     "Flight Departure:",
+                            //     flightDepartureData
+                            // );
 
                             if (seatDeparture[0]?.airlineClass === "ECONOMY") {
                                 setSeatType("Economy");
@@ -189,12 +189,12 @@ const BookingDetail = () => {
                         const seatReturn = await dispatch(
                             getSeatById(seatSelectedReturn[0].seatId)
                         );
-                        console.log("Seat Return:", seatReturn);
+                        // console.log("Seat Return:", seatReturn);
                         if (seatReturn.length > 0) {
                             const flightReturnData = await dispatch(
                                 getFlightById(seatReturn[0].flightId)
                             );
-                            console.log("Flight Return:", flightReturnData);
+                            // console.log("Flight Return:", flightReturnData);
 
                             if (
                                 flightReturnData[0]?.airlineClass === "ECONOMY"

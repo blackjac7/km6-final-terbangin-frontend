@@ -188,20 +188,20 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
             return;
         }
 
-        console.log({
-            flightType,
-            departure,
-            iataCodeDeparture,
-            arrival,
-            iataCodeArrival,
-            departureDate,
-            returnDate,
-            seatType,
-            capacity,
-            adult,
-            child,
-            baby,
-        });
+        // console.log({
+        //     flightType,
+        //     departure,
+        //     iataCodeDeparture,
+        //     arrival,
+        //     iataCodeArrival,
+        //     departureDate,
+        //     returnDate,
+        //     seatType,
+        //     capacity,
+        //     adult,
+        //     child,
+        //     baby,
+        // });
 
         navigate("/find-ticket", {
             state: {
