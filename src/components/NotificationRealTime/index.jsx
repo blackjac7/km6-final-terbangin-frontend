@@ -69,50 +69,6 @@ const NotificationHandler = () => {
             }
         });
 
-        socket.current.on("bookingNotification", (data) => {
-            console.log("Received booking notification:", data);
-            toast.info(
-                <CustomToastMessage
-                    message={data?.message || "Received booking notification"}
-                    highlight={data?.highlight}
-                />,
-                {
-                    containerId: "navbarToast",
-                    closeOnClick: true,
-                }
-            );
-        });
-
-        socket.current.on("paymentSuccess", (data) => {
-            console.log("Received payment success notification:", data);
-            toast.success(
-                <CustomToastMessage
-                    message={data?.message || "Received payment notification"}
-                    highlight={data?.highlight || "Order ID"}
-                />,
-                {
-                    containerId: "navbarToast",
-                    autoClose: 5000,
-                    closeOnClick: true,
-                }
-            );
-        });
-
-        socket.current.on("paymentFailed", (data) => {
-            console.log("Received payment failed notification:", data);
-            toast.error(
-                <CustomToastMessage
-                    message={data?.message || "Received payment notification"}
-                    highlight={data?.highlight || "Order ID"}
-                />,
-                {
-                    containerId: "navbarToast",
-                    autoClose: 5000,
-                    closeOnClick: true,
-                }
-            );
-        });
-
         return () => {
             if (socket.current) {
                 socket.current.off("bookingNotification");
