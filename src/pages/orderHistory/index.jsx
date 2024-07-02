@@ -207,6 +207,9 @@ const OrderHistory = () => {
                         </div>
                     )}
                     <Col md={7}>
+                        {Object.keys(groupedHistorycards).length === 0 && (
+                            <Container className="my-3"></Container>
+                        )}
                         {Object.keys(groupedHistorycards).map((month) => (
                             <React.Fragment key={month}>
                                 <Container className="my-3">
