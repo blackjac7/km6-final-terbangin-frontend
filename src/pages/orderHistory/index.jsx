@@ -404,6 +404,10 @@ const HistoryDestination = ({
                                                         ?.EndAirport?.timezone
                                                 )
                                                 .format("DD MMMM yyyy")}
+                                            additionals={
+                                                booking?.Seat?.Flight?.Airline
+                                                    ?.additionals
+                                            }
                                         />
                                     )}
                                     {hasRoundtrip &&
@@ -494,6 +498,11 @@ const HistoryDestination = ({
                                                                 ?.timezone
                                                         )
                                                         .format("DD MMMM yyyy")}
+                                                    additionals={
+                                                        returnFlights[
+                                                            booking.bookingId
+                                                        ]?.Airline?.additionals
+                                                    }
                                                 />
                                             </>
                                         )}
