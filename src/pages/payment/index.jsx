@@ -295,7 +295,7 @@ const BookingDetail = () => {
                                 <>
                                     <DetailFlight
                                         TitleDetail={"Jadwal Berangkat"}
-                                        BookingCode={`Booking Code: ${booking?.bookingCode}`}
+                                        BookingCode={`${booking?.bookingCode}`}
                                         // BookingStatus
                                         departureTime={moment
                                             .tz(
@@ -389,7 +389,7 @@ const BookingDetail = () => {
                                         <hr />
                                         <DetailFlight
                                             TitleDetail={"Jadwal Pulang"}
-                                            BookingCode={`Booking Code: ${booking?.bookingCode}`}
+                                            BookingCode={`${booking?.bookingCode}`}
                                             // BookingStatus
                                             departureTime={moment
                                                 .tz(

@@ -38,7 +38,6 @@ const OrderHistory = () => {
     const [isActive, setIsActive] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-    const [detailHistory, setDetailHistory] = useState([]);
     const [filterStatus, setFilterStatus] = useState("");
     const socket = useSocket();
 

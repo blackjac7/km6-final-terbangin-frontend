@@ -9,6 +9,7 @@ import {
     Card,
     OverlayTrigger,
     Tooltip,
+    Spinner,
 } from "react-bootstrap";
 import {
     MenuItem,
@@ -44,6 +45,8 @@ const FindTicket = () => {
     const [flightIdDeparture, setflightIdDeparture] = useState("");
     const [flightIdReturn, setflightIdReturn] = useState("");
     const [isSelectingReturn, setIsSelectingReturn] = useState(false);
+    const [flightDatauser, setFlightDataUser] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     const navigate = useNavigate();
 
@@ -118,6 +121,13 @@ const FindTicket = () => {
     };
 
     useEffect(() => {
+        if (location.state) {
+            localStorage.setItem("flightData", JSON.stringify(location.state));
+            setFlightDataUser(location.state);
+        }
+    }, [location.state]);
+
+    useEffect(() => {
         const handleResize = () => {
             setIsFullScreen(window.innerWidth > 1160);
             setIsMobile(window.innerWidth < 768);
@@ -132,6 +142,7 @@ const FindTicket = () => {
 
     useEffect(() => {
         let temp;
+        setIsLoading(true);
         if (flightIdDeparture != "") {
             temp = departure;
             departure = arrival;
@@ -149,7 +160,7 @@ const FindTicket = () => {
                     "asc",
                     seatType
                 )
-            );
+            ).finally(() => setIsLoading(false));
             setIsSelectingReturn(true);
         } else {
             dispatch(
@@ -162,7 +173,7 @@ const FindTicket = () => {
                     "asc",
                     seatType
                 )
-            );
+            ).finally(() => setIsLoading(false));
             setIsSelectingReturn(false);
         }
     }, [
@@ -222,6 +233,7 @@ const FindTicket = () => {
                                 }
                                 isFullScreen={isFullScreen}
                                 isMobile={isMobile}
+                                flightDataUser={flightDatauser}
                                 onClick={handleCloseChangeFlight}
                             />
                         </Modal>
@@ -247,31 +259,40 @@ const FindTicket = () => {
             </HeaderShadow>
             {/* Main Content */}
             <Container>
-                <Row className={isFullScreen ? "pt-4 mx-5" : "pt-4"}>
-                    <Col>
-                        {lendata == false ? (
-                            <TicketNotFound />
-                        ) : (
-                            <FlightList
-                                flights={flights}
-                                dispatch={dispatch}
-                                datafiltering={{
-                                    seatType: seatType,
-                                    departure: flights[0]?.StartAirport?.city,
-                                    arrival: flights[0]?.EndAirport?.city,
-                                    departureDate: flights[0]?.departureAt,
-                                    flightType: flightType,
-                                    returnDate: flights[0]?.arrivalAt,
-                                }}
-                                flightIdDeparture={flightIdDeparture}
-                                flightIdReturn={flightIdReturn}
-                                setflightIdDeparture={setflightIdDeparture}
-                                setflightIdReturn={setflightIdReturn}
-                                handleSubmit={handleSubmit}
-                            />
-                        )}
-                    </Col>
-                </Row>
+                {isLoading ? ( // Show spinner while loading
+                    <div className="text-center my-5">
+                        <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                    </div>
+                ) : (
+                    <Row className={isFullScreen ? "pt-4 mx-5" : "pt-4"}>
+                        <Col>
+                            {lendata == false ? (
+                                <TicketNotFound />
+                            ) : (
+                                <FlightList
+                                    flights={flights}
+                                    dispatch={dispatch}
+                                    datafiltering={{
+                                        seatType: seatType,
+                                        departure:
+                                            flights[0]?.StartAirport?.city,
+                                        arrival: flights[0]?.EndAirport?.city,
+                                        departureDate: flights[0]?.departureAt,
+                                        flightType: flightType,
+                                        returnDate: flights[0]?.arrivalAt,
+                                    }}
+                                    flightIdDeparture={flightIdDeparture}
+                                    flightIdReturn={flightIdReturn}
+                                    setflightIdDeparture={setflightIdDeparture}
+                                    setflightIdReturn={setflightIdReturn}
+                                    handleSubmit={handleSubmit}
+                                />
+                            )}
+                        </Col>
+                    </Row>
+                )}
             </Container>
         </>
     );

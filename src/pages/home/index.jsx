@@ -12,10 +12,13 @@ import { useDispatch, useSelector } from "react-redux";
 import moment from "moment-timezone";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const Home = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [isFullScreen, setIsFullScreen] = useState(window.innerWidth > 1160);
+    const [flightDataUser, setFlightDataUser] = useState(null);
 
     useEffect(() => {
         const handleResize = () => {
@@ -28,6 +31,14 @@ const Home = () => {
 
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    useEffect(() => {
+        const flightData = localStorage.getItem("flightData");
+        if (flightData) {
+            const parsedData = JSON.parse(flightData);
+            setFlightDataUser(parsedData);
+        }
     }, []);
 
     return (
@@ -44,6 +55,7 @@ const Home = () => {
                         <span style={{ color: "#7126B5" }}>TerbangIn!</span>
                     </>
                 }
+                flightDataUser={flightDataUser}
             />
 
             <DestinationFavorit isFullScreen={isFullScreen} />
@@ -57,6 +69,7 @@ const DestinationFavorit = ({ isFullScreen }) => {
     const [sortContinent, setSortContinent] = useState("Asia");
     const { flights } = useSelector((state) => state.flight);
     const navigate = useNavigate();
+    const [loadingImages, setLoadingImages] = useState({});
 
     const getButtonStyle = (buttonId) => {
         return {
@@ -84,12 +97,13 @@ const DestinationFavorit = ({ isFullScreen }) => {
     const handleClick = (buttonId, value) => {
         setActiveButton(buttonId);
         setSortContinent(value);
+        // setLoadingImages({});
     };
 
     const getDatePlus30Days = () => {
         const today = new Date();
         const resultDate = new Date(today);
-        resultDate.setDate(today.getDate() + 10);
+        resultDate.setDate(today.getDate() + 3);
         return resultDate.toISOString().split("T")[0]; // Format YYYY-MM-DD
     };
 
@@ -112,6 +126,10 @@ const DestinationFavorit = ({ isFullScreen }) => {
                 baby: 0,
             },
         });
+    };
+
+    const handleImageLoad = (id) => {
+        setLoadingImages((prevState) => ({ ...prevState, [id]: true }));
     };
 
     useEffect(() => {
@@ -153,10 +171,10 @@ const DestinationFavorit = ({ isFullScreen }) => {
                             variant="secondary"
                             className="me-2 mt-2"
                         >
-                            <img
+                            {/* <img
                                 src={getSourceImages(button.id)}
                                 alt={`Tombol ${button.id}`}
-                            />
+                            /> */}
                             &nbsp;{button.label}
                         </Button>
                     ))}
@@ -175,17 +193,27 @@ const DestinationFavorit = ({ isFullScreen }) => {
                                 flexDirection: "column",
                             }}
                         >
+                            {!loadingImages[flight.id] && (
+                                <Skeleton
+                                    height={200}
+                                    style={{ width: "100%" }}
+                                />
+                            )}
                             <Card.Img
+                                key={flight.id}
                                 src={flight.EndAirport.picture}
                                 alt="End Airport"
-                                loading="lazy"
+                                // loading="lazy"
                                 style={{
                                     width: "100%",
                                     height: "200px",
                                     objectFit: "cover",
-                                    display: "block",
+                                    display: loadingImages[flight.id]
+                                        ? "block"
+                                        : "none",
                                     backgroundColor: "#f0f0f0",
                                 }}
+                                onLoad={() => handleImageLoad(flight.id)}
                             />
                             <Card.Body style={{ flex: "1 1 auto" }}>
                                 <TextWithTooltip

@@ -14,6 +14,7 @@ export const SocketProvider = ({ children }) => {
         socket.current = io(import.meta.env.VITE_SOCKET_URL, {
             reconnectionAttempts: Infinity,
             reconnectionDelay: 2000,
+            secure: true,
         });
 
         socket.current.on("connect", () => {

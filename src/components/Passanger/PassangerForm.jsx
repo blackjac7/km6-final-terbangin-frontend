@@ -1,4 +1,12 @@
 import { Form } from "react-bootstrap";
+import {
+    TextField,
+    FormControl,
+    FormHelperText,
+    FormLabel,
+} from "@mui/material";
+import { useState, useEffect } from "react";
+import countriesJSON from "../../data/countries.json";
 
 const PassangerForm = ({
     isSaved,
@@ -7,6 +15,12 @@ const PassangerForm = ({
     passanger,
     errors,
 }) => {
+    const [countries, setCountries] = useState([]);
+
+    useEffect(() => {
+        setCountries(countriesJSON);
+    }, []);
+
     return (
         <Form className="mb-4" key={`${passanger.type}-${passanger.index}`}>
             <div
@@ -212,8 +226,7 @@ const PassangerForm = ({
                         Kewarganegaraan
                     </Form.Label>
                     <Form.Control
-                        type="text"
-                        placeholder="Indonesia"
+                        as="select"
                         readOnly={isSaved}
                         value={passanger.nationality}
                         onChange={(e) =>
@@ -229,7 +242,14 @@ const PassangerForm = ({
                                 `${passanger.type}-${passanger.index}-nationality`
                             ]
                         }
-                    />
+                    >
+                        <option value="">Pilih Kewarganegaraan</option>
+                        {countries.map((country) => (
+                            <option key={country.code} value={country.name}>
+                                {country.name}
+                            </option>
+                        ))}
+                    </Form.Control>
                     <Form.Control.Feedback type="invalid">
                         {
                             errors[
@@ -250,6 +270,7 @@ const PassangerForm = ({
                     </Form.Label>
                     <Form.Control
                         type="text"
+                        inputMode="numeric"
                         readOnly={isSaved}
                         value={passanger.idNumber}
                         onChange={(e) =>
@@ -257,15 +278,19 @@ const PassangerForm = ({
                                 passanger.type,
                                 passanger.index,
                                 "idNumber",
-                                e.target.value
+                                e.target.value.replace(/\D/g, "")
                             )
                         }
+                        onInput={(e) => {
+                            e.target.value = e.target.value.replace(/\D/g, "");
+                        }}
                         isInvalid={
                             !!errors[
                                 `${passanger.type}-${passanger.index}-idNumber`
                             ]
                         }
                     />
+
                     <Form.Control.Feedback type="invalid">
                         {
                             errors[
@@ -285,7 +310,7 @@ const PassangerForm = ({
                         Negara Penerbit
                     </Form.Label>
                     <Form.Control
-                        type="text"
+                        as="select"
                         readOnly={isSaved}
                         value={passanger.issuingCountry}
                         onChange={(e) =>
@@ -301,7 +326,14 @@ const PassangerForm = ({
                                 `${passanger.type}-${passanger.index}-issuingCountry`
                             ]
                         }
-                    />
+                    >
+                        <option value="">Pilih Negara Penerbit</option>
+                        {countries.map((country) => (
+                            <option key={country.code} value={country.name}>
+                                {country.name}
+                            </option>
+                        ))}
+                    </Form.Control>
                     <Form.Control.Feedback type="invalid">
                         {
                             errors[

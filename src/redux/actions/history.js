@@ -44,9 +44,9 @@ export const getHistoryCards = (value) => async (dispatch, getState) => {
                 break;
             default:
                 dispatch(setHistoryCards([]));
-                toast.info(
-                    "Tidak ada riwayat penerbangan, silahkan pesan tiket terlebih dahulu"
-                );
+            // toast.info(
+            //     "Tidak ada riwayat penerbangan, silahkan pesan tiket terlebih dahulu"
+            // );
         }
     }
 };
