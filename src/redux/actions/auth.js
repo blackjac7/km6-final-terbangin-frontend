@@ -67,7 +67,7 @@ export const loginWithGoogle = (navigate, accessToken) => async (dispatch) => {
 
     try {
         const response = await axios.request(config);
-        // console.log("loginWithGoogle -> ", response);
+        console.log("loginWithGoogle -> ", response);
 
         // get and save the token to local storage
         const { data } = response.data;

@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const SeatSelectionComponent = ({
     title,
@@ -16,6 +17,7 @@ const SeatSelectionComponent = ({
     child,
     // baby,
     capacity,
+    isBookingSuccess,
 }) => {
     const [totalSeats, setTotalSeats] = useState(seatArrayAll?.length ?? 0);
     const [seatCols] = useState(6);
@@ -31,8 +33,15 @@ const SeatSelectionComponent = ({
     }, [seatSelected]);
 
     const initializeSeats = (seatArray) => {
-        if (seatArrayAll === undefined) {
-            navigate("/not-found");
+        if (seatAvailable === undefined) {
+            navigate(-1);
+
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Maaf, kursi belum di tambahkan silahkan pilih penerbangan lain!",
+            });
+            return;
         }
         const sortedSeatArray = [...seatArray].sort(
             (a, b) => a.seatNumber - b.seatNumber
@@ -152,6 +161,27 @@ const SeatSelectionComponent = ({
             return updatedSeats;
         });
     };
+
+    useEffect(() => {
+        if (isBookingSuccess) {
+            setSeats((prevSeats) => {
+                const updatedSeats = prevSeats.map((row) =>
+                    row.map((seat) => ({
+                        ...seat,
+                        isSelected: false,
+                        color: "white",
+                        adult: 0,
+                        child: 0,
+                        code: null,
+                    }))
+                );
+                setAdultSeats(0);
+                setChildSeats(0);
+                setSeatSelected([]);
+                return updatedSeats;
+            });
+        }
+    }, [isBookingSuccess]);
 
     const determineSeatColor = (seatNumber) => {
         if (seatNumber < 7 && seatNumber > 0) {

@@ -39,6 +39,7 @@ export const getNotificationByUserId =
         };
 
         try {
+            dispatch(setNotifications([]));
             const response = await axios.request(config);
             const { data } = response?.data;
             if (data?.length > 0) {

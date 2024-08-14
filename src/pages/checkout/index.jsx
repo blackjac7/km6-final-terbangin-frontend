@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Form, Row, Col, Container, Card, Button } from "react-bootstrap";
 import { Breadcrumbs, Link } from "@mui/material";
@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getFlightById } from "../../redux/actions/flight";
-import { getSeatByFlightId } from "../../redux/actions/seat";
+import { getSeatByFlightId, getSeatById } from "../../redux/actions/seat";
 import moment from "moment-timezone";
 import { useSocket } from "../../components/SocketContext";
 
@@ -61,7 +61,7 @@ const BookingForm = () => {
     const [departureTotalPrice, setDepartureTotalPrice] = useState(0);
     const [returnTotalPrice, setReturnTotalPrice] = useState(0);
     const [bookingIdResult, setBookingIdResult] = useState("");
-    const [isPaymentSuccess, setIsPaymentSuccess] = useState(false);
+    const [isBookingSuccess, setIsBookingSuccess] = useState(false);
     const socket = useSocket();
 
     const initialPassangerState = {
@@ -246,17 +246,29 @@ const BookingForm = () => {
 
     useEffect(() => {
         fetchData();
-        setIsPaymentSuccess(false);
-    }, [dispatch, flightDeparture, flightReturn, seatType, isPaymentSuccess]);
+        setIsBookingSuccess(false);
+    }, [
+        dispatch,
+        flightDeparture,
+        flightReturn,
+        seatType,
+        isBookingSuccess,
+        airlineClass,
+    ]);
 
     useEffect(() => {
         if (!user || !socket.current) {
             return;
         }
 
-        socket.current.on("seatsUpdate", (message) => {
-            // console.log("Payment successful, updating seat data");
-            setIsPaymentSuccess(true);
+        socket.current.on("seatsUpdate", (data) => {
+            if (
+                (data.flightId === flightIdDeparture ||
+                    data.flightId === flightIdReturn) &&
+                data.airlineClass === airlineClass
+            ) {
+                setIsBookingSuccess(true);
+            }
         });
 
         return () => {
@@ -264,7 +276,7 @@ const BookingForm = () => {
                 socket.current.off("seatsUpdate");
             }
         };
-    }, [socket.current]);
+    }, [socket.current, airlineClass]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -304,6 +316,41 @@ const BookingForm = () => {
                     generateSnapPayment({ totalPrice: price })
                 );
                 // console.log("Data Pembayaran: ", paymentResult);
+
+                // Check seat availability for departure and return seats
+                const isSeatAvailableDeparture = await Promise.all(
+                    seatSelectedDeparture.map(async (seat) => {
+                        const seatDeparture = await dispatch(
+                            getSeatById(seat.seatId)
+                        );
+                        return seatDeparture[0].isAvailable;
+                    })
+                );
+
+                const isSeatAvailableReturn = await Promise.all(
+                    seatSelectedReturn.map(async (seat) => {
+                        const seatReturn = await dispatch(
+                            getSeatById(seat.seatId)
+                        );
+                        return seatReturn[0].isAvailable;
+                    })
+                );
+
+                // Check if any seat is not available
+                if (
+                    isSeatAvailableDeparture.includes(false) ||
+                    (flightIdReturn && isSeatAvailableReturn.includes(false))
+                ) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Kursi sudah dipesan",
+                        text: "Kursi yang Anda pilih sudah dipesan oleh pengguna lain. Silahkan pilih kursi lain.",
+                        confirmButtonColor: "#7126B5",
+                    });
+                    setSaveDisabled(false);
+                    onSeatsSelected([]);
+                    return;
+                }
 
                 let bookingData = {
                     userId: user?.id,
@@ -367,7 +414,6 @@ const BookingForm = () => {
 
     const handleSubmitPayment = (e) => {
         e.preventDefault();
-        const price = totalPrice ? totalPrice : departureTotalPrice;
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
@@ -613,6 +659,7 @@ const BookingForm = () => {
                             child={child}
                             // baby={baby}
                             capacity={capacityUser}
+                            isBookingSuccess={isBookingSuccess}
                         />
                         {flightIdReturn && (
                             <SeatSelectionComponent
@@ -626,6 +673,7 @@ const BookingForm = () => {
                                 child={child}
                                 // baby={baby}
                                 capacity={capacityUser}
+                                isBookingSuccess={isBookingSuccess}
                             />
                         )}
 

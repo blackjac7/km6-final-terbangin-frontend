@@ -1,6 +1,6 @@
 import Switch from "@mui/material/Switch";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import StartAirportSearchComponent from "../AutoComplete/startAirports";
@@ -32,7 +32,13 @@ import "./form.css";
 import RecommendationList from "../RecomendationList";
 import dayjs from "dayjs";
 
-const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
+const FormArea = ({
+    title,
+    isFullScreen,
+    isMobile,
+    onClick,
+    flightDataUser,
+}) => {
     const navigate = useNavigate();
 
     const [showInput2, setShowInput2] = useState(false);
@@ -55,6 +61,28 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
     const [baby, setBaby] = useState(0);
     const [switchChecked, setSwitchChecked] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (flightDataUser) {
+            setDeparture(flightDataUser.departure);
+            setIataCodeDeparture(flightDataUser.iataCodeDeparture);
+            setArrival(flightDataUser.arrival);
+            setIataCodeArrival(flightDataUser.iataCodeArrival);
+            setFlightType(flightDataUser.flightType);
+            setDate1(dayjs(flightDataUser.departureDate));
+            setDate2(dayjs(flightDataUser.returnDate));
+            setSeatType(flightDataUser.seatType);
+            setCapacity(flightDataUser.capacity);
+            setAdult(flightDataUser.adult);
+            setChild(flightDataUser.child);
+            setBaby(flightDataUser.baby);
+
+            if (flightDataUser.flightType === "Return") {
+                setSwitchChecked(true);
+                setShowInput2(true);
+            }
+        }
+    }, [flightDataUser]);
 
     const handleDateChange1 = (newValue) => {
         setDate1(newValue);
@@ -154,6 +182,7 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
     const handleSubmit = (e) => {
         setLoading(true);
         e.preventDefault();
+        localStorage.removeItem("flightData");
         const departureDate = date1 ? date1.format("YYYY-MM-DD") : null;
         const returnDate = date2 ? date2.format("YYYY-MM-DD") : null;
 
@@ -283,10 +312,7 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
                                             variant="standard"
                                             value={
                                                 departure
-                                                    ? departure +
-                                                      " (" +
-                                                      iataCodeDeparture +
-                                                      ")"
+                                                    ? `${departure} (${iataCodeDeparture})`
                                                     : ""
                                             }
                                             onClick={() =>
@@ -388,10 +414,7 @@ const FormArea = ({ title, isFullScreen, isMobile, onClick }) => {
                                             variant="standard"
                                             value={
                                                 arrival
-                                                    ? arrival +
-                                                      " (" +
-                                                      iataCodeArrival +
-                                                      ")"
+                                                    ? `${arrival} (${iataCodeArrival})`
                                                     : ""
                                             }
                                             onClick={() =>

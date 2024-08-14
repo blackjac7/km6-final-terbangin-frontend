@@ -19,7 +19,7 @@ import HeaderShadow from "../../components/HeaderShadow";
 
 const NotificationPage = () => {
     const dispatch = useDispatch();
-    const userId = useSelector((state) => state.auth.user?.id);
+    const { user } = useSelector((state) => state.auth);
     const notifications = useSelector(
         (state) => state.notification.notifications
     );
@@ -30,10 +30,10 @@ const NotificationPage = () => {
     const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
-        if (userId) {
-            dispatch(getNotificationByUserId(userId));
+        if (user) {
+            dispatch(getNotificationByUserId(user.id));
         }
-    }, [dispatch, userId]);
+    }, [dispatch, user]);
 
     const handleFilterChange = (status) => {
         setFilterStatus(status);
